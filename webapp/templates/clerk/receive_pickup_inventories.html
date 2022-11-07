@@ -1,0 +1,165 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Жолоочоос Хүлээж Авах</h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                {{ form.date.label(class="form-control-label") }}
+                                {% if form.date.errors %}
+                                    {{ form.date(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.date(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 align-self-center">
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                        <div class="table-responsive-sm">
+                            <table id="example" class="table table-hover display">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="bg-grad">#</th>
+                                        <th scope="col" class="bg-grad">Харилцагч</th>
+                                        <th scope="col" class="bg-grad">Барааны нэр</th>
+                                        <th scope="col" class="bg-grad">Хэнээс</th>
+                                        <th scope="col" class="bg-grad">Бараа авах огноо</th>
+                                        <th scope="col" class="bg-grad">Төлөв</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for pickup in pickups %}
+                                        <tr>
+                                            <td class="fw-bold">{{ loop.index }}.</td>
+                                            <th scope="col" class="bg-grad">{{ pickup.supplier_company }}</th>
+                                            <td class="fw-bold">
+                                                {% if pickup.supplier_type == "supplier1" %}
+                                                    {% for detail in pickup.pickup_details %}
+                                                        <p>{{ loop.index }}.
+                                                            {{ detail.product.name }},
+                                                            {{ detail.product.colors | first }},
+                                                            {{ detail.product.sizes | first }},
+                                                            {{ detail.quantity }}ш</p>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    {% for detail in pickup.pickup_details %}
+                                                        {% if detail.destination_type == "local" %}
+                                                            <p>{{ loop.index }}.
+                                                                {{ detail.phone }},
+                                                                {{ detail.district }},
+                                                                {{ detail.khoroo }},
+                                                                {{ detail.address }},
+                                                                {{ detail.payment_type }}, авах дүн:
+                                                                {{ detail.total_amount }}</p>
+                                                        {% elif detail.destination_type == "long" %}
+                                                            <p>{{ loop.index }}.
+                                                                {{ detail.phone }},
+                                                                {{ detail.aimag }},
+                                                                {{ detail.address }},
+                                                                {{ detail.payment_type }}, авах дүн:
+                                                                {{ detail.total_amount }}</p>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                <p class="text-success fw-bold">
+                                                    {% if pickup.driver_name %}
+                                                        {{ pickup.driver_name }}
+                                                    {% endif %}
+                                                </p>
+                                            </td>
+                                            <td class="text-center text-nowrap">
+                                                {% if pickup.pickup_date %}
+                                                    {{ pickup.pickup_date.strftime('%Y-%m-%d') }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                {% if pickup.is_received %}
+                                                    <p>Хүлээж авсан.({{ pickup.clerk_received_date}})</p>
+                                                {% else %}
+                                                    {% if pickup.status == "pickedup" %}
+                                                        <a class="btn btn-outline-success" href="{{ url_for('clerk_receive.clerk_accept_pickup_inventories', pickup_task_id=pickup.id)}}">Хүлээж Авах</a>
+                                                    {% else %}
+                                                        <p class="fw-bold text-danger">Жолооч аваагүй байна!</p>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    -->
+    <!-- END Products -->
+
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                paging: false,
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGE_ -c _PAGES_",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+
+                }
+            });
+        });
+    </script>
+{% endblock main %}

@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- ORDER DETAIL-->
+    <div class="container-fluid mt-5" style="width: 90%;">
+        <div class="row">
+            <div class="col-sm-12 mb-5">
+                <h3 class="custom-header mb-4">Ажил ID: {{ order.id }}</h3>
+                <br>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="table-responsive-sm">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="bg-grad">ID</th>
+                                        <th scope="col" class="bg-grad">Байгууллага</th>
+                                        <th scope="col" class="bg-grad">Төлөв</th>
+                                        <th scope="col" class="bg-grad">Хүргэх огноо</th>
+                                        <th scope="col" class="bg-grad">Хаяг/Утас</th>
+                                        <th scope="col" class="bg-grad">Бараа</th>
+                                        <th scope="col" class="bg-grad">Бүс</th>
+                                        <th scope="col" class="bg-grad">Жолооч</th>
+                                        <th scope="col" class="bg-grad">Дүн</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td scope="row"><p class="fw-bold">{{ order.id }}</p></td>
+                                        <td>
+                                            <p class="fw-bold">{{ order.supplier_company_name }}</p>
+                                        </td>
+                                        <td>
+                                            {% if order.status == "unassigned" %}
+                                                {% if order.is_postphoned %}
+                                                    <p class="text-info fw-bold">хойшлуулсан</p>
+                                                    <p>хойшлуулсан огноо: {{ order.postphoned_date | datefilter }}</p>
+                                                    <p>Шалтгаан: {{ order.driver_comment }}</p>
+                                                {% else %}
+                                                    <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
+                                                {% endif %}
+                                            {% elif order.status == "assigned" %}
+                                                <p class="text-success fw-bold">жолооч хүргэлтэнд гарсан байна</p>
+                                            {% elif order.status == "started" %}
+                                                <p class="fw-bold" style="color: coral;">хүргэгдэхээр явж байна</p>
+                                            {% elif order.status == "completed" %}
+                                            <p class="text-success fw-bold">хүргэгдсэн</p>
+                                            {% elif order.status == "cancelled" %}
+                                                <p class="text-danger fw-bold">цуцлагдсан</p>
+                                                <p>Шалтгаан:
+                                                    {{ order.driver_comment }}</p>
+                                            {% elif order.status == "postphoned" %}
+                                                <p class="text-info fw-bold">хойшлуулсан</p>
+                                                <p>хойшлуулсан огноо:
+                                                    {{ order.postphoned_date }}</p>
+                                                <p>Шалтгаан:
+                                                    {{ order.driver_comment }}</p>
+                                            {% endif %}
+
+                                            {% if order.status == "assigned" or order.status == "unassigned" %}
+                                                <div class="mt-5" style="min-width: 150px;">
+                                                    {{ form.current_status.label(class="form-control-label") }}
+                                                    {{ form.current_status(class="form-control") }}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <p>{{ order.delivery_date.strftime('%Y-%m-%d') }}</p>
+                                            {% if order.status == "assigned" or order.status == "unassigned" %}
+                                                <div class="mt-5" style="min-width: 150px;">
+                                                    {{ form.date.label(class="form-control-label") }}
+                                                    {% if form.date.errors %}
+                                                        {{ form.date(class="form-control is-invalid") }}
+                                                        <div class="invalid-feedback">
+                                                            {% for error in form.date.errors %}
+                                                                <span>{{ error }}</span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        {{ form.date(class="form-control") }}
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if order.addresses.city is not none %}
+                                                {{ order.addresses.city }},
+                                            {% endif %}
+
+                                            {% if order.addresses.district is not none %}
+                                                {{ order.addresses.district }},
+                                            {% endif %}
+
+                                            {% if order.addresses.khoroo is not none %}
+                                                {{ order.addresses.khoroo }},
+                                            {% endif %}
+
+                                            {% if order.addresses.aimag is not none %}
+                                                {{ order.addresses.aimag }},
+                                            {% endif %}
+
+                                            {{ order.addresses.address }},
+                                            {{ order.addresses.phone }},
+                                            {{ order.addresses.phone_more }}
+                                        </td>
+                                        <td>
+                                            {% if order.order_type == "stored" %}
+                                                {% set odpt = namespace (order_payment_type = "") %}
+                                                {% for order_detail in order.delivery_details %}
+                                                    <p>
+                                                        {{ order_detail.products.name }},
+                                                        {{ order_detail.quantity }}
+                                                        ширхэг,
+                                                        {% set odpt.order_payment_type = order_detail.payment_type %}
+                                                        ₮{{ (order_detail.products.price)  | round | int | numberFormat }}
+                                                    </p>
+                                                {% endfor %}
+                                            {% else %}
+                                                {{ order.total_amount }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if order.delivery_region %}
+                                                <p class="fw-bold text-success">{{ order.delivery_region }}</p>
+                                            {% else %}
+                                                <p class="fw-bold text-danger">Бүс хувиарлаагүй</p>
+                                            {% endif %}
+                                            {% if order.status == "assigned" or order.status == "unassigned" %}
+                                                <div class="mt-5" style="min-width: 150px;">
+                                                    {{ form.select_regions(class="form-control") }}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if order.assigned_driver_name %}
+                                                <p class="fw-bold">{{ order.assigned_driver_name }}</p>
+                                            {% else %}
+                                                <p class="fw-bold text-danger">Жолооч хувиарлаагүй</p>
+                                            {% endif %}
+                                            {% if order.status == "assigned" or order.status == "unassigned" %}
+                                                <div class="mt-5" style="min-width: 150px;">
+                                                    {{ form.select_drivers(class="form-control") }}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <th style=" text-align: end;">₮{{ order.total_amount  | round | int | numberFormat }}</th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="float-end">
+                                {% if order.status == "assigned" or order.status == "unassigned" %}
+                                    {{ form.submit(class="btn btn-outline-success m-0") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END ORDER DETAIL -->
+{% endblock main %}

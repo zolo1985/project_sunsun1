@@ -1,0 +1,77 @@
+.custom-nav-item {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 1rem;
+    margin: 0.8rem;
+}
+
+.custom-header {
+    font-weight: 600;
+}
+
+th, td {
+    padding: 15px !important;
+}
+
+.text-primary {
+    color: rgb(54, 163, 38);
+}
+
+.alert {
+    margin: auto;
+    border: 0px;
+    padding: 20px 20px 20px 20px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.alert-danger {
+    background-color:orangered;
+    color: white;
+}
+
+.alert-info {
+    background-color:steelblue;
+    color: white;
+}
+
+.alert-success {
+    background: linear-gradient(150deg, #97c74e 0%, #2ab9a5 100%);
+    color: white;
+}
+
+.alert-warning {
+    background-color:rgb(255, 181, 7);
+    color: white;
+}
+
+.vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}
+
+.btn {
+    border-radius: 50px;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+ 
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}

@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Агуулах үлдэгдэл</h3>
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">ID</th>
+                                    <th scope="col" class="bg-grad">Барааны нэр</th>
+                                    <th scope="col" class="bg-grad">Өнгө</th>
+                                    <th scope="col" class="bg-grad">Хэмжээ</th>
+                                    <th scope="col" class="bg-grad">Үлдэгдэл Тоо</th>
+                                    <th scope="col" class="bg-grad">Нэгж үнэ</th>
+                                    <th scope="col" class="bg-grad">Нийт үнэ</th>
+                                    <th scope="col" class="bg-grad">Хаана(Хэнд)</th>
+                                    <th scope="col" class="bg-grad">Нярав хүлээж авсан</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for inventory in inventories %}
+                                    <tr class="header">
+                                        <td scope="row">{{ inventory.id }}</td>
+                                        <td>
+                                            <a class="show-more" style="color:black; font-weight: 700; font-size: 16px;">{{ inventory.total_inventory_product.name }}</a>
+                                        </td>
+                                        <td>{{ inventory.total_inventory_product.colors }}</td>
+                                        <td>{{ inventory.total_inventory_product.sizes }}</td>
+                                        <td>{{ (inventory.quantity + inventory.cancelled_quantity + inventory.postphoned_quantity) | round | int | numberFormat }}</td>
+                                        <td>{{ inventory.total_inventory_product.price | round | int | numberFormat }}</td>
+                                        <td>{{ (inventory.total_inventory_product.price*inventory.quantity) | round | int | numberFormat }}</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    {% for inven in inventory.total_inventories %}
+                                    <tr style="background-color: rgb(223, 223, 223);">
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>{{ inven.quantity | round | int | numberFormat }}</td>
+                                        <td>{{ (inventory.total_inventory_product.price) | round | int | numberFormat }}</td>
+                                        <td>{{ (inven.quantity * inventory.total_inventory_product.price) | round | int | numberFormat }}</td>
+                                        <td>
+                                            {% if inven.clerk_name is none %}
+                                                {{ inven.driver_name }}
+                                            {% else %}
+                                                {{ inven.clerk_name }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if inven.status == true %}
+                                                авсан ({{ inven.clerk_accepted_date }})
+                                            {% else %}
+                                                хүлээгдэж байна
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Агуулахруу явж байгаа ачаа</h3>
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">#</th>
+                                    <th scope="col" class="bg-grad">Барааны нэр</th>
+                                    <th scope="col" class="bg-grad">Өнгө</th>
+                                    <th scope="col" class="bg-grad">Хэмжээ</th>
+                                    <th scope="col" class="bg-grad">Тоо</th>
+                                    <th scope="col" class="bg-grad">Нэгж үнэ</th>
+                                    <th scope="col" class="bg-grad">Нийт үнэ</th>
+                                    <th scope="col" class="bg-grad">Хаана(Хэнд)</th>
+                                    <th scope="col" class="bg-grad">Нярав хүлээж авсан</th>
+                                </tr>
+                            </thead>
+                            {% for transit_inventory in transit_inventories %}
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">{{ loop.index }}.</th>
+                                        <td>{{ transit_inventory.product_name }}</td>
+                                        <td>{{ transit_inventory.color_name }}</td>
+                                        <td>{{ transit_inventory.size_name }}</td>
+                                        <td>{{ transit_inventory.quantity | round | int | numberFormat }}</td>
+                                        <td style="text-align: end;">₮{{ transit_inventory.product_price | round | int | numberFormat }}</td>
+                                        <td style="text-align: end;">₮{{ (transit_inventory.product_price*transit_inventory.quantity) | round | int | numberFormat }}</td>
+                                        <td>
+                                            {{ transit_inventory.driver_name }}({{ transit_inventory.role_name }})
+                                        </td>
+                                        <td>
+                                            {% if transit_inventory.status == true %}
+                                                авсан
+                                            {% else %}
+                                                хүлээгдэж байна
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END Products -->
+    <script>
+        $('.show-more').click(function () {
+            $('.header').toggleClass('expand').nextUntil('tr.header').slideToggle(100);
+        });
+    </script>
+{% endblock main %}

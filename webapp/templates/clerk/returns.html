@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block main %}
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Хойшлуулсан/Цуцлагдсан захиалгууд хүлээж авах</h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                {{ form.date.label(class="form-control-label") }}
+                                {% if form.date.errors %}
+                                    {{ form.date(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.date(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 align-self-center">
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">Харилцагч</th>
+                                    <th scope="col" class="bg-grad">Бараа</th>
+                                    <th scope="col" class="bg-grad">Хүргэлт</th>
+                                    <th scope="col" class="bg-grad">Хэнээс</th>
+                                    <th scope="col" class="bg-grad"></th>
+                                </tr>
+                            </thead>
+                            {% for return in returns %}
+                                <tbody>
+                                    <tr>
+                                        <td><p class="fw-bold">{{ loop.index }}. {{ return.delivery.supplier_company_name }}</p></td>
+                                        <td>
+                                            {% if return.delivery.order_type == "unstored" %}
+                                                {{ return.delivery.delivery_details[0].phone }}
+                                            {% elif return.delivery.order_type == "stored"%}
+                                                {% for detail in return.delivery.delivery_details %}
+                                                    <p>{{ detail.products.name }}, {{ detail.quantity }} ширхэг.</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if return.delivery_status == "postphoned" %}
+                                                <p class="text-info fw-bold">Хүргэлт: {{ return.delivery.id}} - Хойшилсон</p>
+                                            {% elif return.delivery_status == "cancelled" %}
+                                                <p class="text-danger fw-bold">Хүргэлт: {{ return.delivery.id}} - Цуцалсан</p>
+                                            {% endif %}
+                                        </td>
+                                        <td><p class="fw-bold">{{ return.driver_name }}</p></td>
+                                        <td>
+                                            {% if return.is_returned %}
+                                                <p class="fw-bold text-success">авсан ({{ return.returned_date }})</p>
+                                            {% else %}
+                                                {% if return.delivery_status=="postphoned" %}
+                                                    <a class="btn btn-outline-success" href="{{ url_for('clerk_returns.clerk_postphoned_order', return_id=return.id) }}">Буцааж Авах</a>
+                                                {% elif return.delivery_status=="cancelled" %}
+                                                    <a class="btn btn-outline-success" href="{{ url_for('clerk_returns.clerk_cancelled_order', return_id=return.id) }}">Буцааж Авах</a>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock main %}

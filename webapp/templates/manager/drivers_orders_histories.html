@@ -1,0 +1,146 @@
+{% extends "layout.html" %}
+{% block main %}
+    <div class="container-fluid mt-5 min-vh-100" style="width: 80%;">
+        <div class="row">
+            <div class="col-sm-12 mb-5">
+                <h3 class="custom-header mb-4">Жолоочийн ажлын түүх</h3>
+                <form id="form" method="POST" action="">
+                    {{ form.csrf_token }}
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            {{ form.date.label(class="form-control-label") }}
+                            {% if form.date.errors %}
+                                {{ form.date(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.date.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.date(class="form-control") }}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form.select_drivers.label(class="form-control-label") }}
+                            {% if form.select_drivers.errors %}
+                                {{ form.select_drivers(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.select_drivers.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.select_drivers(class="form-control") }}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 align-self-center">
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
+                        </div>
+                    </div>
+                </form>
+                    {% if orders|length > 0 %}
+                    <div class="table-responsive-sm">
+                        <table id="example" class="table table-hover display">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">Төрөл</th>
+                                    <th scope="col" class="bg-grad">Захиалгын ID</th>
+                                    <th scope="col" class="bg-grad">Төлөв</th>
+                                    <th scope="col" class="bg-grad">Огноо</th>
+                                    <th scope="col" class="bg-grad">Хаяг/Утас</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td scope="row">
+                                        {% if order.type == "pickup" %}
+                                            Таталт
+                                        {% elif order.type == "delivery" %}
+                                            Хүргэлт
+                                        {% endif %}
+                                    </td>
+                                    <td scope="row">
+                                        {% if order.delivery_id %}
+                                            <a href="{{ url_for('manager_order.manager_order_detail', order_id=order.delivery_id)}}">{{ order.delivery_id }}</a>
+                                        {% elif order.task_id %}
+                                            <p>{{ order.task_id }}</p>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if order.delivery_status == "assigned" %}
+                                            <p class="text-primary fw-bold">хувиарлагдсан</p>
+                                        {% elif order.delivery_status == "started" %}
+                                            <p class="text-info fw-bold">одоо хүргэгдэж байна</p>
+                                        {% elif order.delivery_status == "completed" %}
+                                            <p class="text-success fw-bold">хүргэгдсэн</p>
+                                        {% elif order.delivery_status == "cancelled" %}
+                                            <p class="text-danger fw-bold">цуцлагдсан</p>
+                                        {% elif order.delivery_status == "postphoned" %}
+                                            <p class="text-info fw-bold">хойшлуулсан</p>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">{{ order.delivery_date }}</td>
+                                    <td>{{ order.address}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                paging: false,
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [50, 100, 200, 500],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGE_ -c _PAGES_",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа",
+                    }
+                    
+                }
+            });
+        });
+    </script>
+{% endblock main %}

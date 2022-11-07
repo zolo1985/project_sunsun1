@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container">
+            <div class="row">
+
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Бараа таталт</h3>
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">#</th>
+                                    <th scope="col" class="bg-grad">Хариулцагч</th>
+                                    <th scope="col" class="bg-grad">Төлөв</th>
+                                    <th scope="col" class="bg-grad">Жолооч</th>
+                                </tr>
+                            </thead>
+                            {% for pickup in pickups %}
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">{{ loop.index }}.</th>
+                                        <td>{{ pickup.order_from }}</td>
+                                        <td style="text-align: end;">{{ pickup.order_status }}</td>
+                                        <td style="text-align: end;">
+                                            {% if pickup.driver_name %}
+                                                {{ pickup.driver_name }}
+                                            {% else %}
+                                                <p>Жолооч хувиарлагдаагүй байна.</p>
+                                                {{ pickup.quantity }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END Products -->
+{% endblock main %}

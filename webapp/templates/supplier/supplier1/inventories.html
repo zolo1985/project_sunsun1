@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Агуулах үлдэгдэл</h3>
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">ID</th>
+                                    <th scope="col" class="bg-grad">Барааны нэр</th>
+                                    <th scope="col" class="bg-grad">Өнгө</th>
+                                    <th scope="col" class="bg-grad">Хэмжээ</th>
+                                    <th scope="col" class="bg-grad">Үлдэгдэл</th>
+                                    <th scope="col" class="bg-grad">Нэгж үнэ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for inventory in inventories %}
+                                    <tr class="header">
+                                        <td scope="row">{{ inventory.id }}</td>
+                                        <td>
+                                            <a class="show-more" style="color:black; font-weight: 700; font-size: 16px;">{{ inventory.total_inventory_product.name }}</a>
+                                        </td>
+                                        <td>{{ inventory.total_inventory_product.colors | first }}</td>
+                                        <td>{{ inventory.total_inventory_product.sizes | first }}</td>
+                                        <td>{{ (inventory.quantity + inventory.cancelled_quantity + inventory.postphoned_quantity) | round | int | numberFormat }} ширхэг</td>
+                                        <td>{{ inventory.total_inventory_product.price | round | int | numberFormat }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END Products -->
+    <script>
+        $('.show-more').click(function () {
+            $('.header').toggleClass('expand').nextUntil('tr.header').slideToggle(100);
+        });
+    </script>
+{% endblock main %}

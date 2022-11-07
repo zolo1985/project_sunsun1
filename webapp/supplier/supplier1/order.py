@@ -1,0 +1,578 @@
+from io import BytesIO
+from flask import (Blueprint, flash, redirect, render_template, request,
+                   url_for, abort, send_file)
+from webapp import has_role
+from flask_login import current_user, login_required
+from webapp import models
+from webapp.database import Connection
+from webapp.supplier.supplier1.forms import OrderDetailLocalAddForm, FiltersForm, OrderDetailLongDistanceAddForm, OrderDetailFileAddForm, SubmitFileOrders
+from datetime import datetime, time, timedelta
+from sqlalchemy import func
+import logging
+from webapp.utils import is_time_between
+import pandas as pd
+from openpyxl import Workbook
+from openpyxl.worksheet.datavalidation import DataValidation
+import pytz
+
+log = logging.getLogger(__name__)
+
+supplier1_order_blueprint = Blueprint('supplier1_order', __name__)
+
+@supplier1_order_blueprint.route('/supplier1/orders', methods=['GET', 'POST'])
+@login_required
+@has_role('supplier1')
+def supplier1_orders():
+    connection = Connection()
+    cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+    form = FiltersForm()
+    orders1 = connection.query(models.Delivery).filter(models.Delivery.user_id==current_user.id).filter(models.Delivery.user_id==current_user.id).filter(func.date(models.Delivery.created_date) == cur_date.date()).order_by(models.Delivery.created_date).all()
+    post_orders = connection.query(models.Delivery).filter(models.Delivery.user_id==current_user.id).filter(func.date(models.Delivery.postphoned_date) == cur_date.date()).filter(models.Delivery.is_postphoned == True).all()
+    orders = orders1 + post_orders
+
+    if form.validate_on_submit():
+        if form.date.data is not None:
+            orders1 = connection.query(models.Delivery).filter(func.date(models.Delivery.created_date) == form.date.data).filter(models.Delivery.user_id==current_user.id).all()
+            post_orders = connection.query(models.Delivery).filter(models.Delivery.user_id==current_user.id).filter(func.date(models.Delivery.postphoned_date) == form.date.data).filter(models.Delivery.is_postphoned == True).all()
+
+            for post_order in post_orders:
+                if post_order in orders1:
+                    continue
+                else:
+                    orders1.append(post_order)
+            orders = orders1
+            
+            return render_template('/supplier/supplier1/orders.html', orders=orders, cur_date=cur_date, form=form)
+
+    return render_template('/supplier/supplier1/orders.html', orders=orders, cur_date=cur_date, form=form)
+
+
+@supplier1_order_blueprint.route('/supplier1/orders/add/<string:destination>', methods=['GET', 'POST'])
+@login_required
+@has_role('supplier1')
+def supplier1_order_add(destination):
+    cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
+    order_window = is_time_between(time(12,00), time(00,00))
+    form = FiltersForm()
+
+    if destination == 'local':
+        connection = Connection()
+        todays_order_count = connection.execute('SELECT count(*) FROM sunsundatabase1.delivery as delivery join sunsundatabase1.user as user on delivery.user_id=user.id where user.id=:current_user and DATE(delivery.created_date) = CURDATE();', {'current_user': current_user.id}).scalar()
+        user_products = connection.execute('SELECT distinct product.*, inventory.quantity as quantity, color.name as prod_color_name, size.name as prod_size_name FROM sunsundatabase1.product product join sunsundatabase1.total_inventory inventory on product.id=inventory.product_id join sunsundatabase1.inventory as invent on product.id = invent.product_id join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.supplier_id=:current_user and inventory.quantity > 0 and invent.status = true;', {'current_user': current_user.id}).all()
+
+        districts = connection.query(models.District).all()
+        payment_types = connection.query(models.PaymentType).all()
+        form = OrderDetailLocalAddForm()
+        form.products.choices = [(product.id, f'%s,  (сүнсүн агуулахад: %s, хэмжээ: %s, өнгө: %s, үнэ: %s₮)'%(product.name, product.quantity, str(product.prod_size_name).replace('[','').replace(']',''), str(product.prod_color_name).replace('[','').replace(']',''), str(product.price).replace('[','').replace(']',''))) for product in user_products]
+        form.district.choices = [(district) for district in districts]
+        form.khoroo.choices = [(f'%s хороо'%(district+1)) for district in range(32)]
+        form.payment_type.choices = [(payment_type) for payment_type in payment_types]
+
+        if form.validate_on_submit():
+            line_products = request.form.getlist("products")
+            line_quantity = request.form.getlist("quantity")
+
+            for i, product1 in enumerate(line_products):
+                quantity = connection.execute('SELECT CAST(SUM(quantity) as UNSIGNED) as quantity FROM sunsundatabase1.total_inventory inventory join sunsundatabase1.product product on product.id=inventory.product_id where product.supplier_id=:current_user and product.id=:product_id group by product_id;', {'current_user': current_user.id, 'product_id': product1}).scalar()
+                    
+                if int(quantity) < int(line_quantity[i]):
+                    flash(f'Агуулахад байгаа барааны тоо хүрэхгүй байна', 'danger')
+                    return redirect(url_for('supplier1_order.supplier1_order_add', destination='local'))
+
+            order = models.Delivery()
+            order.status = "unassigned"
+            order.destination_type = "local"
+            order.order_type = "stored"
+            order.is_ready = True
+            order.delivery_attempts = 0
+            order.supplier_company_name = current_user.company_name
+
+            if is_time_between(time(12,00), time(00,00)):
+                order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+            else:
+                order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+            order_payment_type = connection.query(models.PaymentType).filter_by(name=form.payment_type.data).first()
+            order.payment_types.append(order_payment_type)
+            current_user.deliveries.append(order)
+
+            address = models.Address()
+            address.phone = form.phone.data
+            address.phone_more = form.phone_more.data
+            address.district = form.district.data
+            address.khoroo = form.khoroo.data
+            address.address = form.address.data
+            address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+            order.addresses = address
+
+            for i, product in enumerate(line_products):
+                product_unit_price = connection.query(models.Product.price).filter_by(id=product).scalar()
+                order_detail = models.DeliveryDetail()
+                order_detail.quantity = int(line_quantity[i])
+                order_detail.product_id = product
+                order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                if order_payment_type.name == "Үндсэн үнэ":
+                    if order.total_amount is None or order.total_amount == 0:
+                        order.total_amount = (int(product_unit_price) * int(line_quantity[i])) + order_payment_type.amount
+                    else:
+                        order.total_amount = int(order.total_amount) + (int(product_unit_price) * int(line_quantity[i]))
+                elif order_payment_type.name == "Хүргэлт орсон":
+                    if order.total_amount is None or order.total_amount == 0:
+                        order.total_amount = int(product_unit_price) * int(line_quantity[i])
+                    else:
+                        order.total_amount = int(order.total_amount) + (int(product_unit_price) * int(line_quantity[i]))
+                elif order_payment_type.name =="Төлбөр авахгүй":
+                    order.total_amount = 0
+
+                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=product).first()
+                total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantity[i])
+                total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order.delivery_details.append(order_detail)
+                
+            try:
+                connection.commit()
+            except Exception as ex:
+                flash('Алдаа гарлаа!', 'danger')
+                connection.rollback()
+                return redirect(url_for('supplier1_order.supplier1_orders'))
+            else:
+                if is_time_between(time(12,00), time(00,00)):
+                    flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
+                else:
+                    flash('Хүргэлт нэмэгдлээ.', 'success')
+                return redirect(url_for('supplier1_order.supplier1_order_add', destination='local'))
+
+        return render_template('/supplier/supplier1/order_add.html', form=form, cur_date=cur_date, order_window=order_window, todays_order_count=todays_order_count)
+
+    elif destination == 'long':
+        connection = Connection()
+        user_products = connection.execute('SELECT distinct product.*, inventory.quantity as quantity, color.name as prod_color_name, size.name as prod_size_name FROM sunsundatabase1.product product join sunsundatabase1.total_inventory inventory on product.id=inventory.product_id join sunsundatabase1.inventory as invent on product.id = invent.product_id join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.supplier_id=:current_user and inventory.quantity > 0 and invent.status = true;', {'current_user': current_user.id}).all()
+        todays_order_count = connection.execute('SELECT count(*) FROM sunsundatabase1.delivery as delivery join sunsundatabase1.user as user on delivery.user_id=user.id where user.id=:current_user and DATE(delivery.created_date) = CURDATE();', {'current_user': current_user.id}).scalar()
+        aimags = connection.query(models.Aimag).all()
+        payment_types = connection.query(models.PaymentType).all()
+        form1 = OrderDetailLongDistanceAddForm()
+        form1.products.choices = [(product.id, f'%s,  (сүнсүн агуулахад: %s, хэмжээ: %s, өнгө: %s, үнэ: %s₮)'%(product.name, product.quantity, str(product.prod_size_name).replace('[','').replace(']',''), str(product.prod_color_name).replace('[','').replace(']',''), str(product.price).replace('[','').replace(']',''))) for product in user_products]
+        form1.aimag.choices = [(district) for district in aimags]
+        form1.payment_type.choices = [(payment_type) for payment_type in payment_types]
+
+        if form1.validate_on_submit():
+            line_products = request.form.getlist("products")
+            line_quantity = request.form.getlist("quantity")
+
+            for i, product1 in enumerate(line_products):
+                quantity = connection.execute('SELECT CAST(SUM(quantity) as UNSIGNED) as quantity FROM sunsundatabase1.total_inventory inventory join sunsundatabase1.product product on product.id=inventory.product_id where product.supplier_id=:current_user and product.id=:product_id group by product_id;', {'current_user': current_user.id, 'product_id': product1}).scalar()
+                    
+                if int(quantity) < int(line_quantity[i]):
+                    flash(f'Агуулахад байгаа барааны тоо хүрэхгүй байна', 'danger')
+                    return redirect(url_for('supplier1_order.supplier1_order_add', destination='long'))
+            
+            order = models.Delivery()
+            order.status = "unassigned"
+            order.destination_type = "long"
+            order.order_type = "stored"
+            order.is_ready = True
+            order.delivery_attempts = 0
+            order.supplier_company_name = current_user.company_name
+
+            if is_time_between(time(12,00), time(00,00)):
+                order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+            else:
+                order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+            order_payment_type = connection.query(models.PaymentType).filter_by(name=form1.payment_type.data).first()
+            order.payment_types.append(order_payment_type)
+            current_user.deliveries.append(order)
+            
+            address = models.Address()
+            address.phone = form1.phone.data
+            address.phone_more = form1.phone_more.data
+            address.aimag = form1.aimag.data
+            address.address = form1.address.data
+            address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            
+            order.addresses = address
+            
+            for i, product in enumerate(line_products):
+                product_unit_price = connection.query(models.Product.price).filter_by(id=product).scalar()
+                order_detail = models.DeliveryDetail()
+                order_detail.quantity = int(line_quantity[i])
+                order_detail.product_id = product
+                order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                if order_payment_type.name == "Үндсэн үнэ":
+                    if order.total_amount is None or order.total_amount == 0:
+                        order.total_amount = (int(product_unit_price) * int(line_quantity[i])) + order_payment_type.amount
+                    else:
+                        order.total_amount = int(order.total_amount) + (int(product_unit_price) * int(line_quantity[i]))
+                elif order_payment_type.name == "Хүргэлт орсон":
+                    if order.total_amount is None or order.total_amount == 0:
+                        order.total_amount = int(product_unit_price) * int(line_quantity[i])
+                    else:
+                        order.total_amount = int(order.total_amount) + (int(product_unit_price) * int(line_quantity[i]))
+                elif order_payment_type.name =="Төлбөр авахгүй":
+                    order.total_amount = 0
+
+                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=product).first()
+                total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantity[i])
+                total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order.delivery_details.append(order_detail)
+                
+            try:
+                connection.commit()
+            except Exception as ex:
+                flash('Алдаа гарлаа!', 'danger')
+                connection.rollback()
+                return redirect(url_for('supplier1_order.supplier1_orders'))
+            else:
+                if is_time_between(time(12,00), time(00,00)):
+                    flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
+                else:
+                    flash('Хүргэлт нэмэгдлээ.', 'success')
+                return redirect(url_for('supplier1_order.supplier1_order_add', destination='long'))
+        return render_template('/supplier/supplier1/order_add_long_distance.html', form=form1, cur_date=cur_date, order_window=order_window, todays_order_count=todays_order_count)
+    
+    elif destination == "file":
+        form2 = OrderDetailFileAddForm()
+        form3 = SubmitFileOrders()
+        orders = []
+        insufficient_product_ids = []
+        products_list = []
+        products_list_result = []
+        connection = Connection()
+        if form2.validate_on_submit():
+            if len(request.files) > 0 and request.files['excel_file'].filename != "":
+                excel_file = request.files['excel_file']
+                df = pd.read_excel(excel_file)
+
+                #order sheet
+                phones = df['Утасны дугаар'].values
+                districts = df['Дүүрэг'].values
+                khoroos = df['Хороо'].values
+                aimags = df['Аймаг'].values
+                addresses = df['Хаяг'].values
+                quantities = df['Тоо ширхэг'].values
+                products = df['Бараа'].values
+                payment_types = df['Төлбөр'].values
+
+                for i, phone in enumerate(phones):
+                    if (str(districts[i]) != 'nan') and (str(khoroos[i]) != 'nan'):
+                        order_dict = {
+                            "Захиалгын төрөл": "local",
+                            "Утасны дугаар": phone,
+                            "Дүүрэг": districts[i],
+                            "Хороо": int(khoroos[i]),
+                            "Хаяг": addresses[i],
+                            "Бараа": [f"%s, %s"%(products[i], int(abs(quantities[i])))],
+                            "Төлбөр": payment_types[i]
+                        }
+                        orders.append(order_dict)
+                    else:
+                        order_dict = {
+                            "Захиалгын төрөл": "long",
+                            "Утасны дугаар": phone,
+                            "Аймаг": aimags[i],
+                            "Хаяг": addresses[i],
+                            "Бараа": [f"%s, %s"%(products[i], int(abs(quantities[i])))],
+                            "Төлбөр": payment_types[i]
+                        }
+                        orders.append(order_dict)
+
+                for i, order in enumerate(orders):
+                    if i == len(orders) - 1:
+                        print("end")
+                    else:
+                        if order["Утасны дугаар"] == orders[i+1]["Утасны дугаар"] and order["Хаяг"] == orders[i+1]["Хаяг"]:
+                            order["Бараа"].append(orders[i+1]["Бараа"][0])
+                            orders.pop(i+1)
+
+                for i, product in enumerate(products):
+                    
+                    product_dict = {
+                        "product_id": product.split(".", 1)[0],
+                        "quantity": quantities[i]
+                    }
+
+                    products_list.append(product_dict)
+
+                for i, orig_obj in enumerate(products_list):
+                    if i==0:
+                        products_list_result.append(orig_obj)
+                    else:
+                        if products_list_result[-1]["product_id"]==orig_obj["product_id"]:
+                            products_list_result[-1]["quantity"]=products_list_result[-1]["quantity"] + orig_obj["quantity"]
+                        else:
+                            products_list_result.append(orig_obj)
+
+                for i, product_sum in enumerate(products_list_result):
+                    invent_quantity = connection.query(models.TotalInventory.quantity).filter_by(product_id=int(product_sum["product_id"])).scalar()
+                    postphoned_invent_quantity = connection.query(models.TotalInventory.postphoned_quantity).filter_by(product_id=int(product_sum["product_id"])).scalar()
+                    cancelled_invent_quantity = connection.query(models.TotalInventory.cancelled_quantity).filter_by(product_id=int(product_sum["product_id"])).scalar()
+
+                    total_invent_quantity = int(invent_quantity) + int(postphoned_invent_quantity) + (cancelled_invent_quantity)
+
+                    if product_sum["quantity"]>total_invent_quantity:
+                        insufficient_product_ids.append(product_sum["product_id"])
+
+                if len(insufficient_product_ids) > 0:
+                    flash('Сүнсүн агуулахад байгаа барааг хүрэлцэхгүй байна!', 'danger')
+                    return render_template('/supplier/supplier1/order_add_excel.html', cur_date=cur_date, form2=form2, form3=form3, orders=orders, insufficient_product_ids=insufficient_product_ids, order_window=order_window)
+                else:
+                    for i, order in enumerate(orders):
+                        if order["Захиалгын төрөл"] == "local":
+                            new_order = models.Delivery()
+                            new_order.status = "unassigned"
+                            new_order.destination_type = "local"
+                            new_order.order_type = "stored"
+                            new_order.is_ready = True
+                            new_order.delivery_attempts = 0
+                            new_order.supplier_company_name = current_user.company_name
+
+                            if is_time_between(time(12,00), time(00,00)):
+                                new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                                new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                                new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                            else:
+                                new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                                new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                                new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                            order_payment_type = connection.query(models.PaymentType).filter_by(name=order["Төлбөр"]).first()
+                            new_order.payment_types.append(order_payment_type)
+                            current_user.deliveries.append(new_order)
+
+                            address = models.Address()
+                            address.phone = order["Утасны дугаар"]
+                            address.district = order["Дүүрэг"]
+                            address.khoroo = order["Хороо"]
+                            address.address = order["Хаяг"]
+                            address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                            address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                            new_order.addresses = address
+
+                            for i, product in enumerate(order["Бараа"]):
+                                product_unit_price = connection.query(models.Product.price).filter_by(id=int(product.split(".", 1)[0])).scalar()
+                                order_detail = models.DeliveryDetail()
+                                order_detail.quantity = int(product.split(",", 1)[1])
+                                order_detail.product_id = int(product.split(".", 1)[0])
+                                order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                                order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                                if order["Төлбөр"] == "Үндсэн үнэ":
+                                    if new_order.total_amount is None or new_order.total_amount == 0:
+                                        new_order.total_amount = (int(product_unit_price) * int(product.split(",", 1)[1])) + order_payment_type.amount
+                                    else:
+                                        new_order.total_amount = int(new_order.total_amount) + (int(product_unit_price) * int(product.split(",", 1)[1]))
+                                elif order["Төлбөр"] == "Хүргэлт орсон":
+                                    if new_order.total_amount is None or new_order.total_amount == 0:
+                                        new_order.total_amount = int(product_unit_price) * int(product.split(",", 1)[1])
+                                    else:
+                                        new_order.total_amount = int(new_order.total_amount) + (int(product_unit_price) * int(product.split(",", 1)[1]))
+                                elif order["Төлбөр"] =="Төлбөр авахгүй":
+                                    new_order.total_amount = 0
+
+                                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(product.split(".", 1)[0])).first()
+                                total_inventory_product.quantity = total_inventory_product.quantity-int(product.split(",", 1)[1])
+                                total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                                new_order.delivery_details.append(order_detail)
+                            
+                        elif order["Захиалгын төрөл"] == "long":
+                            new_order = models.Delivery()
+                            new_order.status = "unassigned"
+                            new_order.destination_type = "long"
+                            new_order.order_type = "stored"
+                            new_order.is_ready = True
+                            new_order.delivery_attempts = 0
+                            new_order.supplier_company_name = current_user.company_name
+
+                            if is_time_between(time(12,00), time(00,00)):
+                                new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                                new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                                new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
+                            else:
+                                new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                                new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                                new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                            order_payment_type = connection.query(models.PaymentType).filter_by(name=order["Төлбөр"]).first()
+                            new_order.payment_types.append(order_payment_type)
+                            current_user.deliveries.append(new_order)
+
+                            address = models.Address()
+                            address.phone = order["Утасны дугаар"]
+                            address.aimag = order["Аймаг"]
+                            address.address = order["Хаяг"]
+                            address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                            address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                            new_order.addresses = address
+
+                            for i, product in enumerate(order["Бараа"]):
+                                product_unit_price = connection.query(models.Product.price).filter_by(id=int(product.split(".", 1)[0])).scalar()
+                                order_detail = models.DeliveryDetail()
+                                order_detail.quantity = int(product.split(",", 1)[1])
+                                order_detail.product_id = int(product.split(".", 1)[0])
+                                order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                                order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                                if order["Төлбөр"] == "Үндсэн үнэ":
+                                    if new_order.total_amount is None or new_order.total_amount == 0:
+                                        new_order.total_amount = (int(product_unit_price) * int(product.split(",", 1)[1])) + order_payment_type.amount
+                                    else:
+                                        new_order.total_amount = int(new_order.total_amount) + (int(product_unit_price) * int(product.split(",", 1)[1]))
+                                elif order["Төлбөр"] == "Хүргэлт орсон":
+                                    if new_order.total_amount is None or new_order.total_amount == 0:
+                                        new_order.total_amount = int(product_unit_price) * int(product.split(",", 1)[1])
+                                    else:
+                                        new_order.total_amount = int(new_order.total_amount) + (int(product_unit_price) * int(product.split(",", 1)[1]))
+                                elif order["Төлбөр"] =="Төлбөр авахгүй":
+                                    new_order.total_amount = 0
+
+                                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(product.split(".", 1)[0])).first()
+                                total_inventory_product.quantity = total_inventory_product.quantity-int(product.split(",", 1)[1])
+                                total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                                new_order.delivery_details.append(order_detail)
+                        else:
+                            flash('Захиалга алдаатай дахин шалгана уу!', 'danger')
+                            return render_template('/supplier/supplier1/order_add_excel.html', cur_date=cur_date, form2=form2, form3=form3, orders=orders, insufficient_product_ids=insufficient_product_ids, order_window=order_window)
+
+                    try:
+                        connection.commit()
+                    except Exception:
+                        flash('Алдаа гарлаа!', 'danger')
+                        connection.rollback()
+                    else:
+                        if is_time_between(time(12,00), time(00,00)):
+                            flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
+                        else:
+                            flash('Хүргэлт нэмэгдлээ.', 'success')
+                        return redirect(url_for('supplier1_order.supplier1_orders'))
+
+        return render_template('/supplier/supplier1/order_add_excel.html', cur_date=cur_date, order_window=order_window, form2=form2, form3=form3, orders=orders, insufficient_product_ids=insufficient_product_ids)
+
+
+@supplier1_order_blueprint.route('/supplier1/orders/add/file/template/download', methods=['GET', 'POST'])
+@login_required
+@has_role('supplier1')
+def supplier1_order_excel_template():
+    wb = Workbook()
+    ws2 = wb.create_sheet("Бараа")
+    ws = wb.active
+    ws.title = "Хүргэлт"
+
+    ws.append(['Утасны дугаар', 'Дүүрэг', 'Хороо', 'Аймаг', 'Хаяг', 'Бараа', 'Тоо ширхэг', 'Төлбөр'])
+
+    dv = DataValidation(type="list", formula1='Бараа!$B$1:$B$1000', allow_blank=False, showDropDown = True)
+    dv.error ='Your entry is not in the list'
+    dv.errorTitle = 'Invalid Entry'
+
+    dv.prompt = 'Please select from the list'
+    dv.promptTitle = 'List Selection'
+
+    dv1 = DataValidation(type="list", formula1='Бараа!$G$1:$G$1000', allow_blank=False, showDropDown = True)
+    dv2 = DataValidation(type="list", formula1='Бараа!$I$1:$I$1000', allow_blank=False, showDropDown = True)
+    dv3 = DataValidation(type="list", formula1='Бараа!$M$1:$M$1000', allow_blank=False, showDropDown = True)
+    dv4 = DataValidation(type="list", formula1='Бараа!$K$1:$K$1000', allow_blank=False, showDropDown = True)
+
+    ws.add_data_validation(dv)
+    ws.add_data_validation(dv1)
+    ws.add_data_validation(dv2)
+    ws.add_data_validation(dv3)
+    ws.add_data_validation(dv4)
+
+    dv.add("F2:F1000")
+    dv1.add("B2:B1000")
+    dv2.add("H2:H1000")
+    dv3.add("C2:C1000")
+    dv4.add("D2:D1000")
+
+    connection = Connection()
+    products = connection.query(models.Product).join(models.TotalInventory).filter(models.Product.supplier_id == current_user.id).filter(models.TotalInventory.quantity > 0).all()
+    districts = connection.query(models.District).all()
+    aimags = connection.query(models.Aimag).all()
+    payment_types = connection.query(models.PaymentType).all()
+
+    for i in range(1, len(products)+1):
+        ws2.cell(row=i, column=1).value = products[i-1].id
+        ws2.cell(row=i, column=2).value = f"%s. %s. %s. %s. ₮%s"%(products[i-1].id, products[i-1].name, str(products[i-1].colors[0]), str(products[i-1].sizes[0]), products[i-1].price)
+        ws2.cell(row=i, column=3).value = products[i-1].price
+        ws2.cell(row=i, column=4).value = str(products[i-1].colors[0])
+        ws2.cell(row=i, column=5).value = str(products[i-1].sizes[0])
+
+    for i in range(1, len(districts)+1):
+        ws2.cell(row=i, column=7).value = districts[i-1].name
+
+    for i in range(1, len(payment_types)+1):
+        ws2.cell(row=i, column=9).value = payment_types[i-1].name
+
+    for i in range(1, len(aimags)+1):
+        ws2.cell(row=i, column=11).value = aimags[i-1].name
+
+    for i in range(1, 50):
+        ws2.cell(row=i, column=13).value = i
+
+    file_stream = BytesIO()
+    wb.worksheets[1].sheet_state = "hidden"
+    wb.save(file_stream)
+    file_stream.seek(0)
+
+    return send_file(file_stream, attachment_filename="order_template.xlsx", as_attachment=True)
+
+
+
+@supplier1_order_blueprint.route('/supplier1/orders/delete/<int:order_id>', methods=['GET', 'POST'])
+@login_required
+@has_role('supplier1')
+def supplier1_order_delete(order_id):
+    connection = Connection()
+    order_to_delete = connection.query(models.Delivery).filter(models.Delivery.id==order_id).first()
+
+    if order_to_delete is None:
+        flash('Захиалга олдсонгүй!', 'danger')
+        connection.close()
+        return redirect(url_for('supplier1_order.supplier1_orders'))
+
+    if order_to_delete.user_id != current_user.id:
+        connection.close()
+        abort(403)
+
+    if order_to_delete.status != "unassigned":
+        flash('Захиалга цуцлах боломжгүй байна! Хүргэлтэнд гарсан байна! Менежертэй холбоо барина уу!', 'danger')
+        connection.close()
+        return redirect(url_for('supplier1_order.supplier1_orders'))
+    else:
+        
+        for order_detail in order_to_delete.delivery_details:
+            total_product_inventory = connection.query(models.TotalInventory).filter(models.TotalInventory.product_id==order_detail.product_id).first()
+            total_product_inventory.quantity = total_product_inventory.quantity + order_detail.quantity
+
+        connection.query(models.Address).filter_by(delivery_id=order_to_delete.id).delete()
+        connection.query(models.DeliveryDetail).filter_by(delivery_id=order_to_delete.id).delete()
+        connection.query(models.Delivery).filter_by(id=order_to_delete.id).delete()
+
+        try:
+            connection.commit()
+        except Exception as ex:
+            flash(str(ex), 'danger')
+            connection.rollback()
+            connection.close()
+            return redirect(url_for('supplier1_order.supplier1_orders'))
+        else:
+            flash('Устгалаа', 'success')
+            return redirect(url_for('supplier1_order.supplier1_orders'))
+    

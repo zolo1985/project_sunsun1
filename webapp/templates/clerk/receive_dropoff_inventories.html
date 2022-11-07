@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container">
+            <div class="row"> 
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Харилцагчаас Хүлээж Авах</h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                {{ form.date.label(class="form-control-label") }}
+                                {% if form.date.errors %}
+                                    {{ form.date(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.date(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 align-self-center">
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                        <div class="table-responsive-sm">
+                            <table id="example" class="table table-hover display">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="bg-grad">#</th>
+                                        <th scope="col" class="bg-grad">Харилцагч</th>
+                                        <th scope="col" class="bg-grad">Бараа</th>
+                                        <th scope="col" class="bg-grad">Тоо ширхэг</th>
+                                        <th scope="col" class="bg-grad">Хүлээж авах нягтлан</th>
+                                        <th scope="col" class="bg-grad">Төлөв</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for inventory in inventories %}
+                                        <tr>
+                                            <td class="fw-bold">{{ loop.index }}.</td>
+                                            <td class="fw-bold">{{ inventory.product.supplier.company_name }}</td>
+                                            <td class="text-center">
+                                                <p>Нэр: {{ inventory.product.name }},</p>
+                                                <p>Өнгө: {{ inventory.product.colors | first }}</p>
+                                                <p>Хэмжээ: {{ inventory.product.sizes | first }}</p>
+                                            </td>
+                                            <td class="text-center">{{ inventory.quantity }}</td>
+                                            <td class="text-center">
+                                                <p class="fw-bold">{{ inventory.clerk_name }}</p>
+                                                
+                                            </td>
+                                            <td class="text-end">
+                                                {% if inventory.clerk_accepted_date is not none %}
+                                                    <p>{{ inventory.clerk_name }}({{ inventory.clerk_accepted_date }})</p>
+                                                {% else %}
+                                                    <a class="btn btn-outline-success" href="{{ url_for('clerk_receive.clerk_accept_dropoff_inventories', inventory_id=inventory.id)}}">Хүлээж Авах</a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    -->
+    <!-- END Products -->
+
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                paging: false,
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGE_ -c _PAGES_",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+
+                }
+            });
+        });
+    </script>
+{% endblock main %}

@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block main %}
+<!-- Products -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Агуулахад Бүртгүүлтэй Бараа</h3>
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">#</th>
+                                    <th scope="col" class="bg-grad">Зураг</th>
+                                    <th scope="col" class="bg-grad">Барааны нэр</th>
+                                    <th scope="col" class="bg-grad">Өнгө</th>
+                                    <th scope="col" class="bg-grad">Хэмжээ</th>
+                                    <th scope="col" class="bg-grad">Нэгж үнэ</th>
+                                    <th scope="col" class="bg-grad" style="width: 300px;" >Бусад</th>
+                                    <th scope="col" class="bg-grad" style="width: 300px;">Хэрэглэх заавар</th>
+                                    <th scope="col" class="bg-grad"></th>
+                                </tr>
+                            </thead>
+                            {% for product in products %}
+                                <tbody>
+                                    <tr>
+                                        <td scope="row">{{ loop.index }}.</td>
+                                        <td style="width: 100px;">
+                                            {% if product.image is none %}
+                                                <img class="rounded border-3 shadow" src="{{url_for('static', filename='images/placeholder.jpg')}}" alt="">
+                                            {% else %}
+                                                <img class="rounded border-3 shadow" src="{{ url_for('supplier1_util.artwork', artwork=product.image) }}" alt="">
+                                            {% endif %}
+                                        <td>{{ product.name }}</td>
+                                        <td>{{ product.colors | first }}</td>
+                                        <td>{{ product.sizes | first }}</td>
+                                        <td style="text-align: end;">₮{{ product.price  | round | int | numberFormat }}</td>
+                                        <td>{{ product.description }}</td>
+                                        <td>{{ product.usage_guide }}</td>
+                                        <td><a href="{{ url_for('supplier1_product.supplier1_product_edit', product_id=product.id) }}">засах</a></td>
+                                    </tr>
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+<!-- END Products -->
+{% endblock main %}

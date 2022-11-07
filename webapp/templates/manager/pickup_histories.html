@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container min-vh-100">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Жолооч авах бараа</h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                {{ form.date.label(class="form-control-label") }}
+                                {% if form.date.errors %}
+                                    {{ form.date(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.date(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 align-self-center">
+                                    {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                    </form>
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">#</th>
+                                    <th scope="col" class="bg-grad">Харилцагч</th>
+                                    <th scope="col" class="bg-grad">Төлөв</th>
+                                    <th scope="col" class="bg-grad">Жолооч</th>
+                                    <th scope="col" class="bg-grad">Бараа</th>
+                                    <th scope="col" class="bg-grad">Нягтланд Өгсөн Огноо</th>
+                                </tr>
+                            </thead>
+                            {% for pickup in pickups %}
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">{{ loop.index }}.</th>
+                                        <td class="fw-bold">{{ pickup.supplier_company }}</td>
+                                        <td style="text-align: center;">
+                                            {% if pickup.status == "completed" %}
+                                                <p class="text-success fw-bold">Хүргэгдсэн</p>
+                                            {% elif pickup.status == "enroute" %}
+                                                <p class="text-info fw-bold">Жолоочид хувиарлагдсан. Жолооч аваагүй байна.</p>
+                                            {% elif pickup.status == "pickedup" %}
+                                                <p class="text-info fw-bold">Бараа жолоочид байна.</p>
+                                            {% elif pickup.status == "waiting" %}
+                                                <p class="text-info fw-bold">Ажил хувиарлагдахыг хүлээж байна.</p>
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center;">{{ pickup.driver_name }}</td>
+                                        <td style="text-align: center;">
+                                            {% if pickup.supplier_type == "supplier1" %}
+                                                {% for pickup_detail in pickup.pickup_details %}
+                                                    <p>{{ loop.index }}. {{ pickup_detail.product.name }}, {{ pickup_detail.product.colors | first }}, {{ pickup_detail.product.sizes | first }} - {{ pickup_detail.quantity }} ширхэг,</p>
+                                                {% endfor %}
+                                            {% elif pickup.supplier_type == "supplier2" %}
+                                                {% for pickup_detail in pickup.pickup_details %}
+                                                    <p>{{ loop.index }}. {{ pickup_detail.phone }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            {% if pickup.delivered_date is not none %}
+                                                {{ pickup.delivered_date }}
+                                            {% else %}
+                                            
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END Products -->
+{% endblock main %}

@@ -1,0 +1,244 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <h3 class="custom-header mb-4">жолооч: {{ drivers | length }}</h3>
+                <div class="table-responsive-sm">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="bg-grad">ID</th>
+                                <th scope="col" class="bg-grad">Овог</th>
+                                <th scope="col" class="bg-grad">Нэр</th>
+                                <th scope="col" class="bg-grad">Нууц үг сэргээх</th>
+                                <th scope="col" class="bg-grad">Утас</th>
+                                <th scope="col" class="bg-grad">И-мэйл</th>
+                                <th scope="col" class="bg-grad">Төлөв</th>
+                                <th scope="col" class="bg-grad">Өөрчлөх</th>
+                            </tr>
+                        </thead>
+                        {% for driver in drivers %}
+                            <tbody>
+                                <tr>
+                                    <td scope="row">{{ driver.id }}</td>
+                                    <td style="text-align: center;">{{ driver.lastname }}</td>
+                                    <td style="text-align: center;">{{ driver.firstname }}</td>
+                                    <td style="text-align: center;">
+                                        <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('manager_account.manager_account_password_reset', user_id=driver.id) }}">Нууц үг сэргээх</a>
+                                    </td>
+                                    <td style="text-align: center;">{{ driver.phone }}</td>
+                                    <td style="text-align: center;">{{ driver.email }}</td>
+                                    <td style="text-align: center;">
+                                        {% if driver.is_authorized %}
+                                            <p class="text-success fw-bold">Идэвхтэй</p>
+                                        {% else %}
+                                            <p class="text-danger fw-bold">Идэвхгүй</p>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if driver.is_authorized %}
+                                            <a class="btn btn-outline-danger" href="{{ url_for('manager_account.manager_driver_authorize', driver_id=driver.id) }}">Идэвхгүй болгох</a>
+                                        {% else %}
+                                            <a class="btn btn-outline-success" href="{{ url_for('manager_account.manager_driver_authorize', driver_id=driver.id) }}">Идэвхжүүлэх</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <h3 class="custom-header mb-4 mt-5">нягтлан: {{ accountants | length }}</h3>
+                <div class="table-responsive-sm">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="bg-grad">ID</th>
+                                <th scope="col" class="bg-grad">Овог</th>
+                                <th scope="col" class="bg-grad">Нэр</th>
+                                <th scope="col" class="bg-grad">Нууц үг сэргээх</th>
+                                <th scope="col" class="bg-grad">Утас</th>
+                                <th scope="col" class="bg-grad">И-мэйл</th>
+                                <th scope="col" class="bg-grad">Төлөв</th>
+                                <th scope="col" class="bg-grad">Өөрчлөх</th>
+                                
+                            </tr>
+                        </thead>
+                        {% for accountant in accountants %}
+                            <tbody>
+                                <tr>
+                                    <td scope="row">{{ accountant.id }}</td>
+                                    <td style="text-align: center;">{{ accountant.lastname }}</td>
+                                    <td style="text-align: center;">{{ accountant.firstname }}</td>
+                                    <td style="text-align: center;">
+                                        <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('manager_account.manager_account_password_reset', user_id=accountant.id) }}">Нууц үг сэргээх</a>
+                                    </td>
+                                    <td style="text-align: center;">{{ accountant.phone }}</td>
+                                    <td style="text-align: center;">{{ accountant.email }}</td>
+                                    <td style="text-align: center;">
+                                        {% if accountant.is_authorized %}
+                                            <p class="text-success fw-bold">Идэвхтэй</p>
+                                        {% else %}
+                                            <p class="text-danger fw-bold">Идэвхгүй</p>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if accountant.is_authorized %}
+                                            <a class="btn btn-outline-danger" href="{{ url_for('manager_account.manager_accountant_authorize', accountant_id=accountant.id) }}">Идэвхгүй болгох</a>
+                                        {% else %}
+                                            <a class="btn btn-outline-success" href="{{ url_for('manager_account.manager_accountant_authorize', accountant_id=accountant.id) }}">Идэвхжүүлэх</a>
+                                        {% endif %}
+                                    </td>
+                                    
+                                </tr>
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <h3 class="custom-header mb-4 mt-5">нярав: {{ clerks | length }}</h3>
+                <div class="table-responsive-sm">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="bg-grad">ID</th>
+                                <th scope="col" class="bg-grad">Овог</th>
+                                <th scope="col" class="bg-grad">Нэр</th>
+                                <th scope="col" class="bg-grad">Нууц үг сэргээх</th>
+                                <th scope="col" class="bg-grad">Утас</th>
+                                <th scope="col" class="bg-grad">И-мэйл</th>
+                                <th scope="col" class="bg-grad">Төлөв</th>
+                                <th scope="col" class="bg-grad">Өөрчлөх</th>
+                                
+                            </tr>
+                        </thead>
+                        {% for clerk in clerks %}
+                            <tbody>
+                                <tr>
+                                    <td scope="row">{{ clerk.id }}</td>
+                                    <td style="text-align: center;">{{ clerk.lastname }}</td>
+                                    <td style="text-align: center;">{{ clerk.firstname }}</td>
+                                    <td style="text-align: center;">
+                                        <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('manager_account.manager_account_password_reset', user_id=clerk.id) }}">Нууц үг сэргээх</a>
+                                    </td>
+                                    <td style="text-align: center;">{{ clerk.phone }}</td>
+                                    <td style="text-align: center;">{{ clerk.email }}</td>
+                                    <td style="text-align: center;">
+                                        {% if clerk.is_authorized %}
+                                            <p class="text-success fw-bold">Идэвхтэй</p>
+                                        {% else %}
+                                            <p class="text-danger fw-bold">Идэвхгүй</p>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if clerk.is_authorized %}
+                                            <a class="btn btn-outline-danger" href="{{ url_for('manager_account.manager_clerk_authorize', clerk_id=clerk.id) }}">Идэвхгүй болгох</a>
+                                        {% else %}
+                                            <a class="btn btn-outline-success" href="{{ url_for('manager_account.manager_clerk_authorize', clerk_id=clerk.id) }}">Идэвхжүүлэх</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <h3 class="custom-header mb-4 mt-5">Харилцагч(Агуулахтай): {{ supplier1s | length }}</h3>
+                <div class="table-responsive-sm">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="bg-grad">ID</th>
+                                <th scope="col" class="bg-grad">Овог</th>
+                                <th scope="col" class="bg-grad">Нэр</th>
+                                <th scope="col" class="bg-grad">Нууц үг сэргээх</th>
+                                <th scope="col" class="bg-grad">Утас</th>
+                                <th scope="col" class="bg-grad">И-мэйл</th>
+                                <th scope="col" class="bg-grad">Төлөв</th>
+                                <th scope="col" class="bg-grad">Өөрчлөх</th>
+                                
+                            </tr>
+                        </thead>
+                        {% for supplier1 in supplier1s %}
+                            <tbody>
+                                <tr>
+                                    <td scope="row">{{ supplier1.id }}</td>
+                                    <td style="text-align: center;">{{ supplier1.lastname }}</td>
+                                    <td style="text-align: center;">{{ supplier1.firstname }}</td>
+                                    <td style="text-align: center;">
+                                        <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('manager_account.manager_account_password_reset', user_id=supplier1.id) }}">Нууц үг сэргээх</a>
+                                    </td>
+                                    <td style="text-align: center;">{{ supplier1.phone }}</td>
+                                    <td style="text-align: center;">{{ supplier1.email }}</td>
+                                    <td style="text-align: center;">
+                                        {% if supplier1.is_authorized %}
+                                            <p class="text-success fw-bold">Идэвхтэй</p>
+                                        {% else %}
+                                            <p class="text-danger fw-bold">Идэвхгүй</p>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if supplier1.is_authorized %}
+                                            <a class="btn btn-outline-danger" href="{{ url_for('manager_account.manager_supplier1_authorize', supplier1_id=supplier1.id) }}">Идэвхгүй болгох</a>
+                                        {% else %}
+                                            <a class="btn btn-outline-success" href="{{ url_for('manager_account.manager_supplier1_authorize', supplier1_id=supplier1.id) }}">Идэвхжүүлэх</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <h3 class="custom-header mb-4 mt-5">Харилцагч(Агуулахгүй): {{ supplier2s | length }}</h3>
+                <div class="table-responsive-sm">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="bg-grad">ID</th>
+                                <th scope="col" class="bg-grad">Овог</th>
+                                <th scope="col" class="bg-grad">Нэр</th>
+                                <th scope="col" class="bg-grad">Нууц үг сэргээх</th>
+                                <th scope="col" class="bg-grad">Утас</th>
+                                <th scope="col" class="bg-grad">И-мэйл</th>
+                                <th scope="col" class="bg-grad">Төлөв</th>
+                                <th scope="col" class="bg-grad">Өөрчлөх</th>
+                            </tr>
+                        </thead>
+                        {% for supplier2 in supplier2s %}
+                            <tbody>
+                                <tr>
+                                    <td scope="row">{{ supplier2.id }}</td>
+                                    <td style="text-align: center;">{{ supplier2.lastname }}</td>
+                                    <td style="text-align: center;">{{ supplier2.firstname }}</td>
+                                    <td style="text-align: center;">
+                                        <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('manager_account.manager_account_password_reset', user_id=supplier2.id) }}">Нууц үг сэргээх</a>
+                                    </td>
+                                    <td style="text-align: center;">{{ supplier2.phone }}</td>
+                                    <td style="text-align: center;">{{ supplier2.email }}</td>
+                                    <td style="text-align: center;">
+                                        {% if supplier2.is_authorized %}
+                                            <p class="text-success fw-bold">Идэвхтэй</p>
+                                        {% else %}
+                                            <p class="text-danger fw-bold">Идэвхгүй</p>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if supplier2.is_authorized %}
+                                            <a class="btn btn-outline-danger" href="{{ url_for('manager_account.manager_supplier2_authorize', supplier2_id=supplier2.id) }}">Идэвхгүй болгох</a>
+                                        {% else %}
+                                            <a class="btn btn-outline-success" href="{{ url_for('manager_account.manager_supplier2_authorize', supplier2_id=supplier2.id) }}">Идэвхжүүлэх</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END Products -->
+{% endblock main %}

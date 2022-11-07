@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- ORDERS -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Бэлэн Захиалгууд</h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="table-responsive-sm">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="bg-grad">#</th>
+                                        <th scope="col" class="bg-grad">Төлөв</th>
+                                        <th scope="col" class="bg-grad">Авах Жолоочийн нэр</th>
+                                        <th scope="col" class="bg-grad">Үүсгэсэн огноо</th>
+                                        <th scope="col" class="bg-grad">Хүргэлтүүд</th>
+                                        <th scope="col" class="bg-grad"></th>
+                                    </tr>
+                                </thead>
+                                {% for order in orders %}
+                                    {{ form.order_id(class="form-control", value=order.id) }}
+                                    <tbody>
+                                        <tr>
+                                            <td scope="row">{{ loop.index }}.</td>
+                                            <td>
+                                                {% if  order.status == "waiting"%}
+                                                    <p class="fw-bold text-danger">Авахыг хүлээж</p>
+                                                {% elif order.status == "enroute" %}
+                                                    <p class="fw-bold text-info">Жолооч авахаар очиж байна</p>
+                                                {% elif order.status == "pickedup" or order.status == "completed" %}
+                                                    <p class="fw-bold text-success">Сүнсүн авсан.</p>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if order.driver_name is not none %}
+                                                    <p class="fw-bold">{{ order.driver_name }}</p>
+                                                {% else %}
+                                                    <p class="fw-bold text-danger">Жолооч хувиарлаагүй байна</p>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ order.created_date }}</td>
+                                            <td>
+                                                {% for detail in order.pickup_details %}
+                                                    {% if detail.destination_type == "local" %}
+                                                        <p>{{ loop.index }}. {{ detail.phone }}, {{ detail.district }}, {{ detail.khoroo }}, {{ detail.address }}, {{ detail.payment_type }}, авах дүн: {{ detail.total_amount }}</p>
+                                                    {% elif detail.destination_type == "long" %}
+                                                        <p>{{ loop.index }}. {{ detail.phone }}, {{ detail.aimag }}, {{ detail.address }}, {{ detail.payment_type }}, авах дүн: {{ detail.total_amount }}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                {% if order.status == "waiting" or order.status == "enroute" %}
+                                                    <a class="btn btn-outline-danger" href="{{ url_for('supplier2_order.supplier2_order_delete', pickup_task_id=order.id) }}">Устгах</a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                {% endfor %}
+                            </table>
+                            <div class="float-end mt-2">
+                                <div class="form-group">
+                                    {{ form.submit(class="btn btn-outline-success") }}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END ORDERS -->
+{% endblock main %}

@@ -1,0 +1,394 @@
+{% extends "layout.html" %}
+{% block main %}
+    <div class="container-fluid mt-5 min-vh-100" style="width: 80%;">
+        <div class="row">
+            <div class="col-sm-12 mb-5">
+                <h3 class="custom-header mb-4">{{ cur_date.strftime('%Y-%m-%d') }} Хүргэлт Хувиарлах</h3>
+                <form id="form" method="POST" action="">
+                    {{ form1.csrf_token }}
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            {{ form1.district_names.label(class="form-control-label") }}
+                            {{ form1.district_names(class="form-control") }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form1.khoroo_names.label(class="form-control-label") }}
+                            {{ form1.khoroo_names(class="form-control") }}
+                        </div>
+                        <div class="col-md-3 align-self-center">
+                            {{ form1.submit(class="btn btn-outline-success m-0") }}
+                        </div>
+                    </div>
+                </form>
+                <div class="mb-3">
+                    <span style="font-size: 16px; color: black; padding-right: 1rem;">
+                        <strong>Хувиарлагдаагүй хүргэлт дүүргээр:
+                        </strong>
+                    </span>
+                    {% for order in total_orders_count_by_district %}
+                        <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.district }}:
+                            <strong>{{ order.total_count }}</strong>
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <span style="font-size: 16px; color: black; padding-right: 1rem;">
+                        <strong>Өнөөдрийн хойшлуулсан хүргэлтүүд:</strong>
+                    </span>
+                    {% for order in total_postphoned_count_by_driver %}
+                        <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
+                            <strong>{{ order.total_count }}</strong>
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <span style="font-size: 16px; color: black; padding-right: 1rem;">
+                        <strong>Өнөөдрийн хүргэлт хувиарлалтаар:
+                        </strong>
+                    </span>
+                    {% for order in total_orders_count_by_driver %}
+                        <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
+                            <strong>{{ order.total_count }}</strong>
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-5">
+                    <span style="font-size: 16px; color: black; padding-right: 1rem;">
+                        <strong>Өмнөх өдрүүдээс хойшлуулсан хүргэлтүүд:</strong>
+                    </span>
+                    {% for order in total_postphoned_count_by_driver_from_previous_days %}
+                        <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
+                            <strong>{{ order.total_count }}</strong>
+                        </span>
+                    {% endfor %}
+                </div>
+                <form id="form" method="POST" action="">
+                    {{ form.csrf_token }}
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">#</th>
+                                    <th scope="col" class="bg-grad">Хаяг/Утас</th>
+                                    <th scope="col" class="bg-grad">Байгууллага</th>
+                                    <th scope="col" class="bg-grad">Төлөв</th>
+                                    <th scope="col" class="bg-grad">Хүргэх огноо</th>
+                                    <th scope="col" class="bg-grad">Бүс</th>
+                                    <th scope="col" class="bg-grad">Жолооч</th>
+                                    <th scope="col" class="bg-grad">Дүн</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                {{ form.order_id(class="form-control", value=order.id) }}
+                                <tr>
+                                    <td class="fw-bold">{{ loop.index }}.</td>
+                                    <td>
+                                        {% if order.addresses.city is not none %}
+                                            <strong>{{ order.addresses.city }},</strong>
+                                        {% endif %}
+
+                                        {% if order.addresses.district is not none %}
+                                            <strong>{{ order.addresses.district }},</strong>
+                                        {% endif %}
+
+                                        {% if order.addresses.khoroo is not none %}
+                                            <strong>{{ order.addresses.khoroo }},</strong>
+                                        {% endif %}
+
+                                        {% if order.addresses.aimag is not none %}
+                                            <strong>{{ order.addresses.aimag }},</strong>
+                                        {% endif %}
+                                        <p>
+                                            <strong>
+                                                {{ order.addresses.address }},
+                                                {{ order.addresses.phone }}
+                                                {% if order.addresses.phone_more is not none %}
+                                                    , {{ order.addresses.phone_more }}
+                                                {% endif %}
+                                            </strong>
+                                        </p>
+                                    </td>
+                                    <td class="fw-bold">{{ order.supplier_company_name }}</td>
+                                    <td>
+                                        {% if order.status == "unassigned" %}
+                                            {% if order.is_postphoned %}
+                                                <p class="text-info fw-bold">хойшлуулсан</p>
+                                                <p>хойшлуулсан огноо: {{ order.postphoned_date | datefilter }}</p>
+                                                <p>Шалтгаан: {{ order.driver_comment }}</p>
+                                            {% else %}
+                                                <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
+                                            {% endif %}
+                                        {% elif order.status == "assigned" %}
+                                            <p class="text-success fw-bold">жолооч хүргэлтэнд гарсан байна</p>
+                                        {% elif order.status == "started" %}
+                                            <p class="fw-bold" style="color: coral;">хүргэгдэхээр явж байна</p>
+                                        {% elif order.status == "completed" %}
+                                        <p class="text-success fw-bold">хүргэгдсэн</p>
+                                        {% elif order.status == "cancelled" %}
+                                            <p class="text-danger fw-bold">цуцлагдсан</p>
+                                            <p>Шалтгаан:
+                                                {{ order.driver_comment }}</p>
+                                        {% elif order.status == "postphoned" %}
+                                            <p class="text-info fw-bold">хойшлуулсан</p>
+                                            <p>хойшлуулсан огноо:
+                                                {{ order.postphoned_date }}</p>
+                                            <p>Шалтгаан:
+                                                {{ order.driver_comment }}</p>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center text-nowrap">
+                                        <p>
+                                            <strong>{{ order.delivery_date.strftime('%Y-%m-%d') }}</strong>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        {% if order.delivery_region is none %}
+                                            <p class="text-danger fw-bold">бүсчлэгдээгүй</p>
+                                        {% else %}
+                                            <p class="text-success fw-bold">{{ order.delivery_region }}</p>
+                                        {% endif%}
+                                    </td>
+                                    <td>
+                                        {% if order.assigned_driver_name is none %}
+                                            <p class="text-danger fw-bold">хувиарлагдаагүй</p>
+                                            {% if order.is_postphoned %}
+                                                {% if order.status == "assigned" %}
+                                                    <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
+                                                {% else %}
+                                                    <p class="text-secondary fw-bold">хойшлуулсан жолооч: {{ order.postphoned_driver_name }}</p>
+                                                {% endif %}
+                                            {% else %}
+                                                
+                                            {% endif %}
+                                        {% else %}
+                                            {% if order.is_postphoned %}
+                                                {% if order.status == "assigned" %}
+                                                    <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
+                                                {% else %}
+                                                    <p class="text-secondary fw-bold">хойшлуулсан жолооч: {{ order.postphoned_driver_name }}</p>
+                                                {% endif %}
+                                            {% else %}
+                                                <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
+                                            {% endif %}
+                                        {% endif%}
+                                    </td>
+                                    <td style=" text-align: end;">
+                                        <p>₮{{ order.total_amount  | round | int | numberFormat }}</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+ 
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                {{ form.select_regions.label(class="form-control-label") }}
+                                {% if form.select_regions.errors %}
+                                    {{ form.select_regions(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.select_regions.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.select_regions(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.select_drivers.label(class="form-control-label") }}
+                                {% if form.select_drivers.errors %}
+                                    {{ form.select_drivers(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.select_drivers.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.select_drivers(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 align-self-center">
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-5 min-vh-100" style="width: 80%;">
+        <div class="row">
+            <div class="col-sm-12 mb-5">
+                <h3 class="custom-header mb-4">Нийт Хүргэлт(Орон нутаг)</h3>
+                <div class="mb-5">
+                    <span style="font-size: 16px; color: black; padding-right: 1rem;">
+                        <strong>Өнөөдрийн Хүргэлт аймгаар:
+                        </strong>
+                    </span>
+                    {% for order in total_orders_count_by_aimag %}
+                        <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.aimag }}:
+                            <strong>{{ order.total_count }}</strong>
+                        </span>
+                    {% endfor %}
+                </div>
+                <form id="form" method="POST" action="">
+                    {{ form.csrf_token }}
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">#</th>
+                                    <th scope="col" class="bg-grad">Хаяг/Утас</th>
+                                    <th scope="col" class="bg-grad">Байгууллага</th>
+                                    <th scope="col" class="bg-grad">Төлөв</th>
+                                    <th scope="col" class="bg-grad">Хүргэх огноо</th>
+                                    <th scope="col" class="bg-grad">Бүс</th>
+                                    <th scope="col" class="bg-grad">Жолооч</th>
+                                    <th scope="col" class="bg-grad">Дүн</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in long_destination_orders %}
+                                {{ form.order_id(class="form-control", value=order.id) }}
+                                <tr>
+                                    <td class="fw-bold">{{ loop.index }}.</td>
+                                    <td>
+                                        {% if order.addresses.city is not none %}
+                                            <strong>{{ order.addresses.city }},</strong>
+                                        {% endif %}
+
+                                        {% if order.addresses.district is not none %}
+                                            <strong>{{ order.addresses.district }},</strong>
+                                        {% endif %}
+
+                                        {% if order.addresses.khoroo is not none %}
+                                            <strong>{{ order.addresses.khoroo }},</strong>
+                                        {% endif %}
+
+                                        {% if order.addresses.aimag is not none %}
+                                            <strong>{{ order.addresses.aimag }},</strong>
+                                        {% endif %}
+                                        <p>
+                                            <strong>
+                                                {{ order.addresses.address }},
+                                                {{ order.addresses.phone }}
+                                                {% if order.addresses.phone_more is not none %}
+                                                    , {{ order.addresses.phone_more }}
+                                                {% endif %}
+                                            </strong>
+                                        </p>
+                                    </td>
+                                    <td class="fw-bold">{{ order.supplier_company_name }}</td>
+                                    <td>
+                                        {% if order.status == "unassigned" %}
+                                            {% if order.is_postphoned %}
+                                                <p class="text-info fw-bold">хойшлуулсан</p>
+                                                <p>хойшлуулсан огноо: {{ order.postphoned_date | datefilter }}</p>
+                                                <p>Шалтгаан: {{ order.driver_comment }}</p>
+                                            {% else %}
+                                                <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
+                                            {% endif %}
+                                        {% elif order.status == "assigned" %}
+                                            <p class="text-success fw-bold">жолооч хүргэлтэнд гарсан байна</p>
+                                        {% elif order.status == "started" %}
+                                            <p class="fw-bold" style="color: coral;">хүргэгдэхээр явж байна</p>
+                                        {% elif order.status == "completed" %}
+                                        <p class="text-success fw-bold">хүргэгдсэн</p>
+                                        {% elif order.status == "cancelled" %}
+                                            <p class="text-danger fw-bold">цуцлагдсан</p>
+                                            <p>Шалтгаан:
+                                                {{ order.driver_comment }}</p>
+                                        {% elif order.status == "postphoned" %}
+                                            <p class="text-info fw-bold">хойшлуулсан</p>
+                                            <p>хойшлуулсан огноо:
+                                                {{ order.postphoned_date }}</p>
+                                            <p>Шалтгаан:
+                                                {{ order.driver_comment }}</p>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center text-nowrap">
+                                        <p>
+                                            <strong>{{ order.delivery_date.strftime('%Y-%m-%d') }}</strong>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        {% if order.delivery_region is none %}
+                                            <p class="text-danger fw-bold">бүсчлэгдээгүй</p>
+                                        {% else %}
+                                            <p class="text-success fw-bold">{{ order.delivery_region }}</p>
+                                        {% endif%}
+                                    </td>
+                                    <td>
+                                        {% if order.assigned_driver_name is none %}
+                                            <p class="text-danger fw-bold">хувиарлагдаагүй</p>
+                                            {% if order.is_postphoned %}
+                                                {% if order.status == "assigned" %}
+                                                    <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
+                                                {% else %}
+                                                    <p class="text-secondary fw-bold">хойшлуулсан жолооч: {{ order.postphoned_driver_name }}</p>
+                                                {% endif %}
+                                            {% else %}
+                                                
+                                            {% endif %}
+                                        {% else %}
+                                            {% if order.is_postphoned %}
+                                                {% if order.status == "assigned" %}
+                                                    <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
+                                                {% else %}
+                                                    <p class="text-secondary fw-bold">хойшлуулсан жолооч: {{ order.postphoned_driver_name }}</p>
+                                                {% endif %}
+                                            {% else %}
+                                                <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
+                                            {% endif %}
+                                        {% endif%}
+                                    </td>
+                                    <td style=" text-align: end;">
+                                        <p>₮{{ order.total_amount  | round | int | numberFormat }}</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                {{ form3.select_regions.label(class="form-control-label") }}
+                                {% if form3.select_regions.errors %}
+                                    {{ form3.select_regions(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form3.select_regions.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form3.select_regions(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form3.select_drivers.label(class="form-control-label") }}
+                                {% if form3.select_drivers.errors %}
+                                    {{ form3.select_drivers(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form3.select_drivers.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form3.select_drivers(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 align-self-center">
+                                {{ form3.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock main %}

@@ -1,0 +1,21 @@
+{% macro render_form(form) %}
+    <button class="btn btn-success" type="submit">
+        <i class="fas fa-lock"></i>
+        {{ form.label }}
+    </button>
+{% endmacro %}
+
+{% macro render_posts(posts, pagination=True) %}
+    {% for post in _posts %}
+    <div >
+        <h1>
+            <a class="text-dark" href="{{ url_for('post', post_id=post.id)}}">{{ post.title }}</a>
+        </h1>
+    </div>
+    <div class="row">
+        <div class="col">{{ post.text | truncate(500) | safe }}
+            <a href="{{ url_for('post', post_id=post.id) }}">Read More</a>
+        </div>
+    </div>
+    {% endfor %}
+{% endmacro %}

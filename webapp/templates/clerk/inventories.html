@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Агуулах үлдэгдэл</h3>
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">ID</th>
+                                    <th scope="col" class="bg-grad">Барааны нэр</th>
+                                    <th scope="col" class="bg-grad">Харилцагч</th>
+                                    <th scope="col" class="bg-grad">Өнгө</th>
+                                    <th scope="col" class="bg-grad">Хэмжээ</th>
+                                    <th scope="col" class="bg-grad">Үлдэгдэл Тоо</th>
+                                    <th scope="col" class="bg-grad">Нэгж үнэ</th>
+                                    <th scope="col" class="bg-grad">Хаана(Хэнд)</th>
+                                    <th scope="col" class="bg-grad">Нярав хүлээж авсан</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for inventory in inventories %}
+                                    <tr class="header">
+                                        <td class="fw-bold" style="font-size:18px;">{{ inventory.id }}</td>
+                                        <td>
+                                            <a class="show-more fw-bold" style="color:black;">{{ inventory.total_inventory_product.name }}</a>
+                                        </td>
+                                        <td>
+                                            <p class="fw-bold">{{ inventory.total_inventory_product.supplier.company_name }}</p>
+                                        </td>
+                                        <td>{{ inventory.total_inventory_product.colors | first }}</td>
+                                        <td>{{ inventory.total_inventory_product.sizes | first }}</td>
+                                        <td>
+                                            <p><strong>Боломжит: </strong>{{ inventory.quantity | round | int | numberFormat }}</p>
+                                            <p><strong>Жолоочид байгаа хойшлуулсан: </strong>{{ inventory.postphoned_quantity | numberFormat }}</p>
+                                            <p><strong>Жолоочид байгаа цуцалсан: </strong>{{ inventory.cancelled_quantity | numberFormat }}</p>
+                                            <p><strong>Нийт: </strong>{{ (inventory.quantity + inventory.postphoned_quantity + inventory.cancelled_quantity) | round | int | numberFormat }}</p>
+                                        </td>
+                                        <td>{{ inventory.total_inventory_product.price | round | int | numberFormat }}</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    {% for inven in inventory.total_inventories %}
+                                        <tr style="background-color: rgb(223, 223, 223); border-bottom: 2px solid red;" >
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{ inven.quantity | round | int | numberFormat }}</td>
+                                            <td>{{ (inventory.total_inventory_product.price) | round | int | numberFormat }}</td>
+                                            <td>
+                                                {% if inven.clerk_name is none %}
+                                                    {{ inven.driver_name }}
+                                                {% else %}
+                                                    {{ inven.clerk_name }}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if inven.status == true %}
+                                                    авсан ({{ inven.clerk_accepted_date }})
+                                                {% else %}
+                                                    хүлээгдэж байна
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="pagination d-flex justify-content-center align-content-center" id="pagination">
+                {{ pagination.links }}
+            </div>
+        </div>
+    </section>
+    <!-- END Products -->
+
+    <script>
+        $('.show-more').click(function () {
+            $('.header').toggleClass('expand').nextUntil('tr.header').slideToggle(100);
+        });
+    </script>
+{% endblock main %}
