@@ -42,8 +42,8 @@
                                             <th scope="col" class="bg-grad">Төлөв</th>
                                         </tr>
                                     </thead>
-                                        <tbody>
-                                            {% for order in orders %}
+                                    <tbody>
+                                        {% for order in orders %}
                                             {{ form.order_id(class="form-control", value=order.id) }}
                                             <tr>
                                                 <td class="fw-bold">{{ order.id }}</td>
@@ -58,7 +58,7 @@
                                                     {% endif %}
 
                                                     {% if order.addresses.khoroo is not none %}
-                                                        {{ order.addresses.khoroo }},
+                                                        {{ order.addresses.khoroo }}-р хороо,
                                                     {% endif %}
 
                                                     {% if order.addresses.aimag is not none %}
@@ -103,8 +103,8 @@
                                                     {% endif %}
                                                 </td>
                                             </tr>
-                                            {% endfor %}
-                                        </tbody>
+                                        {% endfor %}
+                                    </tbody>
                                 </table>
                                 <div class="float-end mt-5 mb-5">
                                     {{ form1.submit(class="btn btn-outline-success m-0") }}
@@ -114,82 +114,188 @@
                     {% endif %}
                 </div>
 
-
-                <h3 class="custom-header mb-4">Өнөөдрийн хүлээлгэж өгсөн захиалгууд</h3>
-                <div class="table-responsive-sm">
-                    <table id="example" class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col" class="bg-grad">ID</th>
-                                <th scope="col" class="bg-grad">Байгууллага</th>
-                                <th scope="col" class="bg-grad">Хаяг/Утас</th>
-                                <th scope="col" class="bg-grad">Бараа/Тоо ширхэг</th>
-                                <th scope="col" class="bg-grad">Бүс</th>
-                                <th scope="col" class="bg-grad">Жолооч</th>
-                                <th scope="col" class="bg-grad">Төлөв</th>
-                            </tr>
-                        </thead>
+                {% if  driver_received_orders|length > 0 %}
+                    <h3 class="custom-header mb-4">Өнөөдрийн хүлээлгэж өгсөн захиалгууд</h3>
+                    <div class="table-responsive-sm">
+                        <table id="example1" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">ID</th>
+                                    <th scope="col" class="bg-grad">Байгууллага</th>
+                                    <th scope="col" class="bg-grad">Хаяг/Утас</th>
+                                    <th scope="col" class="bg-grad">Бараа/Тоо ширхэг</th>
+                                    <th scope="col" class="bg-grad">Бүс</th>
+                                    <th scope="col" class="bg-grad">Жолооч</th>
+                                    <th scope="col" class="bg-grad">Төлөв</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 {% for order in driver_received_orders %}
-                                <tr>
-                                    <td class="fw-bold">{{ order.id }}</td>
-                                    <td style="text-align: center;" class="fw-bold">{{ order.supplier_company_name }}</td>
-                                    <td>
-                                        {% if order.addresses.city is not none %}
-                                            {{ order.addresses.city }},
-                                        {% endif %}
+                                    <tr>
+                                        <td class="fw-bold">{{ order.id }}</td>
+                                        <td style="text-align: center;" class="fw-bold">{{ order.supplier_company_name }}</td>
+                                        <td>
+                                            {% if order.addresses.city is not none %}
+                                                {{ order.addresses.city }},
+                                            {% endif %}
 
-                                        {% if order.addresses.district is not none %}
-                                            {{ order.addresses.district }},
-                                        {% endif %}
+                                            {% if order.addresses.district is not none %}
+                                                {{ order.addresses.district }},
+                                            {% endif %}
 
-                                        {% if order.addresses.khoroo is not none %}
-                                            {{ order.addresses.khoroo }},
-                                        {% endif %}
+                                            {% if order.addresses.khoroo is not none %}
+                                                {{ order.addresses.khoroo }}-р хороо,
+                                            {% endif %}
 
-                                        {% if order.addresses.aimag is not none %}
-                                            {{ order.addresses.aimag }},
-                                        {% endif %}
+                                            {% if order.addresses.aimag is not none %}
+                                                {{ order.addresses.aimag }},
+                                            {% endif %}
 
-                                        <p>{{ order.addresses.address }},</p>
-                                        <p>{{ order.addresses.phone }},
-                                            {{ order.addresses.phone_more }}</p>
-                                    </td>
-                                    <td>
-                                        {% if order.order_type == "stored" %}
-                                            {% set odpt = namespace (order_payment_type = "") %}
-                                            {% for order_detail in order.delivery_details %}
-                                                <p>
-                                                    {{ order_detail.products.name }},
-                                                    {{ order_detail.quantity }}
-                                                    ширхэг,
-                                                    {% set odpt.order_payment_type = order_detail.payment_type %}
-                                                    ₮{{ (order_detail.products.price*order_detail.quantity)  | round | int | numberFormat }}
-                                                </p>
-                                            {% endfor %}
-                                        {% else %}
-                                            <p class="text-center fw-bold">{{ order.delivery_details[0].phone }}</p>
-                                        {% endif %}
-                                    </td>
-                                    <td style="text-align: center;" class="fw-bold">
-                                        {% if order.delivery_region is none %}
-                                            Байхгүй
-                                        {% else %}
-                                            {{ order.delivery_region }}
-                                        {% endif %}
-                                    </td>
-                                    <td class="fw-bold">
-                                        {{ order.assigned_driver_name }}
-                                    </td>
-                                    <td>
-                                        <p class="text-success fw-bold">Жолооч хүлээж авсан({{ order.received_from_clerk_date }})</p>
-                                    </td>
-                                </tr>
+                                            <p>{{ order.addresses.address }},</p>
+                                            <p>{{ order.addresses.phone }},
+                                                {{ order.addresses.phone_more }}</p>
+                                        </td>
+                                        <td>
+                                            {% if order.order_type == "stored" %}
+                                                {% set odpt = namespace (order_payment_type = "") %}
+                                                {% for order_detail in order.delivery_details %}
+                                                    <p>
+                                                        {{ order_detail.products.name }},
+                                                        {{ order_detail.quantity }}
+                                                        ширхэг,
+                                                        {% set odpt.order_payment_type = order_detail.payment_type %}
+                                                        ₮{{ (order_detail.products.price*order_detail.quantity)  | round | int | numberFormat }}
+                                                    </p>
+                                                {% endfor %}
+                                            {% else %}
+                                                <p class="text-center fw-bold">{{ order.delivery_details[0].phone }}</p>
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center;" class="fw-bold">
+                                            {% if order.delivery_region is none %}
+                                                Байхгүй
+                                            {% else %}
+                                                {{ order.delivery_region }}
+                                            {% endif %}
+                                        </td>
+                                        <td class="fw-bold">
+                                            {{ order.assigned_driver_name }}
+                                        </td>
+                                        <td>
+                                            <p class="text-success fw-bold">Жолооч хүлээж авсан({{ order.received_from_clerk_date }})</p>
+                                        </td>
+                                    </tr>
                                 {% endfor %}
                             </tbody>
-                    </table>
-                </div>
+                        </table>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </section>
+    <script>
+        $(document).ready(function () {
+            $('#example1').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                paging: false,
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGE_ -c _PAGES_",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                paging: false,
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGE_ -c _PAGES_",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+
+                }
+            });
+        });
+    </script>
 {% endblock main %}

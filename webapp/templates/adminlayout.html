@@ -1,0 +1,36 @@
+{% import 'admin/layout.html' as layout with context -%}
+{% extends 'admin/base.html' %}
+
+{% block head_tail %}
+  {{ super() }}
+  <link href="{{ url_for('static', filename='css/adminlayout.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block model_menu_bar %}
+{% endblock %}
+
+{% block page_body %}
+
+{% if current_user.is_authenticated %}
+  <div class="sidebar-container">
+    <div class="sidebar-logo">
+      Админ Dashboard
+    </div>
+    <ul class="sidebar-navigation">
+      <li class="header">Цэс</li>
+      {{ layout.menu() }}
+      {{ layout.menu_links() }}
+    </ul>
+  </div>
+  
+{% else %}
+{% endif %}
+
+
+<div class="content-container">
+    {% block body %}{% endblock %}
+</div>
+
+{% endblock %}
+
+

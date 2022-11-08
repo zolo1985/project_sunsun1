@@ -17,59 +17,66 @@
                                     <th scope="col">Хаяг/Утас</th>
                                     <th scope="col">Бараа/Тоо ширхэг</th>
                                     <th scope="col">Төлбөр</th>
-                                    <th scope="col">Бүс</th>
-                                    <th scope="col">Жолооч</th>
                                     <th scope="col">Дүн</th>
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for order in jobs %}
-                                <tr>
-                                    <td scope="row"><p>{{ loop.index }}.</p></td>
-                                    <td><p>{{ order.supplier_company_name }}</p></td>
-                                    <td><p>{{ order.status }}</p></td>
-                                    <td><p>{{ order.delivery_date.strftime('%Y-%m-%d')}}</p></td>
-                                    <td>
-                                        <p>
-                                            {% if order.destination_type == "local" %}
-                                                {{ order.addresses.district }}, {{ order.addresses.khoroo }},{{ order.addresses.address }}, {{ order.addresses.phone }}, {{ order.addresses.phone_more }}
-                                            {% elif order.destination_type == "long" %}
-                                                {{ order.addresses.aimag }}, {{ order.addresses.address }}, {{ order.addresses.phone }}, {{ order.addresses.phone_more }}
-                                            {% endif %}
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {% if order.order_type == "stored" %}
+                                    <tr>
+                                        <td scope="row">
+                                            <p>{{ loop.index }}.</p>
+                                        </td>
+                                        <td>
+                                            <p>{{ order.supplier_company_name }}</p>
+                                        </td>
+                                        <td>
+                                            <p>{{ order.status }}</p>
+                                        </td>
+                                        <td>
+                                            <p class="text-nowrap">{{ order.delivery_date.strftime('%Y-%m-%d') }}</p>
+                                        </td>
+                                        <td>
+                                            <p style="max-width: 150px;">
+                                                {% if order.destination_type == "local" %}
+                                                    {{ order.addresses.district }},
+                                                    {{ order.addresses.khoroo }}-р хороо,{{ order.addresses.address }},
+                                                    {{ order.addresses.phone }},
+                                                    {{ order.addresses.phone_more }}
+                                                {% elif order.destination_type == "long" %}
+                                                    {{ order.addresses.aimag }},
+                                                    {{ order.addresses.address }},
+                                                    {{ order.addresses.phone }},
+                                                    {{ order.addresses.phone_more }}
+                                                {% endif %}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <span>
+                                                {% if order.order_type == "stored" %}
                                                     {% for order_detail in order.delivery_details %}
-                                                        ({{ order_detail.products.name }} - {{ order_detail.quantity }} ширхэг, ₮{{ (order_detail.products.price*order_detail.quantity)  | round | int | numberFormat }})
+                                                        {{ order_detail.products.name }}
+                                                        -
+                                                        {{ order_detail.quantity }}
+                                                        ширхэг, ₮{{ (order_detail.products.price*order_detail.quantity)  | round | int | numberFormat }}
                                                     {% endfor %}
-                                            {% else %}
-                                                1
-                                            {% endif%}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <p>{{ order.payment_types[0] }}</p>
-                                    </td>
-                                    <td>
-                                        {% if order.delivery_region is none %}
-                                            <p>Байхгүй</p>
-                                        {% else %}
-                                            <p>{{ order.delivery_region }}</p>
-                                        {% endif %}
-                                    </td>
-                                    <td><p>{{ order.assigned_driver_name }}</p></td>
-                                    <td style="color:rgb(56, 159, 45)">
-                                        <p>{{ order.total_amount  | round | int | numberFormat }}</p>
-                                    </td>
-                                    <td>
-                                        <a class="btn btn-outline-success" href="{{ url_for('driver_job.driver_job_detail', order_id=order.id) }}">Ажлыг харах</a>
-                                    </td>
-                                </tr>
+                                                {% else %}
+                                                    1
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <p>{{ order.payment_types[0] }}</p>
+                                        </td>
+                                        <td style="color:rgb(56, 159, 45)">
+                                            <p>{{ order.total_amount  | round | int | numberFormat }}</p>
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-outline-success" href="{{ url_for('driver_job.driver_job_detail', order_id=order.id) }}">Ажлыг харах</a>
+                                        </td>
+                                    </tr>
                                 {% endfor %}
-                            </tbody>                    
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -79,53 +86,99 @@
     <!-- END Products -->
     <script>
         $(document).ready(function () {
-            $('#example').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
+            var dragSrc = null; // Globally track source cell
+            var cells = null; // All cells in table
+
+            var table = $('#example').DataTable({
+                pageLength: 100,
+                columnDefs: [
                     {
-                        extend: 'csvHtml5',
-                        text: 'CSV файл татах',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
-                        tag: 'span',
-                        exportOptions: {
-                            modifier: {
-                                search: 'none'
-                            }
+                        targets: 0,
+
+                        // Set HTML5 draggable for all cells
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).attr('draggable', 'true');
                         }
-                    },
-                    {
-                        extend: 'print',
-                        text: 'Хэвлэх',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
-                        tag: 'span',
-                        exportOptions: {
-                            modifier: {
-                                search: 'none'
-                            }
-                        }
-                    },
-                ],
-                paging: false,
-                "columnDefs": [
-                    {
-                        "orderData": [0, 1]
-                    },
-                ],
-                pageLength: 50,
-                lengthMenu: [50, 100, 200, 500],
-                "language": {
-                    "lengthMenu": "_MENU_ эгнээ харах",
-                    "zeroRecords": "Дата алга",
-                    "info": "_PAGE_ -c _PAGES_",
-                    "infoEmpty": "",
-                    "sSearch": "Хайх",
-                    "paginate": {
-                        "previous": "өмнөх",
-                        "next": "дараа",
                     }
-                    
+                ],
+                drawCallback: function () { // Apply HTML5 drag and drop listeners to all cells
+                    cells = document.querySelectorAll('#example td');
+                    [].forEach.call(cells, function (cell) {
+                        cell.addEventListener('dragstart', handleDragStart, false);
+                        cell.addEventListener('dragenter', handleDragEnter, false)
+                        cell.addEventListener('dragover', handleDragOver, false);
+                        cell.addEventListener('dragleave', handleDragLeave, false);
+                        cell.addEventListener('drop', handleDrop, false);
+                        cell.addEventListener('dragend', handleDragEnd, false);
+                    });
                 }
             });
+
+
+            function handleDragStart(e) {
+                this.style.opacity = '0.4'; // this / e.target is the source node.
+                dragSrc = this;
+                // Keep track of source cell
+
+                // Allow moves
+                e.dataTransfer.effectAllowed = 'move';
+
+                // Get the cell data and store in the transfer data object
+                e.dataTransfer.setData('text/html', this.innerHTML);
+            }
+
+            function handleDragOver(e) {
+                if (e.preventDefault) {
+                    e.preventDefault(); // Necessary. Allows us to drop.
+                }
+
+                // Allow moves
+                e.dataTransfer.dropEffect = 'move'; // See the section on the DataTransfer object.
+
+                return false;
+            }
+
+            function handleDragEnter(e) {
+                // this / e.target is the current hover target.
+
+                // Apply drop zone visual
+                this.classList.add('over');
+            }
+
+            function handleDragLeave(e) {
+                // this / e.target is previous target element.
+
+                // Remove drop zone visual
+                this.classList.remove('over');
+            }
+            
+            function handleDrop(e) { // this / e.target is current target element.
+
+                if (e.stopPropagation) {
+                    e.stopPropagation(); // stops the browser from redirecting.
+                }
+
+                // Don't do anything if dropping the same column we're dragging.
+                if (dragSrc != this) { // Set the source column's HTML to the HTML of the column we dropped on.
+                    dragSrc.innerHTML = this.innerHTML;
+
+                    // Set the distination cell to the transfer data from the source
+                    this.innerHTML = e.dataTransfer.getData('text/html');
+
+                    // Invalidate the src cell and dst cell to have DT update its cache then draw
+                    table.cell(dragSrc).invalidate();
+                    table.cell(this).invalidate().draw(false);
+                }
+
+                return false;
+            }
+
+            function handleDragEnd(e) { // this/e.target is the source node.
+                this.style.opacity = '1.0';
+                [].forEach.call(cells, function (cell) { // Make sure to remove drop zone visual class
+                    cell.classList.remove('over');
+                });
+            }
         });
     </script>
 {% endblock main %}

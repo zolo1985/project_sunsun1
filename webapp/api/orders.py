@@ -106,6 +106,7 @@ def order_completed():
             order.is_ready = False
             order.delivery_attempts = order.delivery_attempts + 1
             order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
         elif order.order_type == "unstored":
             order.status = "completed"
@@ -113,6 +114,7 @@ def order_completed():
             order.is_ready = False
             order.delivery_attempts = order.delivery_attempts + 1
             order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
         payment_detail = models.PaymentDetail()
         payment_detail.card_amount = body["card"]
@@ -171,6 +173,7 @@ def order_cancelled():
             order.driver_comment = body["driver_comment"]
             order.delivery_attempts = order.delivery_attempts + 1
             order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
         elif order.order_type == "unstored":
             order.status = "cancelled"
@@ -181,12 +184,13 @@ def order_cancelled():
             order.driver_comment = body["driver_comment"]
             order.delivery_attempts = order.delivery_attempts + 1
             order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
         job_history = models.DriverOrderHistory()
         job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
         job_history.delivery_status = "cancelled"
         job_history.payment_type = str(order.payment_types[0])
-        job_history.address = f'%s, %s, %s,'%(order.addresses.district, order.addresses.khoroo, order.addresses.address)
+        job_history.address = f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
         job_history.driver_id = current_user.id
         job_history.type = "delivery"
         job_history.delivery_id = order.id
@@ -248,6 +252,7 @@ def order_postphoned():
             order.postphoned_date = datetime.fromisoformat(body["postphoned_date"])
             order.delivery_date = datetime.fromisoformat(body["postphoned_date"])
             order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
         elif order.order_type == "unstored":
             order.status = "unassigned"
@@ -266,12 +271,13 @@ def order_postphoned():
             order.postphoned_date = datetime.fromisoformat(body["postphoned_date"])
             order.delivery_date = datetime.fromisoformat(body["postphoned_date"])
             order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
         job_history = models.DriverOrderHistory()
         job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
         job_history.delivery_status = "postphoned"
         job_history.payment_type = str(order.payment_types[0])
-        job_history.address = f'%s, %s, %s,'%(order.addresses.district, order.addresses.khoroo, order.addresses.address)
+        job_history.address = f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
         job_history.driver_id = current_user.id
         job_history.type = "delivery"
         job_history.delivery_id = order.id

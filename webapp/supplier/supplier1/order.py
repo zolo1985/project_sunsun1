@@ -65,7 +65,7 @@ def supplier1_order_add(destination):
         form = OrderDetailLocalAddForm()
         form.products.choices = [(product.id, f'%s,  (сүнсүн агуулахад: %s, хэмжээ: %s, өнгө: %s, үнэ: %s₮)'%(product.name, product.quantity, str(product.prod_size_name).replace('[','').replace(']',''), str(product.prod_color_name).replace('[','').replace(']',''), str(product.price).replace('[','').replace(']',''))) for product in user_products]
         form.district.choices = [(district) for district in districts]
-        form.khoroo.choices = [(f'%s хороо'%(district+1)) for district in range(32)]
+        form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
         form.payment_type.choices = [(payment_type) for payment_type in payment_types]
 
         if form.validate_on_submit():

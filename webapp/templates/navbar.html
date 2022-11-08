@@ -190,7 +190,6 @@
                                 </div>
                             </div>
                         </li>
-                        {% elif current_user.has_role('admin')%}
                         {% elif current_user.has_role('driver')%}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('driver_job.driver_jobs')}}">Ажлууд</a>

@@ -336,7 +336,7 @@ def manager_order_assign_region():
     form1 = FilterOrderByDistrict()
     form1.district_names.choices = [(district) for district in districts]
     form1.district_names.choices.insert(0,'Дүүрэг сонгох')
-    form1.khoroo_names.choices = [(f'%s хороо'%(district+1)) for district in range(32)]
+    form1.khoroo_names.choices = [(f'%s'%(district+1)) for district in range(32)]
     form1.khoroo_names.choices.insert(0,'Хороо сонгох')
 
     form3 = AssignRegionAndDriverForm()
@@ -350,7 +350,8 @@ def manager_order_assign_region():
             orders = orders1
             return render_template('/manager/assign_regions_and_drivers.html', orders=orders, total_orders_count_by_district=total_orders_count_by_district, form=form, form1=form1, form3=form3, cur_date=cur_date.date())
         elif form1.district_names.data != 'Дүүрэг сонгох' and form1.khoroo_names.data != 'Хороо сонгох':
-            orders1 = connection.query(models.Delivery).join(models.Address).filter(func.date(models.Delivery.delivery_date) == cur_date.date()).filter(models.Delivery.status == "unassigned").filter(models.Address.district==form1.district_names.data).filter(models.Address.khoroo==form1.khoroo_names.data).filter(models.Delivery.is_ready==True).order_by(models.Address.district).all()
+            print(form1.khoroo_names.data)
+            orders1 = connection.query(models.Delivery).join(models.Address).filter(func.date(models.Delivery.delivery_date) == cur_date.date()).filter(models.Delivery.status == "unassigned").filter(models.Address.district==form1.district_names.data).filter(models.Address.khoroo==str(form1.khoroo_names.data)).filter(models.Delivery.is_ready==True).order_by(models.Address.district).all()
             orders = orders1
             return render_template('/manager/assign_regions_and_drivers.html', orders=orders, total_orders_count_by_district=total_orders_count_by_district, form=form, form1=form1, form3=form3, cur_date=cur_date.date())
         else:

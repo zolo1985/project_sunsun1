@@ -73,6 +73,26 @@ def manager_pickups_history():
 
     return render_template('/manager/pickup_histories.html', pickups=pickups, form=form)
 
+
+
+@manager_pickup_blueprint.route('/manager/pickups/<int:pickup_id>', methods=['GET'])
+@login_required
+@has_role('manager')
+def manager_pickup(pickup_id):
+    connection = Connection()
+    pickup = connection.query(models.PickupTask).get(pickup_id)
+
+    print(pickup.public_id)
+
+    if pickup is None:
+        flash('Олдсонгүй', 'danger')
+        connection.close()
+        return redirect(url_for('manager_pickup.manager_pickups'))
+
+    return render_template('/manager/pickup.html', pickup=pickup)
+
+
+
 # @manager_pickup_blueprint.route('/manager/pickups/history', methods=['GET','POST'])
 # @login_required
 # @has_role('manager')

@@ -224,6 +224,9 @@ class Address(Base):
 
     delivery = relationship("Delivery", back_populates="addresses")
 
+    def __repr__(self):
+        return f'%s %s, %s, %s, %s'%(self.aimag if self.aimag is not None else "", self.district, self.khoroo, self.address, self.phone)
+
 regions_table = Table('region_orders', Base.metadata,
     Column('delivery_id', ForeignKey('delivery.id')),
     Column('region_id', ForeignKey('region.id')))
@@ -331,6 +334,9 @@ class DeliveryDetail(Base):
 
     products = relationship("Product")
 
+    def __repr__(self):
+        return f'Тоо ширхэг: %s Барааны нэр: %s'%(self.quantity, self.products if self.products is not None else "")
+
 class PaymentDetail(Base):
     __tablename__ = 'payment_detail'
 
@@ -344,6 +350,9 @@ class PaymentDetail(Base):
     delivery_id                                 = Column(Integer, ForeignKey('delivery.id'))
 
     delivery = relationship("Delivery", back_populates="payment_details")
+
+    def __repr__(self):
+        return f'Дансаар: %s₮, Бэлнээр: %s₮'%(self.card_amount, self.cash_amount)
 
 
 class Delivery(Base):
@@ -393,6 +402,9 @@ class Delivery(Base):
     payment_details = relationship("PaymentDetail", back_populates="delivery", uselist=False)
     delivery_regions = relationship("Region", secondary=regions_table)
     delivery_returns = relationship("DriverReturn", back_populates="delivery")
+
+    def __repr__(self):
+        return f'Харилцагч: %s'%(self.supplier_company_name)
 
 
 class Inventory(Base):
@@ -535,6 +547,9 @@ class DriverReturn(Base):
 
     driver = relationship("User", back_populates="returns")
     delivery = relationship("Delivery", back_populates="delivery_returns")
+
+    def __repr__(self):
+        return f'%s'%(self.delivery.delivery_details)
 
 
 class AccountantPaymentHistory(Base):

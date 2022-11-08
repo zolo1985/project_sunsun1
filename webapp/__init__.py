@@ -59,6 +59,8 @@ def create_app(object_name):
     from webapp.api import create_module as api_module
     from webapp.clerk import create_module as clerk_create_module
     from webapp.accountant import create_module as accountant_create_module
+    from webapp.admin import create_module as admin_create_module
+    from webapp.driver import create_module as driver_create_module
 
 
     main_create_module(app)
@@ -70,6 +72,8 @@ def create_app(object_name):
     api_module(app)
     clerk_create_module(app)
     accountant_create_module(app)
+    admin_create_module(app)
+    driver_create_module(app)
     
 
     with app.app_context():

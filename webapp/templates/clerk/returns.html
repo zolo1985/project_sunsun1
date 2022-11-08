@@ -28,7 +28,7 @@
                     </form>
 
                     <div class="table-responsive-sm">
-                        <table class="table table-hover">
+                        <table id="example" class="table table-hover">
                             <thead>
                                 <tr>
                                     <th scope="col" class="bg-grad">Харилцагч</th>
@@ -38,45 +38,107 @@
                                     <th scope="col" class="bg-grad"></th>
                                 </tr>
                             </thead>
+                            <tbody>
                             {% for return in returns %}
-                                <tbody>
-                                    <tr>
-                                        <td><p class="fw-bold">{{ loop.index }}. {{ return.delivery.supplier_company_name }}</p></td>
-                                        <td>
-                                            {% if return.delivery.order_type == "unstored" %}
-                                                {{ return.delivery.delivery_details[0].phone }}
-                                            {% elif return.delivery.order_type == "stored"%}
-                                                {% for detail in return.delivery.delivery_details %}
-                                                    <p>{{ detail.products.name }}, {{ detail.quantity }} ширхэг.</p>
-                                                {% endfor %}
+                                <tr>
+                                    <td>
+                                        <p class="fw-bold">{{ loop.index }}.
+                                            {{ return.delivery.supplier_company_name }}</p>
+                                    </td>
+                                    <td>
+                                        {% if return.delivery.order_type == "unstored" %}
+                                            {{ return.delivery.delivery_details[0].phone }}
+                                        {% elif return.delivery.order_type == "stored" %}
+                                            {% for detail in return.delivery.delivery_details %}
+                                                <p>{{ detail.products.name }},
+                                                    {{ detail.quantity }}
+                                                    ширхэг.</p>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if return.delivery_status == "postphoned" %}
+                                            <p class="text-info fw-bold">Хүргэлт:
+                                                {{ return.delivery.id }}
+                                                - Хойшилсон</p>
+                                        {% elif return.delivery_status == "cancelled" %}
+                                            <p class="text-danger fw-bold">Хүргэлт:
+                                                {{ return.delivery.id }}
+                                                - Цуцалсан</p>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <p class="fw-bold">{{ return.driver_name }}</p>
+                                    </td>
+                                    <td>
+                                        {% if return.is_returned %}
+                                            <p class="fw-bold text-success">авсан ({{ return.returned_date }})</p>
+                                        {% else %}
+                                            {% if return.delivery_status=="postphoned" %}
+                                                <a class="btn btn-outline-success" href="{{ url_for('clerk_returns.clerk_postphoned_order', return_id=return.id) }}">Буцааж Авах</a>
+                                            {% elif return.delivery_status=="cancelled" %}
+                                                <a class="btn btn-outline-success" href="{{ url_for('clerk_returns.clerk_cancelled_order', return_id=return.id) }}">Буцааж Авах</a>
                                             {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if return.delivery_status == "postphoned" %}
-                                                <p class="text-info fw-bold">Хүргэлт: {{ return.delivery.id}} - Хойшилсон</p>
-                                            {% elif return.delivery_status == "cancelled" %}
-                                                <p class="text-danger fw-bold">Хүргэлт: {{ return.delivery.id}} - Цуцалсан</p>
-                                            {% endif %}
-                                        </td>
-                                        <td><p class="fw-bold">{{ return.driver_name }}</p></td>
-                                        <td>
-                                            {% if return.is_returned %}
-                                                <p class="fw-bold text-success">авсан ({{ return.returned_date }})</p>
-                                            {% else %}
-                                                {% if return.delivery_status=="postphoned" %}
-                                                    <a class="btn btn-outline-success" href="{{ url_for('clerk_returns.clerk_postphoned_order', return_id=return.id) }}">Буцааж Авах</a>
-                                                {% elif return.delivery_status=="cancelled" %}
-                                                    <a class="btn btn-outline-success" href="{{ url_for('clerk_returns.clerk_cancelled_order', return_id=return.id) }}">Буцааж Авах</a>
-                                                {% endif %}
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                        {% endif %}
+                                    </td>
+                                </tr>
                             {% endfor %}
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </section>
-{% endblock main %}
+    </div>
+</section>
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'csvHtml5',
+                    text: 'CSV файл татах',
+                    text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                    tag: 'span',
+                    exportOptions: {
+                        modifier: {
+                            search: 'none'
+                        }
+                    }
+                }, {
+                    extend: 'print',
+                    text: 'Хэвлэх',
+                    text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                    tag: 'span',
+                    exportOptions: {
+                        modifier: {
+                            search: 'none'
+                        }
+                    }
+                },
+            ],
+            paging: false,
+            "columnDefs": [
+                {
+                    "orderData": [0, 1]
+                },
+            ],
+            pageLength: 50,
+            lengthMenu: [
+                50, 100, 200, 500
+            ],
+            "language": {
+                "lengthMenu": "_MENU_ эгнээ харах",
+                "zeroRecords": "Дата алга",
+                "info": "_PAGE_ -c _PAGES_",
+                "infoEmpty": "",
+                "sSearch": "Хайх",
+                "paginate": {
+                    "previous": "өмнөх",
+                    "next": "дараа"
+                }
+
+            }
+        });
+    });
+</script>{% endblock main %}

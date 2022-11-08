@@ -58,7 +58,7 @@ def supplier2_order_add(destination):
         payment_types = connection.query(models.PaymentType).all()
         form = OrderDetailLocalAddForm()
         form.district.choices = [(district) for district in districts]
-        form.khoroo.choices = [(f'%s хороо'%(district+1)) for district in range(32)]
+        form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
         form.payment_type.choices = [(payment_type) for payment_type in payment_types]
 
         if form.validate_on_submit():

@@ -43,7 +43,6 @@
                         <table id="example" class="table table-hover display">
                             <thead>
                                 <tr>
-                                    <th scope="col" class="bg-grad">Төрөл</th>
                                     <th scope="col" class="bg-grad">Захиалгын ID</th>
                                     <th scope="col" class="bg-grad">Төлөв</th>
                                     <th scope="col" class="bg-grad">Огноо</th>
@@ -54,17 +53,10 @@
                                 {% for order in orders %}
                                 <tr>
                                     <td scope="row">
-                                        {% if order.type == "pickup" %}
-                                            Таталт
-                                        {% elif order.type == "delivery" %}
-                                            Хүргэлт
-                                        {% endif %}
-                                    </td>
-                                    <td scope="row">
                                         {% if order.delivery_id %}
-                                            <a href="{{ url_for('manager_order.manager_order_detail', order_id=order.delivery_id)}}">{{ order.delivery_id }}</a>
+                                            <a href="{{ url_for('manager_order.manager_order_detail', order_id=order.delivery_id)}}"><p class="fw-bold">Хүргэлт: {{ order.delivery_id }}</p></a>
                                         {% elif order.task_id %}
-                                            <p>{{ order.task_id }}</p>
+                                            <a href="{{ url_for('manager_pickup.manager_pickup', pickup_id=order.task_id)}}"><p class="fw-bold">Таталт: {{ order.task_id }}</p></a>
                                         {% endif %}
                                     </td>
                                     <td style="text-align: center;">

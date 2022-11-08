@@ -34,16 +34,17 @@
                                     <table class="table table-hover" id="Infos">
                                         <thead>
                                             <tr>
-                                                <th scope="col" class="bg-grad">Утасны дугаар</th>
-                                                <th scope="col" class="bg-grad">Дүүрэг/орон нутаг</th>
-                                                <th scope="col" class="bg-grad">Хаяг</th>
-                                                <th scope="col" class="bg-grad">Төлбөр</th>
+                                                <th scope="col" class="bg-grad">Хүргэлт</th>
+                                                <th scope="col" class="bg-grad"></th>
+                                                <th scope="col" class="bg-grad"></th>
+                                                <th scope="col" class="bg-grad"></th>
                                             </tr>
                                         </thead>
                                             <tbody>
                                                 <tr>
                                                     <td>
                                                         <div class="form-group">
+                                                            {{ form.phone.label(class="form-control-label") }}
                                                             {% if form.phone.errors %}
                                                             {{ form.phone(class="form-control is-invalid") }}
                                                             <div class="invalid-feedback">
@@ -56,6 +57,7 @@
                                                             {% endif %}
                                                         </div>
                                                         <div class="form-group">
+                                                            {{ form.phone_more.label(class="form-control-label") }}
                                                             {% if form.phone_more.errors %}
                                                             {{ form.phone_more(class="form-control is-invalid") }}
                                                             <div class="invalid-feedback">
@@ -70,12 +72,15 @@
                                                     </td>
             
                                                     <td>
+                                                        {{ form.district.label(class="form-control-label") }}
                                                         {{ form.district(class="form-control")}}
+                                                        {{ form.khoroo.label(class="form-control-label") }}
                                                         {{ form.khoroo(class="form-control")}}
                                                     </td>
             
                                                     <td>
                                                         <div class="form-group">
+                                                            {{ form.address.label(class="form-control-label") }}
                                                             {% if form.address.errors %}
                                                                 {{ form.address(class="form-control is-invalid") }}
                                                                 <div class="invalid-feedback">
@@ -89,6 +94,7 @@
                                                         </div>
                                                     </td>
                                                     <td>
+                                                        {{ form.payment_type.label(class="form-control-label") }}
                                                         {{ form.payment_type(class="form-control")}}
                                                     </td>
                                                 </tr>

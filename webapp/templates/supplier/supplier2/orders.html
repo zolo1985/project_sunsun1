@@ -48,13 +48,11 @@
                                         {% if order.status == "unassigned" %}
                                             {% if form.select_date.data is none %}
                                                 {% if order.is_postphoned %}
-                                                    <p class="text-info fw-bold">хойшлуулсан</p>
+                                                    <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
                                                     <p>
-                                                        <strong>хойшлуулсан огноо:</strong>
-                                                        {{ order.postphoned_date | datefilter }}</p>
+                                                        <strong>хойшлуулсан огноо:</strong> {{ order.postphoned_date | datefilter }}</p>
                                                     <p>
-                                                        <strong>Шалтгаан:</strong>
-                                                        {{ order.driver_comment }}</p>
+                                                        <strong>Шалтгаан:</strong> {{ order.driver_comment }}</p>
                                                 {% else %}
                                                     <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
                                                 {% endif %}
@@ -320,7 +318,7 @@
                                             {% endif %}
 
                                             {% if order.addresses.khoroo is not none %}
-                                                {{ order.addresses.khoroo }},
+                                                {{ order.addresses.khoroo }}-р хороо,
                                             {% endif %}
 
                                             {% if order.addresses.aimag is not none %}

@@ -20,24 +20,28 @@ def signin():
         connection = Connection()
         user = connection.query(models.User).filter_by(email=form.email.data).first()
         if user:
-            if user.status == "unverified" and user.check_password(form.password.data):
-                token = generate_confirmation_token(user.email)
-                # send_confirmation_email.delay(user.email, token)
-                flash('Та имэйлээр ирсэн линкээр хаягаа баталгаажуулна уу!', 'info')
+            if user.has_role('admin'):
+                flash('Хэрэглэгч олдсонгүй!', 'danger')
                 connection.close()
-            elif user.is_authorized == False and user.check_password(form.password.data):
-                flash('Таны данс хаагдсан байна. Менежертэй холбогдоно уу!', 'info')
-                connection.close()
+                return redirect(url_for('auth.signin'))
             else:
-                if user.check_password(form.password.data):
-                    login_user(user)
+                if user.status == "unverified" and user.check_password(form.password.data):
+                    token = generate_confirmation_token(user.email)
+                    # send_confirmation_email.delay(user.email, token)
+                    flash('Та имэйлээр ирсэн линкээр хаягаа баталгаажуулна уу!', 'info')
                     connection.close()
-                    flash(f"Сайна байна уу %s!"%(user.firstname), category="success")
-                    return redirect(url_for('main.home'))
+                elif user.is_authorized == False and user.check_password(form.password.data):
+                    flash('Таны данс хаагдсан байна. Менежертэй холбогдоно уу!', 'info')
+                    connection.close()
                 else:
-                    flash('Хэрэглэгч олдсонгүй!', 'danger')
-                    connection.close()
-            connection.close()
+                    if user.check_password(form.password.data):
+                        login_user(user)
+                        connection.close()
+                        flash(f"Сайна байна уу %s!"%(user.firstname), category="success")
+                        return redirect(url_for('main.home'))
+                    else:
+                        flash('Хэрэглэгч олдсонгүй!', 'danger')
+                        connection.close()
         else:
             flash('Хэрэглэгч олдсонгүй!', 'danger')
             connection.close()

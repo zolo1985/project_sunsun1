@@ -48,7 +48,7 @@
                                         {% if order.status == "unassigned" %}
                                             {% if form.date.data is none %}
                                                 {% if order.is_postphoned %}
-                                                    <p class="text-info fw-bold">хойшлуулсан</p>
+                                                    <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
                                                     <p>
                                                         <strong>хойшлуулсан огноо:</strong>
                                                         {{ order.postphoned_date | datefilter }}</p>
@@ -320,7 +320,7 @@
                                             {% endif %}
 
                                             {% if order.addresses.khoroo is not none %}
-                                                {{ order.addresses.khoroo }},
+                                                {{ order.addresses.khoroo }}-р хороо,
                                             {% endif %}
 
                                             {% if order.addresses.aimag is not none %}

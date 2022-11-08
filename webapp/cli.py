@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 faker = Faker()
 
 initial_roles = ['supplier1', 'supplier2', 'manager', 'admin', 'driver', 'accountant', 'clerk']
-initial_colors = ['Цэнхэр', 'Улаан', 'Ногоон', 'Шар', 'Хар', 'Саарал', 'Ягаан', 'Улбар шар', 'Хөх', 'Бор', 'Чирнээлийн ягаан', 'undefined']
+initial_colors = ['Цэнхэр', 'Улаан', 'Ногоон', 'Шар', 'Хар', 'Саарал', 'Ягаан', 'Улбар шар', 'Хөх', 'Бор', 'Чирнээлийн ягаан', 'Өнгөгүй']
 initial_sizes = ['XXL', 'XL', 'L', 'M', 'S', 'XS', 'XXS', 'Тодорхойгүй']
 initial_delivery_regions = ['Хойд', 'Урд', 'Зүүн', 'Баруун', 'Баруун Хойд', 'Зүүн Хойд', 'Баруун Урд', 'Зүүн Урд']
 initial_artworks = [('webapp/static/images/menu-bg.jpg')]
@@ -216,6 +216,33 @@ def generate_clerks(n):
         connection.close()
 
 
+def generate_admin():
+    connection = Connection()
+    hashed_password = bcrypt.generate_password_hash('password')
+    user = User(company_name='sunsun',
+                firstname='СүнСүн',
+                lastname='СүнСүн',
+                email='admin@sunsun.com',
+                phone=faker.phone_number(),
+                status='verified',
+                created_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
+                modified_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
+                password=hashed_password)
+        
+    user_role = connection.query(Role).filter_by(name="admin").first()
+    user.roles.append(user_role)
+    connection.add(user)
+
+    try:
+        connection.commit()
+    except Exception as e:
+        print(str(e))
+        connection.rollback()
+        connection.close()
+    else:
+        connection.close()
+
+
 def generate_drivers(n):
     connection = Connection()
     for i in range(n):
@@ -400,3 +427,7 @@ def register(app):
     @app.cli.command('reset-data')
     def reset_data():
         reset_database_data()
+
+    @app.cli.command('gen-admin')
+    def gen_admin():
+        generate_admin()

@@ -1,0 +1,54 @@
+{% extends "admin/master.html" %}
+{{ super() }}
+{% block body %}
+<section id="cover" class="min-vh-100">
+    <div id="cover-caption">
+        <div class="container">
+            <div class="row text-white">
+                <div class="col-xl-5 col-lg-6 col-md-8 col-sm-10 mx-auto text-center form p-4">
+                    <h1>Админ Нэвтрэх</h1>
+                    <div class="px-2">
+                        <form id="form" method="POST" action="">
+                            {{ form.csrf_token }}
+                            <fieldset class="form-group">
+                                <legend class="border-bottom mb-4">{{ legend }}</legend>
+                                <div class="form-group">
+                                    {% if form.email.errors %}
+                                        {{ form.email(class="form-control form-control-sm is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.email(class="form-control form-control-sm") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    {% if form.password.errors %}
+                                        {{ form.password(class="form-control form-control-sm is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.password.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                    {{ form.password(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                            </fieldset>
+                            <br>
+                            <div class="form-group d-grid gap-2">
+                                {{ form.submit(class="btn btn-warning") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+
+
