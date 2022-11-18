@@ -246,3 +246,36 @@ def manager_add_account():
             return redirect(url_for('manager_account.manager_add_account'))
 
     return render_template('/manager/new_account.html', form=form)
+
+
+@manager_account_blueprint.route('/manager/account/is-invoiced/<int:user_id>', methods=['GET','POST'])
+@login_required
+@has_role('manager')
+def manager_account_is_invoiced(user_id):
+    connection = Connection()
+    user = connection.query(models.User).get(user_id)
+
+    if user:
+        try:
+            if user.is_invoiced:
+                user.is_invoiced = False
+            else:
+                user.is_invoiced = True
+
+            connection.commit()
+        except Exception:
+            flash('Алдаа гарлаа!', 'danger')
+            connection.rollback()
+            connection.close()
+            return redirect(url_for('manager_account.manager_accounts'))
+        else:
+            if user.is_invoiced:
+                flash(f'%s нэхэмжилдэггүй боллоо.'%(user.company_name), 'success')
+            else:
+                flash(f'%s нэхэмжилдэг боллоо.'%(user.company_name), 'success')
+            connection.close()
+            return redirect(url_for('manager_account.manager_accounts'))
+    else:
+        connection.close()
+        flash('Хэрэглэгч олдсонгүй!', 'danger')
+        return redirect(url_for('manager_account.manager_accounts'))

@@ -1,5 +1,4 @@
 
-from ast import For
 from flask_login import AnonymousUserMixin, UserMixin
 from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, PickleType,
                         Table, Text, Unicode)
@@ -57,6 +56,7 @@ class User(Base, UserMixin):
     phone                                        = Column(Unicode(255), unique=True)
     status                                       = Column(Unicode(100))
     is_authorized                                = Column(Boolean, default=True)
+    is_invoiced                                  = Column(Boolean, default=False)
     refresh_token                                = Column(Unicode(2000))
     current_orders_list                          = Column(MutableList.as_mutable(PickleType), default=[])
     avatar_id                                    = Column(Unicode(255))
@@ -228,8 +228,9 @@ class Address(Base):
         return f'%s %s, %s, %s, %s'%(self.aimag if self.aimag is not None else "", self.district, self.khoroo, self.address, self.phone)
 
 regions_table = Table('region_orders', Base.metadata,
-    Column('delivery_id', ForeignKey('delivery.id')),
-    Column('region_id', ForeignKey('region.id')))
+    Column('delivery_id', ForeignKey('delivery.id', ondelete="CASCADE")),
+    Column('region_id', ForeignKey('region.id', ondelete="CASCADE")))
+
 
 class Region(Base):
     __tablename__ = 'region'
@@ -335,7 +336,8 @@ class DeliveryDetail(Base):
     products = relationship("Product")
 
     def __repr__(self):
-        return f'Тоо ширхэг: %s Барааны нэр: %s'%(self.quantity, self.products if self.products is not None else "")
+        return f'(Тоо ширхэг: %s, Барааны нэр: %s)'%(self.quantity, self.products if self.products is not None else "")
+        
 
 class PaymentDetail(Base):
     __tablename__ = 'payment_detail'
@@ -347,7 +349,7 @@ class PaymentDetail(Base):
     cash_amount                              = Column(Integer, nullable=False, default=0)
     created_date                             = Column(DateTime)
     modified_date                            = Column(DateTime)
-    delivery_id                                 = Column(Integer, ForeignKey('delivery.id'))
+    delivery_id                              = Column(Integer, ForeignKey('delivery.id'))
 
     delivery = relationship("Delivery", back_populates="payment_details")
 
@@ -375,11 +377,13 @@ class Delivery(Base):
     is_driver_received                       = Column(Boolean, default=False)
     is_processed_by_accountant               = Column(Boolean, default=False)
     is_returned                              = Column(Boolean, default=False)
+    # is_returned_to_supplier                  = Column(Boolean, default=False)
 
     assigned_driver_id                       = Column(Integer)
     assigned_driver_name                     = Column(Unicode(255))
-    postphoned_driver_name                   = Column(Unicode(255))
     assigned_manager_id                      = Column(Unicode(255))
+
+    postphoned_driver_name                   = Column(Unicode(255))
 
     received_from_clerk_name                 = Column(Unicode(255))
     received_from_clerk_id                   = Column(Integer)
@@ -400,7 +404,7 @@ class Delivery(Base):
     user = relationship("User", back_populates="deliveries")
     delivery_details = relationship("DeliveryDetail", cascade="all, delete", passive_deletes=True)
     payment_details = relationship("PaymentDetail", back_populates="delivery", uselist=False)
-    delivery_regions = relationship("Region", secondary=regions_table)
+    delivery_regions = relationship("Region", secondary=regions_table, passive_deletes=True)
     delivery_returns = relationship("DriverReturn", back_populates="delivery")
 
     def __repr__(self):
@@ -446,6 +450,7 @@ class TotalInventory(Base):
     quantity                                = Column(Integer, nullable=False, default = 0)
     postphoned_quantity                     = Column(Integer, nullable=False, default = 0)
     cancelled_quantity                      = Column(Integer, nullable=False, default = 0)
+    substracted_quantity                    = Column(Integer, nullable=False, default = 0)
     created_date                            = Column(DateTime)
     modified_date                           = Column(DateTime)
     user_id                                 = Column(Integer, ForeignKey('user.id'))
@@ -569,3 +574,24 @@ class AccountantPaymentHistory(Base):
     driver_name                              = Column(Unicode(255))
     driver_id                                = Column(Integer, ForeignKey('user.id'))
     accountant_id                            = Column(Integer, ForeignKey('user.id'))
+
+
+class DriverProductReturn(Base):
+    __tablename__ = 'driver_product_return'
+
+    id = Column(Integer, primary_key=True)
+    public_id = Column(Unicode(50), nullable=False, unique=True, default=generate_uuid)
+
+    is_returned                              = Column(Boolean, default=False)
+    returned_clerk_name                      = Column(Unicode(255))
+    product_quantity                         = Column(Integer)
+    driver_comment                           = Column(Text)
+
+    returned_date                            = Column(DateTime)
+    created_date                             = Column(DateTime)
+    modified_date                            = Column(DateTime)
+
+    driver_name                              = Column(Unicode(255))
+    driver_id                                = Column(Integer, ForeignKey('user.id'))
+    delivery_id                              = Column(Integer, ForeignKey('delivery.id'))
+    product_id                               = Column(Integer, ForeignKey('product.id'))

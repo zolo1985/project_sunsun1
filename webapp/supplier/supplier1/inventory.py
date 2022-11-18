@@ -17,7 +17,6 @@ supplier1_inventory_blueprint = Blueprint('supplier1_inventory', __name__)
 def supplier1_inventories():
     connection = Connection()
     inventories = connection.query(models.TotalInventory).filter_by(user_id=current_user.id)
-    # inventories = connection.execute('SELECT ti.*, product.name, product.price as price, ti.quantity+dd.quantity as total, color.name as color_name, size.name as size FROM sunsundatabase1.total_inventory as ti join sunsundatabase1.delivery_detail as dd on ti.product_id=dd.product_id join sunsundatabase1.delivery as de on dd.delivery_id=de.id join sunsundatabase1.product as product on ti.product_id=product.id join sunsundatabase1.user user on product.supplier_id = user.id join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where de.is_postphoned=true and de.status!="completed" and user.id=:user_id;', {"user_id": current_user.id}).all()
     return render_template('/supplier/supplier1/inventories.html', inventories=inventories)
 
 

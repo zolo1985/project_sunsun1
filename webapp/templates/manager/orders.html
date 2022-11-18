@@ -179,7 +179,6 @@
                                             {% else %}
                                                 <p class="text-success fw-bold">хүргэгдсэн</p>
                                             {% endif %}
-
                                         {% elif order.status == "cancelled" %}
                                             <p class="text-danger fw-bold">цуцлагдсан</p>
                                         {% elif order.status == "postphoned" %}
@@ -187,11 +186,14 @@
                                             <p class="text-nowrap">хойшлуулсан огноо: {{ order.postphoned_date }}</p>
                                             <p> Шалтгаан: {{ order.driver_comment }} </p>
                                         {% endif %}
+
                                         {% if (diffdates(cur_date, order.modified_date) | round | int) <= 0 %}
                                             <p>0 минутын өмнө</p>
                                         {% else %}
                                             {% if (diffdates(cur_date, order.modified_date) | round | int ) > 60 and (diffdates(cur_date, order.modified_date) | round | int ) < 1440 %}
                                                 <p>{{ ((diffdates(cur_date, order.modified_date)) / 60 ) | int }} цаг {{ ((diffdates(cur_date, order.modified_date)) % 60 ) | int }} минутын өмнө</p>
+                                            {% elif (diffdates(cur_date, order.modified_date) | round | int ) < 60 %}
+                                                <p>{{ ((diffdates(cur_date, order.modified_date)) % 60 ) | int }} минутын өмнө</p>
                                             {% elif (diffdates(cur_date, order.modified_date) | round | int ) > 1440 %}
                                             {% endif%}
                                         {% endif %}
@@ -290,7 +292,7 @@
         "language": {
             "lengthMenu": "_MENU_ эгнээ харах",
             "zeroRecords": "Дата алга",
-            "info": "_PAGE_ -c _PAGES_",
+            "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
             "infoEmpty": "",
             "sSearch": "Хайх",
             "paginate": {

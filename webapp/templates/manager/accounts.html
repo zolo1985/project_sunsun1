@@ -151,8 +151,8 @@
                         <thead>
                             <tr>
                                 <th scope="col" class="bg-grad">ID</th>
-                                <th scope="col" class="bg-grad">Овог</th>
-                                <th scope="col" class="bg-grad">Нэр</th>
+                                <th scope="col" class="bg-grad">Харилцагч</th>
+                                <th scope="col" class="bg-grad">Нэхэмжилдэг</th>
                                 <th scope="col" class="bg-grad">Нууц үг сэргээх</th>
                                 <th scope="col" class="bg-grad">Утас</th>
                                 <th scope="col" class="bg-grad">И-мэйл</th>
@@ -165,8 +165,15 @@
                             <tbody>
                                 <tr>
                                     <td scope="row">{{ supplier1.id }}</td>
-                                    <td style="text-align: center;">{{ supplier1.lastname }}</td>
-                                    <td style="text-align: center;">{{ supplier1.firstname }}</td>
+                                    <td style="text-align: center;">{{ supplier1.company_name }}</td>
+                                    <td style="text-align: center;">
+                                        {% if supplier1.is_invoiced %}
+                                            <p>Тийм</p>
+                                        {% else %}
+                                            <p>Үгүй</p>
+                                        {% endif %}
+                                        <a class="btn" href="{{ url_for('manager_account.manager_account_is_invoiced', user_id=supplier1.id) }}">Өөрчлөх</a>
+                                    </td>
                                     <td style="text-align: center;">
                                         <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('manager_account.manager_account_password_reset', user_id=supplier1.id) }}">Нууц үг сэргээх</a>
                                     </td>
@@ -198,8 +205,8 @@
                         <thead>
                             <tr>
                                 <th scope="col" class="bg-grad">ID</th>
-                                <th scope="col" class="bg-grad">Овог</th>
-                                <th scope="col" class="bg-grad">Нэр</th>
+                                <th scope="col" class="bg-grad">Харилцагч</th>
+                                <th scope="col" class="bg-grad">Нэхэмжилдэг</th>
                                 <th scope="col" class="bg-grad">Нууц үг сэргээх</th>
                                 <th scope="col" class="bg-grad">Утас</th>
                                 <th scope="col" class="bg-grad">И-мэйл</th>
@@ -211,8 +218,15 @@
                             <tbody>
                                 <tr>
                                     <td scope="row">{{ supplier2.id }}</td>
-                                    <td style="text-align: center;">{{ supplier2.lastname }}</td>
-                                    <td style="text-align: center;">{{ supplier2.firstname }}</td>
+                                    <td style="text-align: center;">{{ supplier2.company_name }}</td>
+                                    <td style="text-align: center;">
+                                        {% if supplier2.is_invoiced %}
+                                            <p>Тийм</p>
+                                        {% else %}
+                                            <p>Үгүй</p>
+                                        {% endif %}
+                                        <a class="btn" href="{{ url_for('manager_account.manager_account_is_invoiced', user_id=supplier2.id) }}">Өөрчлөх</a>
+                                    </td>
                                     <td style="text-align: center;">
                                         <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('manager_account.manager_account_password_reset', user_id=supplier2.id) }}">Нууц үг сэргээх</a>
                                     </td>

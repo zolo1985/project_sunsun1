@@ -4,12 +4,11 @@
 <section>
     <div class="container">
         <div class="row">
-            <form id="form" method="POST" action="" enctype="multipart/form-data">
+            <form id="form" method="POST" action="">
                 {{ form.csrf_token }}
                 <!-- Tab default -->
 				<div class="col-sm-12 col-md-12">
 					<h3 class="custom-header mb-4">Хүргэлт Засах</h3>
-
 					<div class="tab-content">
 						<div class="tab-pane show active" id="tab-1-1">
 							<div class="col-sm-12 mb-5">
@@ -20,8 +19,7 @@
                                                 <th scope="col" class="bg-grad">Утасны дугаар</th>
                                                 <th scope="col" class="bg-grad">Дүүрэг/орон нутаг</th>
                                                 <th scope="col" class="bg-grad">Хаяг</th>
-                                                <th scope="col" class="bg-grad">Хүргэлтийн төлбөр</th>
-                                                <th scope="col" class="bg-grad">Үйлчлэгчээс авах дүн</th>
+                                                <th scope="col" class="bg-grad">Нийт дүн</th>
                                             </tr>
                                         </thead>
                                             <tbody>
@@ -54,8 +52,46 @@
                                                     </td>
             
                                                     <td>
-                                                        {{ form.district(class="form-control")}}
-                                                        {{ form.khoroo(class="form-control")}}
+                                                        {% if task_detail.destination_type == "local" %}
+                                                            <div class="form-group">
+                                                                {% if form.district.errors %}
+                                                                    {{ form.district(class="form-control is-invalid") }}
+                                                                    <div class="invalid-feedback">
+                                                                        {% for error in form.district.errors %}
+                                                                            <span>{{ error }}</span>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                {% else %}
+                                                                    {{ form.district(class="form-control") }}
+                                                                {% endif %}
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                {% if form.khoroo.errors %}
+                                                                    {{ form.khoroo(class="form-control is-invalid") }}
+                                                                    <div class="invalid-feedback">
+                                                                        {% for error in form.khoroo.errors %}
+                                                                            <span>{{ error }}</span>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                {% else %}
+                                                                    {{ form.khoroo(class="form-control") }}
+                                                                {% endif %}
+                                                            </div>
+                                                        {% elif task_detail.destination_type == "long" %}
+                                                            <div class="form-group">
+                                                                {% if form.aimag.errors %}
+                                                                    {{ form.aimag(class="form-control is-invalid") }}
+                                                                    <div class="invalid-feedback">
+                                                                        {% for error in form.aimag.errors %}
+                                                                            <span>{{ error }}</span>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                {% else %}
+                                                                    {{ form.aimag(class="form-control") }}
+                                                                {% endif %}
+                                                            </div>
+                                                        {% endif %}
                                                     </td>
             
                                                     <td>
@@ -71,9 +107,6 @@
                                                                 {{ form.address(class="form-control", style="min-height: 105px;") }}
                                                             {% endif %}
                                                         </div>
-                                                    </td>
-                                                    <td>
-                                                        {{ form.payment_type(class="form-control")}}
                                                     </td>
                                                     <td>
                                                         <div class="form-group">
@@ -94,7 +127,7 @@
                                     </table>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group float-end">
                                 {{ form.submit(class="btn btn-outline-success") }}
                             </div>
 						</div>

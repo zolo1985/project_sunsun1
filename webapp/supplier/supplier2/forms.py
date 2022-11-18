@@ -12,7 +12,6 @@ class OrderDetailLocalAddForm(FlaskForm):
     district = SelectField('Дүүрэг', choices=[],validators=[DataRequired()])
     khoroo = SelectField('Хороо', choices=[],validators=[DataRequired()])
     address = TextAreaField('Хаяг', validators=[DataRequired()])
-    payment_type = SelectField('Төлбөр', choices=[],validators=[DataRequired()])
     total_amount = IntegerField('Үйлчлэгчээс авах дүн', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Хүргэлт нэмэх')
 
@@ -31,7 +30,6 @@ class OrderDetailLongDistanceAddForm(FlaskForm):
     aimag = SelectField('Аймаг', choices=[],validators=[DataRequired()])
     address = TextAreaField('Хаяг', validators=[DataRequired()])
     total_amount = IntegerField('Үйлчлэгчээс авах дүн', validators=[DataRequired(), NumberRange(min=0)])
-    payment_type = SelectField('Төлбөр', choices=[],validators=[DataRequired()])
     submit = SubmitField('Хүргэлт нэмэх')
 
     def validate_phone(self, phone):
@@ -43,15 +41,15 @@ class OrderDetailLongDistanceAddForm(FlaskForm):
             raise ValidationError('Зөвхөн тоо ашиглана уу!')
 
 
-class OrderDetailLocalEditForm(FlaskForm):
+class OrderEditForm(FlaskForm):
     phone = StringField('Утасны дугаар', validators=[DataRequired()])
-    phone_more = StringField('Нэмэлт утасны дугаар', validators=[Optional()])
-    district = SelectField('Дүүрэг', choices=[],validators=[DataRequired()])
-    khoroo = SelectField('Хороо', choices=[],validators=[DataRequired()])
+    phone_more = StringField('Нэмэлт утасны дугаар', validators=[DataRequired()])
+    district = SelectField('Дүүрэг', choices=[],validators=[Optional()])
+    khoroo = SelectField('Хороо', choices=[],validators=[Optional()])
+    aimag = SelectField('Аймаг', choices=[],validators=[Optional()])
     address = TextAreaField('Хаяг', validators=[DataRequired()])
-    payment_type = SelectField('Төлбөр', choices=[],validators=[DataRequired()])
-    total_amount = IntegerField('Үйлчлэгчээс авах дүн', validators=[DataRequired(), NumberRange(min=0)])
-    submit = SubmitField('Хүргэлт засах')
+    total_amount = IntegerField('Нийт дүн', validators=[DataRequired(), NumberRange(min=0)])
+    submit = SubmitField('Өөрчлөх')
 
     def validate_phone(self, phone):
         allowed_chars = set(("0123456789"))
@@ -60,25 +58,6 @@ class OrderDetailLocalEditForm(FlaskForm):
             pass
         else:
             raise ValidationError('Зөвхөн тоо ашиглана уу!')
-
-
-class OrderDetailLongEditForm(FlaskForm):
-    phone = StringField('Утасны дугаар', validators=[DataRequired()])
-    phone_more = StringField('Нэмэлт утасны дугаар', validators=[Optional()])
-    aimag = SelectField('Аймаг', choices=[],validators=[DataRequired()])
-    address = TextAreaField('Хаяг', validators=[DataRequired()])
-    payment_type = SelectField('Төлбөр', choices=[],validators=[DataRequired()])
-    total_amount = IntegerField('Үйлчлэгчээс авах дүн', validators=[DataRequired(), NumberRange(min=0)])
-    submit = SubmitField('Хүргэлт засах')
-
-    def validate_phone(self, phone):
-        allowed_chars = set(("0123456789"))
-        validation = set((phone.data))
-        if validation.issubset(allowed_chars):
-            pass
-        else:
-            raise ValidationError('Зөвхөн тоо ашиглана уу!')
-
 
 class TransferForm(FlaskForm):
     order_id = HiddenField()

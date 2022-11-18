@@ -4,7 +4,7 @@ from webapp import has_role
 from flask_login import current_user, login_required
 from webapp import models
 from webapp.database import Connection
-from webapp.supplier.supplier2.forms import OrderDetailLocalAddForm, OrderDetailLongDistanceAddForm, TransferForm, OrderDetailLocalEditForm, OrderDetailLongEditForm, DateSelectForm
+from webapp.supplier.supplier2.forms import OrderDetailLocalAddForm, OrderDetailLongDistanceAddForm, TransferForm, OrderEditForm, DateSelectForm
 from datetime import datetime, time, timedelta
 from sqlalchemy import func
 from webapp.utils import is_time_between
@@ -55,11 +55,9 @@ def supplier2_order_add(destination):
         connection = Connection()
         todays_order_count = connection.execute('SELECT count(*) FROM sunsundatabase1.delivery as order_table join sunsundatabase1.user as user on order_table.user_id=user.id where DATE(order_table.created_date) = CURDATE() and user.id=:current_user;', {'current_user': current_user.id}).scalar()
         districts = connection.query(models.District).all()
-        payment_types = connection.query(models.PaymentType).all()
         form = OrderDetailLocalAddForm()
         form.district.choices = [(district) for district in districts]
         form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
-        form.payment_type.choices = [(payment_type) for payment_type in payment_types]
 
         if form.validate_on_submit():
             line_phone = request.form.getlist("phone")
@@ -68,7 +66,6 @@ def supplier2_order_add(destination):
             line_khoroo = request.form.getlist("khoroo")
             line_address = request.form.getlist("address")
             line_total_amount = request.form.getlist("total_amount")
-            line_payment_type = request.form.getlist("payment_type")
 
             pickup_task = connection.query(models.PickupTask).filter(models.PickupTask.supplier_id==current_user.id).filter(models.PickupTask.status=="waiting").filter(models.PickupTask.is_completed==False).first()
 
@@ -84,7 +81,6 @@ def supplier2_order_add(destination):
                     pickup_task_detail.khoroo = line_khoroo[i]
                     pickup_task_detail.address = line_address[i]
                     pickup_task_detail.total_amount = line_total_amount[i]
-                    pickup_task_detail.payment_type = line_payment_type[i]
                     pickup_task_detail.destination_type = "local"
                     pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     pickup_task_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -118,7 +114,6 @@ def supplier2_order_add(destination):
                     pickup_task_detail.khoroo = line_khoroo[i]
                     pickup_task_detail.address = line_address[i]
                     pickup_task_detail.total_amount = line_total_amount[i]
-                    pickup_task_detail.payment_type = line_payment_type[i]
                     pickup_task_detail.destination_type = "local"
                     pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     pickup_task_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -155,9 +150,7 @@ def supplier2_order_add(destination):
         todays_order_count = connection.execute('SELECT count(*) FROM sunsundatabase1.delivery as order_table join sunsundatabase1.user as user on order_table.user_id=user.id where user.id=:current_user and DATE(order_table.created_date) = CURDATE();', {'current_user': current_user.id}).scalar()
         form1 = OrderDetailLongDistanceAddForm()
         aimags = connection.query(models.Aimag).all()
-        payment_types = connection.query(models.PaymentType).all()
         form1.aimag.choices = [(aimag) for aimag in aimags]
-        form1.payment_type.choices = [(payment_type) for payment_type in payment_types]
 
         if form1.validate_on_submit():
             line_phone = request.form.getlist("phone")
@@ -165,7 +158,6 @@ def supplier2_order_add(destination):
             line_aimag = request.form.getlist("aimag")
             line_address = request.form.getlist("address")
             line_total_amount = request.form.getlist("total_amount")
-            line_payment_type = request.form.getlist("payment_type")
 
             pickup_task = connection.query(models.PickupTask).filter(models.PickupTask.supplier_id==current_user.id).filter(models.PickupTask.status=="waiting").filter(models.PickupTask.is_completed==False).first()
 
@@ -180,7 +172,6 @@ def supplier2_order_add(destination):
                     pickup_task_detail.aimag = line_aimag[i]
                     pickup_task_detail.address = line_address[i]
                     pickup_task_detail.total_amount = line_total_amount[i]
-                    pickup_task_detail.payment_type = line_payment_type[i]
                     pickup_task_detail.destination_type = "long"
                     pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     pickup_task_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -206,25 +197,24 @@ def supplier2_order_add(destination):
 
                 current_user.pickups.append(pickup_task)
             
-            for i, phone in enumerate(line_phone):
-                pickup_task_detail = models.PickupTaskDetail()
-                pickup_task_detail.phone = phone
-                pickup_task_detail.phone_more = line_phone_more[i]
-                pickup_task_detail.aimag = line_aimag[i]
-                pickup_task_detail.address = line_address[i]
-                pickup_task_detail.total_amount = line_total_amount[i]
-                pickup_task_detail.payment_type = line_payment_type[i]
-                pickup_task_detail.destination_type = "long"
-                pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                pickup_task_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                
-                inventory = models.Inventory()
-                inventory.inventory_type = "unstored"
-                inventory.quantity = 1
-                inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                inventory.received_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                for i, phone in enumerate(line_phone):
+                    pickup_task_detail = models.PickupTaskDetail()
+                    pickup_task_detail.phone = phone
+                    pickup_task_detail.phone_more = line_phone_more[i]
+                    pickup_task_detail.aimag = line_aimag[i]
+                    pickup_task_detail.address = line_address[i]
+                    pickup_task_detail.total_amount = line_total_amount[i]
+                    pickup_task_detail.destination_type = "long"
+                    pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                    pickup_task_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                    
+                    inventory = models.Inventory()
+                    inventory.inventory_type = "unstored"
+                    inventory.quantity = 1
+                    inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                    inventory.received_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                pickup_task.pickup_details.append(pickup_task_detail)
+                    pickup_task.pickup_details.append(pickup_task_detail)
 
             try:
                 connection.commit()
@@ -245,10 +235,10 @@ def supplier2_order_add(destination):
         return render_template('/supplier/supplier2/order_add_long_distance.html', form=form1, cur_date=cur_date, order_window=order_window, todays_order_count=todays_order_count)
 
 
-@supplier2_order_blueprint.route('/supplier2/orders/delete/<int:pickup_task_id>', methods=['GET', 'POST'])
+@supplier2_order_blueprint.route('/supplier2/orders/cancel/<int:pickup_task_id>', methods=['GET', 'POST'])
 @login_required
 @has_role('supplier2')
-def supplier2_order_delete(pickup_task_id):
+def supplier2_order_cancel(pickup_task_id):
     connection = Connection()
 
     task = connection.query(models.PickupTask).get(pickup_task_id)
@@ -275,6 +265,120 @@ def supplier2_order_delete(pickup_task_id):
             return redirect(url_for('supplier2_order.supplier2_orders'))
 
     return redirect(url_for('supplier2_order.supplier2_orders'))
+
+
+@supplier2_order_blueprint.route('/supplier2/orders/edit/<int:pickup_task_id>/<int:pickup_task_detail_id>', methods=['GET', 'POST'])
+@login_required
+@has_role('supplier2')
+def supplier2_order_edit(pickup_task_id, pickup_task_detail_id):
+
+    connection = Connection()
+    task = connection.query(models.PickupTask).get(pickup_task_id)
+    task_detail = connection.query(models.PickupTaskDetail).get(pickup_task_detail_id)
+
+    if task is None:
+        flash('Хүргэлт олдсонгүй!', 'danger')
+        connection.close()
+        return redirect(url_for('supplier2_order.supplier2_orders'))
+
+    if task_detail is None:
+        flash('Хүргэлт олдсонгүй!', 'danger')
+        connection.close()
+        return redirect(url_for('supplier2_order.supplier2_orders'))
+
+    if current_user.id != task.supplier_id:
+        abort(403)
+
+    form = OrderEditForm()
+
+    districts = connection.query(models.District).all()
+    aimags = connection.query(models.Aimag).all()
+    form.district.choices = [(district) for district in districts]
+    form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
+    form.aimag.choices = [(district) for district in aimags]
+
+    if form.validate_on_submit():
+        
+        task_detail.phone = form.phone.data
+        task_detail.phone_more = form.phone_more.data
+
+        if task_detail.destination_type == "local":
+            task_detail.district = form.district.data
+            task_detail.khoroo = form.khoroo.data
+        
+        if task_detail.destination_type == "long":
+            task_detail.aimag = form.aimag.data
+        
+        task_detail.address = form.address.data
+        task_detail.total_amount = form.total_amount.data
+
+        try:
+            connection.commit()
+        except Exception:
+            flash('Алдаа гарлаа!', 'danger')
+            connection.rollback()
+            connection.close()
+            return redirect(url_for('supplier2_order.supplier2_orders_ready'))
+        else:
+            flash('Хүргэлт өөрчлөгдлөө', 'info')
+            return redirect(url_for('supplier2_order.supplier2_orders_ready'))
+
+    elif request.method == 'GET':
+        
+
+        form.phone.data = task_detail.phone
+        form.phone_more.data = task_detail.phone_more
+        form.district.data = task_detail.district
+        form.khoroo.data = task_detail.khoroo
+        form.aimag.data = task_detail.aimag
+        form.address.data = task_detail.address
+        form.total_amount.data = task_detail.total_amount
+
+        return render_template('/supplier/supplier2/order_edit.html', form=form, task_detail=task_detail)
+
+    return render_template('/supplier/supplier2/order_edit.html', form=form, task_detail=task_detail)
+
+
+
+@supplier2_order_blueprint.route('/supplier2/orders/delete/<int:pickup_task_id>/<int:pickup_task_detail_id>', methods=['GET', 'POST'])
+@login_required
+@has_role('supplier2')
+def supplier2_order_delete(pickup_task_id, pickup_task_detail_id):
+
+    connection = Connection()
+    task = connection.query(models.PickupTask).get(pickup_task_id)
+    task_detail = connection.query(models.PickupTaskDetail).get(pickup_task_detail_id)
+
+    if task is None:
+        flash('Хүргэлт олдсонгүй!', 'danger')
+        connection.close()
+        return redirect(url_for('supplier2_order.supplier2_orders'))
+
+    if task_detail is None:
+        flash('Хүргэлт олдсонгүй!', 'danger')
+        connection.close()
+        return redirect(url_for('supplier2_order.supplier2_orders'))
+
+    if current_user.id != task.supplier_id:
+        abort(403)
+
+ 
+    task.pickup_details.remove(task_detail)
+    connection.query(models.PickupTaskDetail).filter_by(id=task_detail.id).delete()
+
+    try:
+        connection.commit()
+    except Exception:
+        flash('Алдаа гарлаа!', 'danger')
+        connection.rollback()
+        connection.close()
+        return redirect(url_for('supplier2_order.supplier2_orders_ready'))
+    else:
+        flash('Хүргэлт өөрчлөгдлөө', 'info')
+        return redirect(url_for('supplier2_order.supplier2_orders_ready'))
+
+
+
 
 
 @supplier2_order_blueprint.route('/supplier2/orders/ready', methods=['GET', 'POST'])
@@ -314,16 +418,7 @@ def supplier2_orders_ready():
                         new_delivery.is_ready = True
                         new_delivery.delivery_attempts = 0
                         new_delivery.supplier_company_name = current_user.company_name
-
-                        order_payment_type = connection.query(models.PaymentType).filter_by(name=pickup_task_detail.payment_type).first()
-                        new_delivery.payment_types.append(order_payment_type)
-
-                        if order_payment_type.name == "Үндсэн үнэ":
-                            new_delivery.total_amount = int(pickup_task_detail.total_amount) + order_payment_type.amount
-                        elif order_payment_type.name == "Хүргэлт орсон":
-                            new_delivery.total_amount = int(pickup_task_detail.total_amount)
-                        elif order_payment_type.name =="Төлбөр авахгүй":
-                            new_delivery.total_amount = 0
+                        new_delivery.total_amount = pickup_task_detail.total_amount
 
                         if is_time_between(time(12,00), time(00,00)):
                             new_delivery.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)

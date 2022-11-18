@@ -45,15 +45,21 @@
                                             <td>
                                                 {% for detail in order.pickup_details %}
                                                     {% if detail.destination_type == "local" %}
-                                                        <p>{{ loop.index }}. {{ detail.phone }}, {{ detail.district }}, {{ detail.khoroo }}, {{ detail.address }}, {{ detail.payment_type }}, авах дүн: {{ detail.total_amount }}</p>
+                                                        <p>{{ loop.index }}. {{ detail.phone }}, {{ detail.district }}, {{ detail.khoroo }}, {{ detail.address }}. <strong>Нийт дүн: {{ detail.total_amount }}</strong>
+                                                            {% if (order.pickup_details|length)>1 %}
+                                                                <a href="{{ url_for('supplier2_order.supplier2_order_edit', pickup_task_id=order.id, pickup_task_detail_id=detail.id) }}" style="color: rgb(0, 105, 185);">засах</a>
+                                                                <a href="{{ url_for('supplier2_order.supplier2_order_delete', pickup_task_id=order.id, pickup_task_detail_id=detail.id) }}" style="color: rgb(185, 9, 0);">хасах</a>
+                                                            {% else %}
+                                                            {% endif %}
+                                                        </p>
                                                     {% elif detail.destination_type == "long" %}
-                                                        <p>{{ loop.index }}. {{ detail.phone }}, {{ detail.aimag }}, {{ detail.address }}, {{ detail.payment_type }}, авах дүн: {{ detail.total_amount }}</p>
+                                                        <p>{{ loop.index }}. {{ detail.phone }}, {{ detail.aimag }}, {{ detail.address }}. <strong>Нийт дүн: {{ detail.total_amount }}</strong> <a href="{{ url_for('supplier2_order.supplier2_order_edit', pickup_task_id=order.id, pickup_task_detail_id=detail.id) }}" style="color: rgb(0, 105, 185);">засах</a> <a href="{{ url_for('supplier2_order.supplier2_order_delete', pickup_task_id=order.id, pickup_task_detail_id=detail.id) }}" style="color: rgb(185, 9, 0);">хасах</a></p>
                                                     {% endif %}
                                                 {% endfor %}
                                             </td>
                                             <td>
                                                 {% if order.status == "waiting" or order.status == "enroute" %}
-                                                    <a class="btn btn-outline-danger" href="{{ url_for('supplier2_order.supplier2_order_delete', pickup_task_id=order.id) }}">Устгах</a>
+                                                    <a class="btn btn-outline-danger" href="{{ url_for('supplier2_order.supplier2_order_cancel', pickup_task_id=order.id) }}">Цуцлах</a>
                                                 {% endif %}
                                             </td>
                                         </tr>

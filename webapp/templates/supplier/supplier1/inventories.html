@@ -27,7 +27,7 @@
                                         </td>
                                         <td>{{ inventory.total_inventory_product.colors | first }}</td>
                                         <td>{{ inventory.total_inventory_product.sizes | first }}</td>
-                                        <td>{{ (inventory.quantity + inventory.cancelled_quantity + inventory.postphoned_quantity) | round | int | numberFormat }} ширхэг</td>
+                                        <td>{{ (inventory.quantity + inventory.cancelled_quantity + inventory.postphoned_quantity + inventory.substracted_quantity) | round | int | numberFormat }} ширхэг</td>
                                         <td>{{ inventory.total_inventory_product.price | round | int | numberFormat }}</td>
                                     </tr>
                                 {% endfor %}

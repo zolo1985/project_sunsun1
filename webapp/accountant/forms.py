@@ -19,6 +19,6 @@ class ReceivePaymentForm(FlaskForm):
 class PaymentReceived(FlaskForm):
     submit = SubmitField('Тооцоогүй болгох')
 
-class SalaryDataDateSelect(FlaskForm):
+class DateSelect(FlaskForm):
     select_date = DateField('Хугацаа сонгох', validators=[Optional()])
     submit = SubmitField('Сонгох')

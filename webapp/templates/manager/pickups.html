@@ -56,7 +56,7 @@
                                             <td style="text-align: center;">
                                                 <p>{{ pickup.created_date }}</p>
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center;" class="text-nowrap">
                                                 {% if  pickup.pickup_date is not none %}
                                                     <p>{{ pickup.pickup_date.strftime('%Y-%m-%d') }}</p>
                                                 {% else %}

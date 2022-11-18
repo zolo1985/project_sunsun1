@@ -338,7 +338,7 @@ def generate_red_m_products(n):
             usage_guide = "Use it for testing",
             created_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
             modified_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
-            # image = add_and_resize_image_from_local_path1(os.path.abspath(random.choice(initial_artworks)))
+            image = "9427aa5fd5c047aa9d7a6cc97ad0ca17"
         )
         product.sizes.append(sizes[i])
         product.colors.append(colors[i])
@@ -369,7 +369,7 @@ def generate_blue_xl_products(n):
             usage_guide = "Use it for testing",
             created_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
             modified_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
-            # image = add_and_resize_image_from_local_path1(os.path.abspath(random.choice(initial_artworks)))
+            image = "9427aa5fd5c047aa9d7a6cc97ad0ca17"
         )
         product.sizes.append(sizes[i])
         product.colors.append(colors[i])

@@ -8,7 +8,7 @@ class FiltersForm(FlaskForm):
     submit = SubmitField('Сонгох')
 
 class DriverOrders(FlaskForm):
-    submit = SubmitField('Бүх Хүргэлт хүлээлгэж өгөх')
+    submit = SubmitField('Бүх хүргэлтийг хүлээлгэж өгөх')
 
 class ReceiveInventoryForm(FlaskForm):
     pickup_task_id = HiddenField()

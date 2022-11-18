@@ -9,7 +9,7 @@
                     <div class="col-sm-12 mb-5">
                         <h3 class="custom-header mb-4">Жолооч Авах Бараа</h3>
                         <div class="table-responsive-sm">
-                            <table class="table table-hover">
+                            <table id="example" class="table table-hover">
                                 <thead>
                                     <tr>
                                         <th scope="col" class="bg-grad">#</th>
@@ -20,13 +20,18 @@
                                         <th scope="col" class="bg-grad"></th>
                                     </tr>
                                 </thead>
-                                {% for pickup in pickups %}
-                                    {{ form.pickup_id(class="form-control", value=pickup.id) }}
-                                    <tbody>
+                                <tbody>
+                                    {% for pickup in pickups %}
                                         <tr>
-                                            <td scope="row">{{ loop.index }}.</td>
-                                            <td>{% for pickup_detail in pickup.pickup_details %}
-                                                    <p>{{ pickup_detail.product.name }}, {{ pickup_detail.product.colors | first }}, {{ pickup_detail.product.sizes | first }} - {{ pickup_detail.quantity }} ширхэг.</p>
+                                            <td scope="row">{{ loop.index }}. {{ form.pickup_id(class="form-control", value=pickup.id) }}</td>
+                                            <td>
+                                                {% for pickup_detail in pickup.pickup_details %}
+                                                    <p>{{ pickup_detail.product.name }},
+                                                        {{ pickup_detail.product.colors | first }},
+                                                        {{ pickup_detail.product.sizes | first }}
+                                                        -
+                                                        {{ pickup_detail.quantity }}
+                                                        ширхэг.</p>
                                                 {% endfor %}
                                             </td>
                                             <td style="text-align: end;">
@@ -34,7 +39,7 @@
                                                     <p class="text-danger fw-bold">Авах жолооч хувиарлахыг хүлээж байна.</p>
                                                 {% elif pickup.status == "enroute" %}
                                                     <p class="text-info fw-bold">Жолооч очиж авна.</p>
-                                                {% elif pickup.status == "pickedup" or pickup.status == "completed"%}
+                                                {% elif pickup.status == "pickedup" or pickup.status == "completed" %}
                                                     <p class="text-success fw-bold">Сүнсүн хүлээж авсан.</p>
                                                 {% endif %}
                                             </td>
@@ -47,7 +52,8 @@
                                             </td>
                                             <td>
                                                 {% if pickup.pickup_date is not none %}
-                                                    Авсан огноо: {{ pickup.pickup_date }}
+                                                    Авсан огноо:
+                                                    {{ pickup.pickup_date }}
                                                 {% endif %}
                                                 {% if pickup.status == "waiting" or pickup.status == "enroute" %}
                                                     <a class="btn btn-outline-danger" href="{{ url_for('supplier1_inventory.supplier1_inventory_pickup_remove', task_id=pickup.id) }}">Устгах</a>
@@ -61,8 +67,8 @@
                                                 {% endif %}
                                             </td>
                                         </tr>
-                                    </tbody>
-                                {% endfor %}
+                                    {% endfor %}
+                                </tbody>
                             </table>
                             <div class="pagination d-flex justify-content-center align-content-center" id="pagination">
                                 {{ pagination.links }}
@@ -74,4 +80,54 @@
         </div>
     </section>
     <!-- END Products -->
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 10,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock main %}

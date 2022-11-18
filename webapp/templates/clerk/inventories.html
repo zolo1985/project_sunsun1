@@ -23,7 +23,7 @@
                             </thead>
                             <tbody>
                                 {% for inventory in inventories %}
-                                    <tr class="header">
+                                    <tr class="header" style="border-bottom: 2px solid rgb(108, 108, 108);">
                                         <td class="fw-bold" style="font-size:18px;">{{ inventory.id }}</td>
                                         <td>
                                             <a class="show-more fw-bold" style="color:black;">{{ inventory.total_inventory_product.name }}</a>
@@ -35,8 +35,9 @@
                                         <td>{{ inventory.total_inventory_product.sizes | first }}</td>
                                         <td>
                                             <p><strong>Боломжит: </strong>{{ inventory.quantity | round | int | numberFormat }}</p>
-                                            <p><strong>Жолоочид байгаа хойшлуулсан: </strong>{{ inventory.postphoned_quantity | numberFormat }}</p>
-                                            <p><strong>Жолоочид байгаа цуцалсан: </strong>{{ inventory.cancelled_quantity | numberFormat }}</p>
+                                            <p><strong>Хойшлуулсан: </strong>{{ inventory.postphoned_quantity | numberFormat }}</p>
+                                            <p><strong>Цуцалсан: </strong>{{ inventory.cancelled_quantity | numberFormat }}</p>
+                                            <p><strong>Хасагдсан: </strong>{{ inventory.substracted_quantity | numberFormat }}</p>
                                             <p><strong>Нийт: </strong>{{ (inventory.quantity + inventory.postphoned_quantity + inventory.cancelled_quantity) | round | int | numberFormat }}</p>
                                         </td>
                                         <td>{{ inventory.total_inventory_product.price | round | int | numberFormat }}</td>
@@ -44,7 +45,7 @@
                                         <td></td>
                                     </tr>
                                     {% for inven in inventory.total_inventories %}
-                                        <tr style="background-color: rgb(223, 223, 223); border-bottom: 2px solid red;" >
+                                        <tr style="background-color: rgb(223, 223, 223); border-bottom: 2px solid rgb(108, 108, 108);" >
                                             <td></td>
                                             <td></td>
                                             <td></td>
@@ -86,4 +87,5 @@
             $('.header').toggleClass('expand').nextUntil('tr.header').slideToggle(100);
         });
     </script>
+    
 {% endblock main %}

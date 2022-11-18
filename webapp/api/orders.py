@@ -57,6 +57,79 @@ def orders():
     return jsonify(payload), 200
 
 
+@orders_api.route('/api/orders/modify-order', methods = ["GET", "POST"])
+@jwt_required()
+def modify_order():
+    body = request.json
+    connection = Connection()
+    order = connection.query(models.Delivery).filter(models.Delivery.id==int(body["order_id"])).filter(models.Delivery.is_ready == True).first()
+
+    if not order:
+        connection.close()
+        return jsonify(msg="Хүргэлт олдсонгүй", response = False), 400
+
+    if order.order_type=="stored":
+        detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(body["product_id"])).first()
+
+        if not detail:
+            connection.close()
+            return jsonify(msg="Бараа олдсонгүй", response = False), 400
+
+        if detail.quantity < abs(int(body["quantity"])):
+            connection.close()
+            return jsonify(msg="Барааны тоо ширхэг буруу байна", response = False), 400
+
+        if detail.quantity == abs(int(body["quantity"])):
+            total_inventory = connection.query(models.TotalInventory).filter(models.TotalInventory.product_id==detail.product_id).first()
+            total_inventory.substracted_quantity = total_inventory.substracted_quantity + detail.quantity
+            order.total_amount = order.total_amount - (detail.quantity * detail.products.price)
+
+            driver_product_return = models.DriverProductReturn()
+            driver_product_return.driver_name = order.assigned_driver_name
+            driver_product_return.driver_id = current_user.id
+            driver_product_return.delivery_id = order.id
+            driver_product_return.product_id = detail.product_id
+            driver_product_return.driver_comment = str(body["comment"])
+            driver_product_return.product_quantity = abs(int(body["quantity"]))
+            driver_product_return.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            driver_product_return.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+            connection.add(driver_product_return)
+            order.delivery_details.remove(detail)
+
+        if detail.quantity > abs(int(body["quantity"])):
+            total_inventory = connection.query(models.TotalInventory).filter(models.TotalInventory.product_id==detail.product_id).first()
+            total_inventory.substracted_quantity = total_inventory.substracted_quantity + abs(int(body["quantity"]))
+            order.total_amount = order.total_amount - (abs(int(body["quantity"])) * detail.products.price)
+
+            driver_product_return = models.DriverProductReturn()
+            driver_product_return.driver_name = order.assigned_driver_name
+            driver_product_return.driver_id = current_user.id
+            driver_product_return.delivery_id = order.id
+            driver_product_return.product_id = detail.product_id
+            driver_product_return.driver_comment = str(body["comment"])
+            driver_product_return.product_quantity = abs(int(body["quantity"]))
+            driver_product_return.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            driver_product_return.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+            connection.add(driver_product_return)
+            detail.quantity = detail.quantity - abs(int(body["quantity"]))
+            detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+    else:
+        connection.close()
+        return jsonify(msg="Алдаа гарлаа", response = False), 400
+
+    try:
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        connection.close()
+        return jsonify(msg="Алдаа гарлаа", response = False), 400
+    else:
+        return jsonify(msg="Барааг хаслаа.", response = True), 200
+
+
 @orders_api.route('/api/orders/started', methods = ["POST"])
 @jwt_required()
 def order_started():

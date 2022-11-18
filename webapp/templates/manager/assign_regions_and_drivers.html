@@ -78,7 +78,6 @@
                                     <th scope="col" class="bg-grad">Хүргэх огноо</th>
                                     <th scope="col" class="bg-grad">Бүс</th>
                                     <th scope="col" class="bg-grad">Жолооч</th>
-                                    <th scope="col" class="bg-grad">Дүн</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -176,9 +175,6 @@
                                             {% endif %}
                                         {% endif%}
                                     </td>
-                                    <td style=" text-align: end;">
-                                        <p>₮{{ order.total_amount  | round | int | numberFormat }}</p>
-                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -249,7 +245,6 @@
                                     <th scope="col" class="bg-grad">Хүргэх огноо</th>
                                     <th scope="col" class="bg-grad">Бүс</th>
                                     <th scope="col" class="bg-grad">Жолооч</th>
-                                    <th scope="col" class="bg-grad">Дүн</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -346,9 +341,6 @@
                                                 <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
                                             {% endif %}
                                         {% endif%}
-                                    </td>
-                                    <td style=" text-align: end;">
-                                        <p>₮{{ order.total_amount  | round | int | numberFormat }}</p>
                                     </td>
                                 </tr>
                                 {% endfor %}

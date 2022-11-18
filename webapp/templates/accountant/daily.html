@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block main %}
+    <div class="container-fluid mt-5 min-vh-100" style="width: 80%;">
+        <div class="row">
+            <div class="col-sm-12 mb-5">
+                <h3 class="custom-header mb-4">Тооцоо</h3>
+                <form id="form" method="POST" action="">
+                    {{ form.csrf_token }}
+                    <div class="row g-2 mt-5 mb-5">
+                        <div class="col-md-3">
+                            {{ form.select_date.label(class="form-control-label") }}
+                            {% if form.select_date.errors %}
+                                {{ form.select_date(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.select_date.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.select_date(class="form-control") }}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 align-self-center">
+                            {{ form.submit(class="btn btn-outline-success m-0") }}
+                        </div>
+                    </div>
+                </form>
+                <div class="table-responsive-sm">
+                    <table id="example" class="table table-lg table-bordered table-striped display" style="display: block; overflow-y: hidden; overflow-x: auto;">
+
+                        <thead>
+                            <tr>
+                                <th scope="col" class="bg-grad">Жолооч</th>
+                                <th scope="col" class="bg-grad">Нийт тоо</th>
+                                <th scope="col" class="bg-grad">Нийт дүн</th>
+                                {% for supplier in suppliers_total %}
+                                    <th scope="col" class="bg-grad">
+                                        {{ supplier.supplier_name }}
+                                        {% if supplier.supplier_balance_type %}
+                                        (Нэхэмжилдэг)
+                                        {% else %}
+                                        (Нэхэмжилдэггүй)
+                                        {% endif %}
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set orders_total_data = namespace (order_total = 0) %}
+                            {% set total_count = namespace (total_count = 0) %}
+                            {% for daily in daily_total %}
+                                {% set orders_total_data.order_total = orders_total_data.order_total + daily.total_amount %}
+                                {% set total_count.total_count = total_count.total_count + daily.total_count %}
+                            <tr>
+                                <td class="text-center align-middle">{{ daily.driver_name }}</td>
+                                <td class="text-center align-middle">{{ daily.total_count }}</td>
+                                <td class="text-center align-middle">{{ daily.total_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td class="text-center align-middle" colspan="2">Нийт хүргэлт: {{ total_count.total_count }}</td>
+                                <td class="text-center align-middle" >{{ orders_total_data.order_total }}</td>
+                                {% for supplier in suppliers_total %}
+                                    <td class="text-center align-middle">
+                                        {{ supplier.total_amount }}
+                                        
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock main %}

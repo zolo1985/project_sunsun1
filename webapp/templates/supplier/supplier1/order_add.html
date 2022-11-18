@@ -94,8 +94,19 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        {{ form.payment_type.label(class="form-control-label") }}
-                                                        {{ form.payment_type(class="form-control")}}
+                                                        <div class="form-group">
+                                                            {{ form.total_amount.label(class="form-control-label") }}
+                                                            {% if form.total_amount.errors %}
+                                                            {{ form.total_amount(class="form-control is-invalid") }}
+                                                            <div class="invalid-feedback">
+                                                                {% for error in form.total_amount.errors %}
+                                                                <span>{{ error }}</span>
+                                                                {% endfor %}
+                                                            </div>
+                                                            {% else %}
+                                                            {{ form.total_amount(class="form-control") }}
+                                                            {% endif %}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             </tbody>

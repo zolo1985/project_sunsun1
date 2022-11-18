@@ -15,14 +15,16 @@ clerk_expense_blueprint = Blueprint('clerk_expense', __name__)
 @has_role('clerk')
 def clerk_driver_orders():
     connection = Connection()
-    cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
     drivers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).filter(models.User.is_authorized==True).all()
-    orders = connection.query(models.Delivery).filter(func.date(models.Delivery.delivery_date) == cur_date).filter(models.Delivery.status!="cancelled").filter(models.Delivery.is_driver_received==False).all()
-    driver_received_orders = connection.query(models.Delivery).filter(func.date(models.Delivery.delivery_date) == cur_date).filter(models.Delivery.is_driver_received==True).all()
+    # cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
+    # orders = connection.query(models.Delivery).filter(func.date(models.Delivery.delivery_date) == cur_date).filter(models.Delivery.status!="cancelled").filter(models.Delivery.is_driver_received==False).all()
+    orders = []
 
     form = FiltersForm()
     form.drivers.choices = [(driver.id, f'%s %s'%(driver.lastname, driver.firstname)) for driver in drivers]
     form.drivers.choices.insert(0,(0,'Жолооч сонгох'))
+
+    unassigned_orders = connection.execute('SELECT count(delivery.id) as total_count, delivery.assigned_driver_name as driver_name FROM sunsundatabase1.delivery as delivery WHERE DATE(delivery.delivery_date) = CURDATE() and delivery.is_delivered=false and delivery.status="assigned" and delivery.received_from_clerk_id is null group by delivery.assigned_driver_name;').all()
 
     form1 = DriverOrders()
     
@@ -31,10 +33,10 @@ def clerk_driver_orders():
             user = connection.query(models.User).filter(models.User.id==form.drivers.data).first()
             if user is not None:
                 orders = connection.query(models.Delivery).filter(models.Delivery.is_ready==True).filter(models.Delivery.status=="assigned").filter(models.Delivery.assigned_driver_id==user.id).all()
-                driver_received_orders = connection.query(models.Delivery).filter(func.date(models.Delivery.delivery_date) == cur_date).filter(models.Delivery.is_driver_received==True).filter(models.Delivery.assigned_driver_id==user.id).all()
-            return render_template('/clerk/expenses.html', form=form, orders=orders, form1=form1, driver_received_orders=driver_received_orders)
+            return render_template('/clerk/expenses.html', form=form, orders=orders, form1=form1)
         else:
-            return render_template('/clerk/expenses.html', form=form, form1=form1)
+            unassigned_orders = connection.execute('SELECT count(delivery.id) as total_count, delivery.assigned_driver_name as driver_name FROM sunsundatabase1.delivery as delivery WHERE DATE(delivery.delivery_date) = CURDATE() and delivery.is_delivered=false and delivery.status="assigned" and delivery.received_from_clerk_id is null group by delivery.assigned_driver_name;').all()
+            return render_template('/clerk/expenses.html', form=form, form1=form1, unassigned_orders=unassigned_orders)
 
     if form1.validate_on_submit():
         line_order_id = request.form.getlist("order_id")
@@ -60,7 +62,7 @@ def clerk_driver_orders():
         flash('Бараа хүлээлгэж өглөө', 'success')
         return redirect(url_for('clerk_expense.clerk_driver_orders'))
 
-    return render_template('/clerk/expenses.html', form=form, orders=orders, form1=form1, driver_received_orders=driver_received_orders)
+    return render_template('/clerk/expenses.html', form=form, orders=orders, form1=form1, unassigned_orders=unassigned_orders)
 
 @clerk_expense_blueprint.route('/clerk/expenses/<int:order_id>')
 @login_required

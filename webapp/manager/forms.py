@@ -126,6 +126,13 @@ class NewAccountForm(FlaskForm):
 
 class SelectOption(FlaskForm):
     select_option = SelectField('Хугацаа сонгох', choices=[],validators=[DataRequired()])
+    date = DateField('Он сар', validators=[DataRequired()])
+    submit = SubmitField('Сонгох')
+
+class SelectDriverOption(FlaskForm):
+    select_option = SelectField('Хугацаа сонгох', choices=[],validators=[DataRequired()])
+    select_driver = SelectField('Жолооч сонгох', choices=[],validators=[DataRequired()])
+    date = DateField('Он сар', validators=[DataRequired()])
     submit = SubmitField('Сонгох')
 
 

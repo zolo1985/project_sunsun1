@@ -7,7 +7,7 @@ from webapp import models
 
 clerk_inventory_blueprint = Blueprint('clerk_inventory', __name__)
 
-@clerk_inventory_blueprint.route('/clerk/inventories')
+@clerk_inventory_blueprint.route('/clerk/supplier1/inventories')
 @login_required
 @has_role('clerk')
 def clerk_inventories():
@@ -29,3 +29,13 @@ def get_inventories(page, per_page):
     inventories = connection.query(models.TotalInventory).offset(offset).limit(per_page_inventories)
     connection.close()
     return inventories
+
+@clerk_inventory_blueprint.route('/clerk/supplier2/inventories')
+@login_required
+@has_role('clerk')
+def clerk_inventories_supplier2():
+    connection = Connection()
+    # returned_orders = connection.query(models.Delivery).filter(models.Delivery.status=="cancelled", models.Delivery.is_cancelled==True, models.Delivery.order_type=="unstored", models.Delivery.is_returned==True).all()
+    returned_orders = connection.query(models.DriverReturn).filter(models.DriverReturn.delivery_status=="cancelled", models.DriverReturn.delivery.has(models.Delivery.order_type=="unstored"), models.DriverReturn.delivery.has(models.Delivery.is_returned==True)).all()
+
+    return render_template('/clerk/supplier2_returned_inventories.html', returned_orders=returned_orders)

@@ -21,6 +21,7 @@
                                         <th scope="col" class="bg-grad">Бүс</th>
                                         <th scope="col" class="bg-grad">Жолооч</th>
                                         <th scope="col" class="bg-grad">Дүн</th>
+                                        <th scope="col" class="bg-grad">Төлбөрийн төрөл</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -142,7 +143,8 @@
                                                 </div>
                                             {% endif %}
                                         </td>
-                                        <th style=" text-align: end;">₮{{ order.total_amount  | round | int | numberFormat }}</th>
+                                        <td style=" text-align: end;">₮{{ order.total_amount  | round | int | numberFormat }}</td>
+                                        <td>{{ order.payment_types | first }}</td>
                                     </tr>
                                 </tbody>
                             </table>

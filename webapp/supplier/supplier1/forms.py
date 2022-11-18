@@ -21,8 +21,8 @@ class OrderDetailLocalAddForm(FlaskForm):
     aimag = SelectField('Аймаг', choices=[],validators=[Optional()])
     address = TextAreaField('Хаяг', validators=[DataRequired()])
     products = SelectField('Бараа', choices=[], validators=[DataRequired()])
-    quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)], id='price')
-    payment_type = SelectField('Төлбөр', choices=[],validators=[DataRequired()])
+    quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)])
+    total_amount = IntegerField('Нийт үнэ', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Хүргэлт нэмэх')
 
     def validate_phone(self, phone):
@@ -41,7 +41,7 @@ class OrderDetailLongDistanceAddForm(FlaskForm):
     address = TextAreaField('Хаяг', validators=[DataRequired()])
     products = SelectField('Бараа', choices=[], validators=[DataRequired()])
     quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)], id='price')
-    payment_type = SelectField('Төлбөр', choices=[],validators=[DataRequired()])
+    total_amount = IntegerField('Нийт үнэ', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Хүргэлт нэмэх')
 
     def validate_phone(self, phone):

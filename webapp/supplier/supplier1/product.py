@@ -102,7 +102,7 @@ def supplier1_product_edit(product_id):
         connection.close()
         return redirect(url_for('supplier1_product.supplier1_products'))
 
-    if product.user_id != current_user.id:
+    if product.supplier_id != current_user.id:
         abort(403)
 
     form = ProductEditForm()

@@ -26,7 +26,7 @@ def supplier1_orders():
     connection = Connection()
     cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
     form = FiltersForm()
-    orders1 = connection.query(models.Delivery).filter(models.Delivery.user_id==current_user.id).filter(models.Delivery.user_id==current_user.id).filter(func.date(models.Delivery.created_date) == cur_date.date()).order_by(models.Delivery.created_date).all()
+    orders1 = connection.query(models.Delivery).filter(models.Delivery.user_id==current_user.id).filter(models.Delivery.user_id==current_user.id).filter(func.date(models.Delivery.created_date) == cur_date.date()).all()
     post_orders = connection.query(models.Delivery).filter(models.Delivery.user_id==current_user.id).filter(func.date(models.Delivery.postphoned_date) == cur_date.date()).filter(models.Delivery.is_postphoned == True).all()
     orders = orders1 + post_orders
 
@@ -61,12 +61,10 @@ def supplier1_order_add(destination):
         user_products = connection.execute('SELECT distinct product.*, inventory.quantity as quantity, color.name as prod_color_name, size.name as prod_size_name FROM sunsundatabase1.product product join sunsundatabase1.total_inventory inventory on product.id=inventory.product_id join sunsundatabase1.inventory as invent on product.id = invent.product_id join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.supplier_id=:current_user and inventory.quantity > 0 and invent.status = true;', {'current_user': current_user.id}).all()
 
         districts = connection.query(models.District).all()
-        payment_types = connection.query(models.PaymentType).all()
         form = OrderDetailLocalAddForm()
         form.products.choices = [(product.id, f'%s,  (сүнсүн агуулахад: %s, хэмжээ: %s, өнгө: %s, үнэ: %s₮)'%(product.name, product.quantity, str(product.prod_size_name).replace('[','').replace(']',''), str(product.prod_color_name).replace('[','').replace(']',''), str(product.price).replace('[','').replace(']',''))) for product in user_products]
         form.district.choices = [(district) for district in districts]
         form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
-        form.payment_type.choices = [(payment_type) for payment_type in payment_types]
 
         if form.validate_on_submit():
             line_products = request.form.getlist("products")
@@ -86,6 +84,7 @@ def supplier1_order_add(destination):
             order.is_ready = True
             order.delivery_attempts = 0
             order.supplier_company_name = current_user.company_name
+            order.total_amount = form.total_amount.data
 
             if is_time_between(time(12,00), time(00,00)):
                 order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -96,8 +95,6 @@ def supplier1_order_add(destination):
                 order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                 order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-            order_payment_type = connection.query(models.PaymentType).filter_by(name=form.payment_type.data).first()
-            order.payment_types.append(order_payment_type)
             current_user.deliveries.append(order)
 
             address = models.Address()
@@ -112,25 +109,11 @@ def supplier1_order_add(destination):
             order.addresses = address
 
             for i, product in enumerate(line_products):
-                product_unit_price = connection.query(models.Product.price).filter_by(id=product).scalar()
                 order_detail = models.DeliveryDetail()
                 order_detail.quantity = int(line_quantity[i])
                 order_detail.product_id = product
                 order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                 order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-
-                if order_payment_type.name == "Үндсэн үнэ":
-                    if order.total_amount is None or order.total_amount == 0:
-                        order.total_amount = (int(product_unit_price) * int(line_quantity[i])) + order_payment_type.amount
-                    else:
-                        order.total_amount = int(order.total_amount) + (int(product_unit_price) * int(line_quantity[i]))
-                elif order_payment_type.name == "Хүргэлт орсон":
-                    if order.total_amount is None or order.total_amount == 0:
-                        order.total_amount = int(product_unit_price) * int(line_quantity[i])
-                    else:
-                        order.total_amount = int(order.total_amount) + (int(product_unit_price) * int(line_quantity[i]))
-                elif order_payment_type.name =="Төлбөр авахгүй":
-                    order.total_amount = 0
 
                 total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=product).first()
                 total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantity[i])
@@ -157,11 +140,10 @@ def supplier1_order_add(destination):
         user_products = connection.execute('SELECT distinct product.*, inventory.quantity as quantity, color.name as prod_color_name, size.name as prod_size_name FROM sunsundatabase1.product product join sunsundatabase1.total_inventory inventory on product.id=inventory.product_id join sunsundatabase1.inventory as invent on product.id = invent.product_id join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.supplier_id=:current_user and inventory.quantity > 0 and invent.status = true;', {'current_user': current_user.id}).all()
         todays_order_count = connection.execute('SELECT count(*) FROM sunsundatabase1.delivery as delivery join sunsundatabase1.user as user on delivery.user_id=user.id where user.id=:current_user and DATE(delivery.created_date) = CURDATE();', {'current_user': current_user.id}).scalar()
         aimags = connection.query(models.Aimag).all()
-        payment_types = connection.query(models.PaymentType).all()
+
         form1 = OrderDetailLongDistanceAddForm()
         form1.products.choices = [(product.id, f'%s,  (сүнсүн агуулахад: %s, хэмжээ: %s, өнгө: %s, үнэ: %s₮)'%(product.name, product.quantity, str(product.prod_size_name).replace('[','').replace(']',''), str(product.prod_color_name).replace('[','').replace(']',''), str(product.price).replace('[','').replace(']',''))) for product in user_products]
         form1.aimag.choices = [(district) for district in aimags]
-        form1.payment_type.choices = [(payment_type) for payment_type in payment_types]
 
         if form1.validate_on_submit():
             line_products = request.form.getlist("products")
@@ -181,6 +163,7 @@ def supplier1_order_add(destination):
             order.is_ready = True
             order.delivery_attempts = 0
             order.supplier_company_name = current_user.company_name
+            order.total_amount = form1.total_amount.data
 
             if is_time_between(time(12,00), time(00,00)):
                 order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -191,8 +174,6 @@ def supplier1_order_add(destination):
                 order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                 order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-            order_payment_type = connection.query(models.PaymentType).filter_by(name=form1.payment_type.data).first()
-            order.payment_types.append(order_payment_type)
             current_user.deliveries.append(order)
             
             address = models.Address()
@@ -206,25 +187,11 @@ def supplier1_order_add(destination):
             order.addresses = address
             
             for i, product in enumerate(line_products):
-                product_unit_price = connection.query(models.Product.price).filter_by(id=product).scalar()
                 order_detail = models.DeliveryDetail()
                 order_detail.quantity = int(line_quantity[i])
                 order_detail.product_id = product
                 order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                 order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-
-                if order_payment_type.name == "Үндсэн үнэ":
-                    if order.total_amount is None or order.total_amount == 0:
-                        order.total_amount = (int(product_unit_price) * int(line_quantity[i])) + order_payment_type.amount
-                    else:
-                        order.total_amount = int(order.total_amount) + (int(product_unit_price) * int(line_quantity[i]))
-                elif order_payment_type.name == "Хүргэлт орсон":
-                    if order.total_amount is None or order.total_amount == 0:
-                        order.total_amount = int(product_unit_price) * int(line_quantity[i])
-                    else:
-                        order.total_amount = int(order.total_amount) + (int(product_unit_price) * int(line_quantity[i]))
-                elif order_payment_type.name =="Төлбөр авахгүй":
-                    order.total_amount = 0
 
                 total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=product).first()
                 total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantity[i])
@@ -266,7 +233,7 @@ def supplier1_order_add(destination):
                 addresses = df['Хаяг'].values
                 quantities = df['Тоо ширхэг'].values
                 products = df['Бараа'].values
-                payment_types = df['Төлбөр'].values
+                total_amounts = df['Нийт үнэ'].values
 
                 for i, phone in enumerate(phones):
                     if (str(districts[i]) != 'nan') and (str(khoroos[i]) != 'nan'):
@@ -277,7 +244,7 @@ def supplier1_order_add(destination):
                             "Хороо": int(khoroos[i]),
                             "Хаяг": addresses[i],
                             "Бараа": [f"%s, %s"%(products[i], int(abs(quantities[i])))],
-                            "Төлбөр": payment_types[i]
+                            "Нийт үнэ": abs(total_amounts[i])
                         }
                         orders.append(order_dict)
                     else:
@@ -287,7 +254,7 @@ def supplier1_order_add(destination):
                             "Аймаг": aimags[i],
                             "Хаяг": addresses[i],
                             "Бараа": [f"%s, %s"%(products[i], int(abs(quantities[i])))],
-                            "Төлбөр": payment_types[i]
+                            "Нийт үнэ": abs(total_amounts[i])
                         }
                         orders.append(order_dict)
 
@@ -297,6 +264,7 @@ def supplier1_order_add(destination):
                     else:
                         if order["Утасны дугаар"] == orders[i+1]["Утасны дугаар"] and order["Хаяг"] == orders[i+1]["Хаяг"]:
                             order["Бараа"].append(orders[i+1]["Бараа"][0])
+                            order["Нийт үнэ"] = order["Нийт үнэ"] + orders[i+1]["Нийт үнэ"]
                             orders.pop(i+1)
 
                 for i, product in enumerate(products):
@@ -340,6 +308,7 @@ def supplier1_order_add(destination):
                             new_order.is_ready = True
                             new_order.delivery_attempts = 0
                             new_order.supplier_company_name = current_user.company_name
+                            new_order.total_amount = order["Нийт үнэ"]
 
                             if is_time_between(time(12,00), time(00,00)):
                                 new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -350,8 +319,6 @@ def supplier1_order_add(destination):
                                 new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                                 new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                            order_payment_type = connection.query(models.PaymentType).filter_by(name=order["Төлбөр"]).first()
-                            new_order.payment_types.append(order_payment_type)
                             current_user.deliveries.append(new_order)
 
                             address = models.Address()
@@ -365,25 +332,12 @@ def supplier1_order_add(destination):
                             new_order.addresses = address
 
                             for i, product in enumerate(order["Бараа"]):
-                                product_unit_price = connection.query(models.Product.price).filter_by(id=int(product.split(".", 1)[0])).scalar()
+                                
                                 order_detail = models.DeliveryDetail()
                                 order_detail.quantity = int(product.split(",", 1)[1])
                                 order_detail.product_id = int(product.split(".", 1)[0])
                                 order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                                 order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-
-                                if order["Төлбөр"] == "Үндсэн үнэ":
-                                    if new_order.total_amount is None or new_order.total_amount == 0:
-                                        new_order.total_amount = (int(product_unit_price) * int(product.split(",", 1)[1])) + order_payment_type.amount
-                                    else:
-                                        new_order.total_amount = int(new_order.total_amount) + (int(product_unit_price) * int(product.split(",", 1)[1]))
-                                elif order["Төлбөр"] == "Хүргэлт орсон":
-                                    if new_order.total_amount is None or new_order.total_amount == 0:
-                                        new_order.total_amount = int(product_unit_price) * int(product.split(",", 1)[1])
-                                    else:
-                                        new_order.total_amount = int(new_order.total_amount) + (int(product_unit_price) * int(product.split(",", 1)[1]))
-                                elif order["Төлбөр"] =="Төлбөр авахгүй":
-                                    new_order.total_amount = 0
 
                                 total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(product.split(".", 1)[0])).first()
                                 total_inventory_product.quantity = total_inventory_product.quantity-int(product.split(",", 1)[1])
@@ -399,6 +353,7 @@ def supplier1_order_add(destination):
                             new_order.is_ready = True
                             new_order.delivery_attempts = 0
                             new_order.supplier_company_name = current_user.company_name
+                            new_order.total_amount = order["Нийт үнэ"]
 
                             if is_time_between(time(12,00), time(00,00)):
                                 new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -409,8 +364,6 @@ def supplier1_order_add(destination):
                                 new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                                 new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                            order_payment_type = connection.query(models.PaymentType).filter_by(name=order["Төлбөр"]).first()
-                            new_order.payment_types.append(order_payment_type)
                             current_user.deliveries.append(new_order)
 
                             address = models.Address()
@@ -423,25 +376,12 @@ def supplier1_order_add(destination):
                             new_order.addresses = address
 
                             for i, product in enumerate(order["Бараа"]):
-                                product_unit_price = connection.query(models.Product.price).filter_by(id=int(product.split(".", 1)[0])).scalar()
+                                
                                 order_detail = models.DeliveryDetail()
                                 order_detail.quantity = int(product.split(",", 1)[1])
                                 order_detail.product_id = int(product.split(".", 1)[0])
                                 order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                                 order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-
-                                if order["Төлбөр"] == "Үндсэн үнэ":
-                                    if new_order.total_amount is None or new_order.total_amount == 0:
-                                        new_order.total_amount = (int(product_unit_price) * int(product.split(",", 1)[1])) + order_payment_type.amount
-                                    else:
-                                        new_order.total_amount = int(new_order.total_amount) + (int(product_unit_price) * int(product.split(",", 1)[1]))
-                                elif order["Төлбөр"] == "Хүргэлт орсон":
-                                    if new_order.total_amount is None or new_order.total_amount == 0:
-                                        new_order.total_amount = int(product_unit_price) * int(product.split(",", 1)[1])
-                                    else:
-                                        new_order.total_amount = int(new_order.total_amount) + (int(product_unit_price) * int(product.split(",", 1)[1]))
-                                elif order["Төлбөр"] =="Төлбөр авахгүй":
-                                    new_order.total_amount = 0
 
                                 total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(product.split(".", 1)[0])).first()
                                 total_inventory_product.quantity = total_inventory_product.quantity-int(product.split(",", 1)[1])
@@ -475,19 +415,19 @@ def supplier1_order_excel_template():
     ws = wb.active
     ws.title = "Хүргэлт"
 
-    ws.append(['Утасны дугаар', 'Дүүрэг', 'Хороо', 'Аймаг', 'Хаяг', 'Бараа', 'Тоо ширхэг', 'Төлбөр'])
+    ws.append(['Утасны дугаар', 'Дүүрэг', 'Хороо', 'Аймаг', 'Хаяг', 'Бараа', 'Тоо ширхэг', 'Нийт үнэ'])
 
-    dv = DataValidation(type="list", formula1='Бараа!$B$1:$B$1000', allow_blank=False, showDropDown = True)
+    dv = DataValidation(type="list", formula1='Бараа!$B$1:$B$1000', allow_blank=False)
     dv.error ='Your entry is not in the list'
     dv.errorTitle = 'Invalid Entry'
 
     dv.prompt = 'Please select from the list'
     dv.promptTitle = 'List Selection'
 
-    dv1 = DataValidation(type="list", formula1='Бараа!$G$1:$G$1000', allow_blank=False, showDropDown = True)
-    dv2 = DataValidation(type="list", formula1='Бараа!$I$1:$I$1000', allow_blank=False, showDropDown = True)
-    dv3 = DataValidation(type="list", formula1='Бараа!$M$1:$M$1000', allow_blank=False, showDropDown = True)
-    dv4 = DataValidation(type="list", formula1='Бараа!$K$1:$K$1000', allow_blank=False, showDropDown = True)
+    dv1 = DataValidation(type="list", formula1='Бараа!$G$1:$G$1000', allow_blank=False)
+    dv2 = DataValidation(type="whole", allow_blank=False, operator="greaterThanOrEqual", formula1=0)
+    dv3 = DataValidation(type="list", formula1='Бараа!$M$1:$M$1000', allow_blank=False)
+    dv4 = DataValidation(type="list", formula1='Бараа!$K$1:$K$1000', allow_blank=False)
 
     ws.add_data_validation(dv)
     ws.add_data_validation(dv1)
@@ -498,6 +438,8 @@ def supplier1_order_excel_template():
     dv.add("F2:F1000")
     dv1.add("B2:B1000")
     dv2.add("H2:H1000")
+    dv2.add("A2:A1000")
+    dv2.add("G2:G1000")
     dv3.add("C2:C1000")
     dv4.add("D2:D1000")
 
@@ -505,7 +447,6 @@ def supplier1_order_excel_template():
     products = connection.query(models.Product).join(models.TotalInventory).filter(models.Product.supplier_id == current_user.id).filter(models.TotalInventory.quantity > 0).all()
     districts = connection.query(models.District).all()
     aimags = connection.query(models.Aimag).all()
-    payment_types = connection.query(models.PaymentType).all()
 
     for i in range(1, len(products)+1):
         ws2.cell(row=i, column=1).value = products[i-1].id
@@ -516,9 +457,6 @@ def supplier1_order_excel_template():
 
     for i in range(1, len(districts)+1):
         ws2.cell(row=i, column=7).value = districts[i-1].name
-
-    for i in range(1, len(payment_types)+1):
-        ws2.cell(row=i, column=9).value = payment_types[i-1].name
 
     for i in range(1, len(aimags)+1):
         ws2.cell(row=i, column=11).value = aimags[i-1].name
@@ -551,8 +489,8 @@ def supplier1_order_delete(order_id):
         connection.close()
         abort(403)
 
-    if order_to_delete.status != "unassigned":
-        flash('Захиалга цуцлах боломжгүй байна! Хүргэлтэнд гарсан байна! Менежертэй холбоо барина уу!', 'danger')
+    if order_to_delete.status != "unassigned" or order_to_delete.delivery_region is not None:
+        flash('Захиалга цуцлах боломжгүй байна! Менежертэй холбоо барина уу!', 'danger')
         connection.close()
         return redirect(url_for('supplier1_order.supplier1_orders'))
     else:
@@ -560,7 +498,7 @@ def supplier1_order_delete(order_id):
         for order_detail in order_to_delete.delivery_details:
             total_product_inventory = connection.query(models.TotalInventory).filter(models.TotalInventory.product_id==order_detail.product_id).first()
             total_product_inventory.quantity = total_product_inventory.quantity + order_detail.quantity
-
+        
         connection.query(models.Address).filter_by(delivery_id=order_to_delete.id).delete()
         connection.query(models.DeliveryDetail).filter_by(delivery_id=order_to_delete.id).delete()
         connection.query(models.Delivery).filter_by(id=order_to_delete.id).delete()

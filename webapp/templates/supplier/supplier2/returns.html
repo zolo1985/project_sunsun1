@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- ORDERS -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Буцсан Бараа</h3>
+                    <div class="table-responsive-sm">
+                        <table id="example" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">#</th>
+                                    <th scope="col" class="bg-grad">Төлөв</th>
+                                    <th scope="col" class="bg-grad">Хаяг/Утас</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in returned_orders %}
+                                    <tr>
+                                        <td scope="row">{{ order.id }}</td>
+                                        <td>
+                                            {% if order.status == "cancelled" %}
+                                                <p class="text-info fw-bold">Цуцалсан</p>
+                                            {% elif order.status == "postphoned" %}
+                                                <p class="text-info fw-bold">Хойшлуулсан</p>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <p>
+                                                {% if order.addresses.city is not none %}
+                                                    {{ order.addresses.city }},
+                                                {% endif %}
+
+                                                {% if order.addresses.district is not none %}
+                                                    {{ order.addresses.district }},
+                                                {% endif %}
+
+                                                {% if order.addresses.khoroo is not none %}
+                                                    {{ order.addresses.khoroo }}-р хороо,
+                                                {% endif %}
+
+                                                {% if order.addresses.aimag is not none %}
+                                                    {{ order.addresses.aimag }},
+                                                {% endif %}
+
+                                                {{ order.addresses.address }}</p>
+                                            <p>{{ order.addresses.phone }},
+                                                {{ order.addresses.phone_more }}</p>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END ORDERS -->
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+
+                }
+            });
+        });
+    </script>
+{% endblock main %}
