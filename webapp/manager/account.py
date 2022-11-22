@@ -1,10 +1,10 @@
-from flask import (Blueprint, render_template, flash, redirect, url_for, abort)
+from flask import (Blueprint, render_template, flash, redirect, url_for, abort, request)
 from webapp import has_role
 from flask_login import login_required
 from webapp.database import Connection
 from webapp import models
 from datetime import datetime
-from .forms import NewAccountForm
+from .forms import NewAccountForm, EditAccountForm
 from webapp import bcrypt
 import pytz
 
@@ -22,7 +22,53 @@ def manager_accounts():
     supplier2s = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="supplier2")).all()
     return render_template('/manager/accounts.html', drivers=drivers, clerks=clerks, accountants=accountants, supplier1s=supplier1s, supplier2s=supplier2s)
 
-@manager_account_blueprint.route('/manager/drivers/<int:driver_id>', methods=['GET','POST'])
+
+
+@manager_account_blueprint.route('/manager/accounts/edit/<int:account_id>', methods=['GET', 'POST'])
+@login_required
+@has_role('manager')
+def manager_account(account_id):
+
+    connection = Connection()
+    account = connection.query(models.User).get(account_id)
+
+    if account is None:
+        flash('Олдсонгүй', 'danger')
+        connection.close()
+        
+    form = EditAccountForm()
+
+    if form.validate_on_submit():
+        account_to_update = connection.query(models.User).get(account_id)
+        account_to_update.email = form.email.data
+        account_to_update.phone = form.phone.data
+        account_to_update.fee = form.fee.data
+        account_to_update.firstname = form.firstname.data
+        account_to_update.lastname = form.lastname.data
+
+        try:
+            connection.commit()
+        except:
+            connection.rollback()
+            connection.close()
+            flash('Алдаа гарлаа', 'danger')
+            return redirect(url_for('manager_account.manager_accounts'))
+        else:
+            flash('Мэдээлэл өөрчлөгдлөө', 'success')
+            return redirect(url_for('manager_account.manager_accounts'))
+
+    elif request.method == 'GET':
+        form.email.data = account.email
+        form.phone.data = account.phone
+        form.fee.data = account.fee
+        form.firstname.data = account.firstname
+        form.lastname.data = account.lastname
+        return render_template('/manager/account.html', form=form, account=account)
+    return render_template('/manager/account.html', form=form, account=account)
+
+
+
+@manager_account_blueprint.route('/manager/drivers/authorize/<int:driver_id>', methods=['GET','POST'])
 @login_required
 @has_role('manager')
 def manager_driver_authorize(driver_id):
@@ -51,7 +97,7 @@ def manager_driver_authorize(driver_id):
         abort(403)
 
 
-@manager_account_blueprint.route('/manager/supplier1/<int:supplier1_id>', methods=['GET','POST'])
+@manager_account_blueprint.route('/manager/supplier1/authorize/<int:supplier1_id>', methods=['GET','POST'])
 @login_required
 @has_role('manager')
 def manager_supplier1_authorize(supplier1_id):
@@ -81,7 +127,7 @@ def manager_supplier1_authorize(supplier1_id):
 
 
 
-@manager_account_blueprint.route('/manager/supplier2/<int:supplier2_id>', methods=['GET','POST'])
+@manager_account_blueprint.route('/manager/supplier2/authorize/<int:supplier2_id>', methods=['GET','POST'])
 @login_required
 @has_role('manager')
 def manager_supplier2_authorize(supplier2_id):
@@ -111,7 +157,7 @@ def manager_supplier2_authorize(supplier2_id):
 
 
 
-@manager_account_blueprint.route('/manager/clerks/<int:clerk_id>', methods=['GET','POST'])
+@manager_account_blueprint.route('/manager/clerks/authorize/<int:clerk_id>', methods=['GET','POST'])
 @login_required
 @has_role('manager')
 def manager_clerk_authorize(clerk_id):
@@ -140,7 +186,7 @@ def manager_clerk_authorize(clerk_id):
         abort(403)
 
 
-@manager_account_blueprint.route('/manager/accountants/<int:accountant_id>', methods=['GET','POST'])
+@manager_account_blueprint.route('/manager/accountants/authorize/<int:accountant_id>', methods=['GET','POST'])
 @login_required
 @has_role('manager')
 def manager_accountant_authorize(accountant_id):
@@ -178,7 +224,7 @@ def manager_account_password_reset(user_id):
 
     if user:
         try:
-            hashed_password = bcrypt.generate_password_hash("123456789")
+            hashed_password = bcrypt.generate_password_hash("password")
             user.password = hashed_password
             connection.commit()
         except Exception:
@@ -187,7 +233,7 @@ def manager_account_password_reset(user_id):
             connection.close()
             return redirect(url_for('manager_account.manager_accounts'))
         else:
-            flash('Нууц үг 123456789 болж өөрчлөгдлөө.', 'success')
+            flash('Нууц үг password болж өөрчлөгдлөө.', 'success')
             connection.close()
             return redirect(url_for('manager_account.manager_accounts'))
     else:
@@ -279,3 +325,5 @@ def manager_account_is_invoiced(user_id):
         connection.close()
         flash('Хэрэглэгч олдсонгүй!', 'danger')
         return redirect(url_for('manager_account.manager_accounts'))
+
+

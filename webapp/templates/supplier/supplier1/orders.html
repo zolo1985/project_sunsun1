@@ -35,7 +35,6 @@
                                 <th scope="col" class="bg-grad">Үүсгэсэн огноо</th>
                                 <th scope="col" class="bg-grad">Хаяг/Утас</th>
                                 <th scope="col" class="bg-grad">Бараа/Тоо ширхэг/Нэгж үнэ</th>
-                                <th scope="col" class="bg-grad"></th>
                                 <th scope="col" class="bg-grad">Дүн</th>
                             </tr>
                         </thead>
@@ -347,7 +346,7 @@
                                             {{ order.total_amount }}
                                         {% endif %}
                                     </td>
-                                    <td>
+                                    <td style=" text-align: end;">
                                         {% if order.status == "unassigned" %}
                                             {% if order.is_postphoned %}
 
@@ -355,8 +354,6 @@
                                                     <a class="btn btn-outline-danger" href="{{ url_for('supplier1_order.supplier1_order_delete', order_id=order.id) }}">Устгах</a>
                                             {% endif %}
                                         {% endif %}
-                                    </td>
-                                    <td style=" text-align: end;">
                                         ₮{{ order.total_amount  | round | int | numberFormat }}
                                     </td>
                                 </tr>

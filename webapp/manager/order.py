@@ -140,143 +140,40 @@ def manager_order_detail(order_id):
     drivers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).filter(models.User.is_authorized==True).all()
     delivery_regions = connection.query(models.Region).all()
     form = OrderEditForm()
-    form.current_status.choices = [(status) for status in order_edit_order_status]
-    form.current_status.choices.insert(0,'Төлөв өөрчлөх')
+
     form.select_drivers.choices = [(driver.id, f'%s %s'%(driver.lastname, driver.firstname)) for driver in drivers]
     form.select_drivers.choices.insert(0,(0,'Жолооч сонгох'))
-    form.select_regions.choices = [(delivery_region) for delivery_region in delivery_regions]
-    form.select_regions.choices.insert(0,'Бүс өөрчлөх')
+    form.select_regions.choices = [(delivery_region.id, f'%s'%(delivery_region.name)) for delivery_region in delivery_regions]
+    form.select_regions.choices.insert(0,(0,'Бүс өөрчлөх'))
     order = connection.query(models.Delivery).filter_by(id=order_id).first()
 
     if order is None:
         flash('Хүргэлт олдсонгүй', 'danger')
         return redirect(url_for('manager_order.manager_orders_drivers_histories'))
 
-
     if form.validate_on_submit():
-        if form.date.data is None and form.current_status.data != "Төлөв өөрчлөх":
-            if switch_status(form.current_status.data) == "unassigned":
-                if order.is_received_from_clerk == True:
-                    flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгтөл өөрчлөх боломжгүй байна', 'info')
-                    return redirect(url_for('manager_order.manager_orders'))
-                else:
-                    try:
-                        order.status = "unassigned"
-                        order.assigned_manager_id = current_user.id
-                        order.assigned_driver_id = None
-                        order.assigned_driver_name = None
-                        order.delivery_region = None
-                        order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                        connection.commit()
-                    except Exception as ex:
-                        flash('Алдаа гарлаа', 'danger')
-                        connection.rollback()
-                        connection.close()
-                        return redirect(url_for('manager_order.manager_orders'))
-                    else:
-                        flash('Хүргэлт шинэчлэгдлээ', 'success')
-                        return redirect(url_for('manager_order.manager_orders'))
-                
-            elif switch_status(form.current_status.data) == "assigned" and form.select_drivers.data == 'Жолооч өөрчлөх' or form.select_regions.data == 'Бүс өөрчлөх':
-                flash('Хувиарлах төлөвийг сонгосон бол заавал жолооч, бүс сонгоно уу!', 'danger')
-                return redirect(request.url)
-            else:
-                if order.is_received_from_clerk == True:
-                    flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгтөл өөрчлөх боломжгүй байна', 'info')
-                    return redirect(url_for('manager_order.manager_orders'))
-                else:
-                    try:
-                        driver_name = connection.query(models.User).get(form.select_drivers.data)
-                        order.status = switch_status(form.current_status.data)
-                        order.assigned_manager_id = current_user.id
-                        order.assigned_driver_id = form.select_drivers.data
-                        order.assigned_driver_name = f'%s %s'%(driver_name.lastname, driver_name.firstname)
-                        order.delivery_region = form.select_regions.data
-                        order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                        connection.commit()
-                    except Exception as ex:
-                        flash('Алдаа гарлаа', 'danger')
-                        connection.rollback()
-                        connection.close()
-                        return redirect(url_for('manager_order.manager_orders'))
-                    else:
-                        flash('Хүргэлт шинэчлэгдлээ', 'success')
-                        return redirect(url_for('manager_order.manager_orders'))
 
-        elif form.date.data is not None and form.current_status.data != "Төлөв өөрчлөх":
+        print("***********************************")
+        print(form.date.data)
+        print(form.select_drivers.data)
+        print(form.select_regions.data)
 
-            if switch_status(form.current_status.data) == "unassigned":
-                if order.is_received_from_clerk == True:
-                    flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгтөл өөрчлөх боломжгүй байна', 'info')
-                    return redirect(url_for('manager_order.manager_orders'))
-                else:
-                    try:
-                        order.status = switch_status(form.current_status.data)
-                        order.assigned_manager_id = current_user.id
-                        order.assigned_driver_id = None
-                        order.assigned_driver_name = None
-                        order.delivery_region = None
-                        order.delivery_date = form.date.data
-                        order.created_date = form.date.data
-                        order.postphoned_date = form.date.data
-                        order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                        connection.commit()
-                    except Exception as ex:
-                        flash('Алдаа гарлаа', 'danger')
-                        connection.rollback()
-                        connection.close()
-                        return redirect(url_for('manager_order.manager_orders'))
-                    else:
-                        flash('Хүргэлт шинэчлэгдлээ', 'success')
-                        return redirect(url_for('manager_order.manager_orders'))
-
-            elif switch_status(form.current_status.data) == "assigned" and form.select_drivers.data == 'Жолооч өөрчлөх' or form.select_regions.data == 'Бүс өөрчлөх':
-                flash('Хувиарлах төлөвийг сонгосон бол заавал жолооч, бүс сонгоно уу!', 'danger')
-                return redirect(request.url)
-            else:
-                if order.is_received_from_clerk == True:
-                    flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгтөл өөрчлөх боломжгүй байна', 'info')
-                    return redirect(url_for('manager_order.manager_orders'))
-                else:
-                    try:
-                        driver_name = connection.query(models.User).get(form.select_drivers.data)
-                        order.status = switch_status(form.current_status.data)
-                        order.assigned_manager_id = current_user.id
-                        order.assigned_driver_id = form.select_drivers.data
-                        order.assigned_driver_name = f'%s %s'%(driver_name.lastname, driver_name.firstname)
-                        order.delivery_region = form.select_regions.data
-                        order.delivery_date = form.date.data
-                        order.postphoned_date = form.date.data
-                        order.created_date = form.date.data
-                        order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                        connection.commit()
-                    except Exception as ex:
-                        flash('Алдаа гарлаа', 'danger')
-                        connection.rollback()
-                        connection.close()
-                        return redirect(url_for('manager_order.manager_orders'))
-                    else:
-                        flash('Хүргэлт шинэчлэгдлээ', 'success')
-                        return redirect(url_for('manager_order.manager_orders'))
-
-        elif form.date.data is not None and form.current_status.data == "Төлөв өөрчлөх":
+        if form.date.data is not None and form.select_regions.data == "0" and form.select_drivers.data == "0":
             if order.is_received_from_clerk == True:
-                    flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгтөл өөрчлөх боломжгүй байна', 'info')
-                    return redirect(url_for('manager_order.manager_orders'))
+                flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгөөгүй бол өөрчлөх боломжгүй байна', 'info')
+                return redirect(url_for('manager_order.manager_orders'))
             else:
                 try:
-                    order.status = "unassigned"
                     order.assigned_manager_id = current_user.id
                     order.assigned_driver_id = None
                     order.assigned_driver_name = None
                     order.delivery_region = None
                     order.delivery_date = form.date.data
                     order.created_date = form.date.data
-                    order.postphoned_date = form.date.data
                     order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     connection.commit()
                 except Exception as ex:
-                    flash('Алдаа гарлаа', 'danger')
+                    flash('Алдаа гарлаа1', 'danger')
                     connection.rollback()
                     connection.close()
                     return redirect(url_for('manager_order.manager_orders'))
@@ -284,21 +181,144 @@ def manager_order_detail(order_id):
                     flash('Хүргэлт шинэчлэгдлээ', 'success')
                     return redirect(url_for('manager_order.manager_orders'))
 
-        elif form.date.data is None and form.current_status.data == "Төлөв өөрчлөх":
+        elif form.date.data is not None and form.select_regions.data != "0" and form.select_drivers.data == "0":
             if order.is_received_from_clerk == True:
-                    flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгтөл өөрчлөх боломжгүй байна', 'info')
+                flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгөөгүй бол өөрчлөх боломжгүй байна', 'info')
+                return redirect(url_for('manager_order.manager_orders'))
+            else:
+                try:
+                    region = connection.query(models.Region).get(form.select_regions.data)
+                    order.assigned_manager_id = current_user.id
+                    order.assigned_driver_id = None
+                    order.assigned_driver_name = None
+                    order.delivery_date = form.date.data
+                    order.created_date = form.date.data
+                    order.delivery_region = region.name
+                    order.delivery_regions.clear()
+                    order.delivery_regions.append(region)
+                    order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                    connection.commit()
+                except Exception as ex:
+                    flash('Алдаа гарлаа2', 'danger')
+                    connection.rollback()
+                    connection.close()
                     return redirect(url_for('manager_order.manager_orders'))
+                else:
+                    flash('Хүргэлт шинэчлэгдлээ', 'success')
+                    return redirect(url_for('manager_order.manager_orders'))
+        elif form.date.data is not None and form.select_regions.data != "0" and form.select_drivers.data != "0":
+            if order.is_received_from_clerk == True:
+                flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгөөгүй бол өөрчлөх боломжгүй байна', 'info')
+                return redirect(url_for('manager_order.manager_orders'))
             else:
                 try:
                     driver_name = connection.query(models.User).get(form.select_drivers.data)
-                    order.status = "assigned"
+                    region = connection.query(models.Region).get(form.select_regions.data)
+                    order.assigned_manager_id = current_user.id
+                    order.assigned_driver_id = form.select_drivers.data
+                    order.assigned_driver_name = f'%s %s'%(driver_name.lastname, driver_name.firstname)
+                    order.delivery_date = form.date.data
+                    order.created_date = form.date.data
+                    order.delivery_region = region.name
+                    order.delivery_regions.clear()
+                    order.delivery_regions.append(region)
+                    order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                    connection.commit()
+                except Exception as ex:
+                    flash('Алдаа гарлаа31', 'danger')
+                    connection.rollback()
+                    connection.close()
+                    return redirect(url_for('manager_order.manager_orders'))
+                else:
+                    flash('Хүргэлт шинэчлэгдлээ', 'success')
+                    return redirect(url_for('manager_order.manager_orders'))
+
+        elif form.date.data is None and form.select_regions.data != "0" and form.select_drivers.data != "0":
+            if order.is_received_from_clerk == True:
+                flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгөөгүй бол өөрчлөх боломжгүй байна', 'info')
+                return redirect(url_for('manager_order.manager_orders'))
+            else:
+                try:
+                    driver_name = connection.query(models.User).get(form.select_drivers.data)
+                    region = connection.query(models.Region).get(form.select_regions.data)
+                    order.assigned_manager_id = current_user.id
+                    order.assigned_driver_id = form.select_drivers.data
+                    order.assigned_driver_name = f'%s %s'%(driver_name.lastname, driver_name.firstname)
+                    order.delivery_region = region.name
+                    order.delivery_regions.clear()
+                    order.delivery_regions.append(region)
+                    order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                    connection.commit()
+                except Exception as ex:
+                    flash('Алдаа гарлаа4', 'danger')
+                    connection.rollback()
+                    connection.close()
+                    return redirect(url_for('manager_order.manager_orders'))
+                else:
+                    flash('Хүргэлт шинэчлэгдлээ', 'success')
+                    return redirect(url_for('manager_order.manager_orders'))
+
+        elif form.date.data is None and form.select_regions.data == "0" and form.select_drivers.data != "0":
+            if order.is_received_from_clerk == True:
+                flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгөөгүй бол өөрчлөх боломжгүй байна', 'info')
+                return redirect(url_for('manager_order.manager_orders'))
+            else:
+                try:
+                    driver_name = connection.query(models.User).get(form.select_drivers.data)
+                    region = connection.query(models.Region).get(form.select_regions.data)
                     order.assigned_manager_id = current_user.id
                     order.assigned_driver_id = form.select_drivers.data
                     order.assigned_driver_name = f'%s %s'%(driver_name.lastname, driver_name.firstname)
                     order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     connection.commit()
                 except Exception as ex:
-                    flash('Алдаа гарлаа', 'danger')
+                    flash('Алдаа гарлаа5', 'danger')
+                    connection.rollback()
+                    connection.close()
+                    return redirect(url_for('manager_order.manager_orders'))
+                else:
+                    flash('Хүргэлт шинэчлэгдлээ', 'success')
+                    return redirect(url_for('manager_order.manager_orders'))
+
+        elif form.date.data is None and form.select_regions.data != "0" and form.select_drivers.data == "0":
+            if order.is_received_from_clerk == True:
+                flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгөөгүй бол өөрчлөх боломжгүй байна', 'info')
+                return redirect(url_for('manager_order.manager_orders'))
+            else:
+                try:
+                    region = connection.query(models.Region).get(form.select_regions.data)
+                    order.assigned_manager_id = current_user.id
+                    order.delivery_region = region.name
+                    order.delivery_regions.clear()
+                    order.delivery_regions.append(region)
+                    order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                    connection.commit()
+                except Exception as ex:
+                    flash('Алдаа гарлаа6', 'danger')
+                    connection.rollback()
+                    connection.close()
+                    return redirect(url_for('manager_order.manager_orders'))
+                else:
+                    flash('Хүргэлт шинэчлэгдлээ', 'success')
+                    return redirect(url_for('manager_order.manager_orders'))
+
+        elif form.date.data is None and form.select_regions.data == "0" and form.select_drivers.data == "0":
+            if order.is_received_from_clerk == True:
+                flash('Жолооч ачааг нярваас авсан байна. Жолооч ачааг няравт буцааж өгөөгүй бол өөрчлөх боломжгүй байна', 'info')
+                return redirect(url_for('manager_order.manager_orders'))
+            else:
+                try:
+                    region = connection.query(models.Region).get(form.select_regions.data)
+                    order.assigned_manager_id = None
+                    order.delivery_region = None
+                    order.assigned_driver_id = None
+                    order.assigned_driver_name = None
+                    order.delivery_regions.clear()
+                    order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                    connection.commit()
+                except Exception as ex:
+                    flash('Алдаа гарлаа6', 'danger')
                     connection.rollback()
                     connection.close()
                     return redirect(url_for('manager_order.manager_orders'))

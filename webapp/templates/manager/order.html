@@ -56,13 +56,6 @@
                                                 <p>Шалтгаан:
                                                     {{ order.driver_comment }}</p>
                                             {% endif %}
-
-                                            {% if order.status == "assigned" or order.status == "unassigned" %}
-                                                <div class="mt-5" style="min-width: 150px;">
-                                                    {{ form.current_status.label(class="form-control-label") }}
-                                                    {{ form.current_status(class="form-control") }}
-                                                </div>
-                                            {% endif %}
                                         </td>
                                         <td>
                                             <p>{{ order.delivery_date.strftime('%Y-%m-%d') }}</p>

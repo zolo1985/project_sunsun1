@@ -18,3 +18,8 @@ class ReceiveInventoryForm(FlaskForm):
 class FilterDateForm(FlaskForm):
     date = DateField('Он сараар', validators=[Optional()])
     submit = SubmitField('Шүүх')
+
+
+class SupplierChooseForm(FlaskForm):
+    select_supplier = SelectField('Харилцагч', choices=[], validators=[DataRequired()])
+    submit = SubmitField('Шүүх')

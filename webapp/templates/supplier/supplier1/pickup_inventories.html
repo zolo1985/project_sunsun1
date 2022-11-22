@@ -56,7 +56,7 @@
                                                     {{ pickup.pickup_date }}
                                                 {% endif %}
                                                 {% if pickup.status == "waiting" or pickup.status == "enroute" %}
-                                                    <a class="btn btn-outline-danger" href="{{ url_for('supplier1_inventory.supplier1_inventory_pickup_remove', task_id=pickup.id) }}">Устгах</a>
+                                                    <a class="btn btn-outline-danger" href="{{ url_for('supplier1_inventory.supplier1_inventory_pickup_remove', task_id=pickup.id) }}">Цуцлах</a>
                                                 {% endif %}
                                             </td>
                                             <td>

@@ -96,9 +96,11 @@
                                                 </td>
                                                 <td>
                                                     {% if order.is_received_from_clerk %}
-                                                        <p class="text-success fw-bold">Жолооч хүлээж авсан</p>
+                                                        <p class="text-success fw-bold">Жолооч хүлээж авах дарсан</p>
                                                         {% if order.is_driver_received %}
                                                             <p class="text-secondary fw-bold" >Нягтлан хүлээлгэж өгсөн({{ order.received_from_clerk_date }})</p>
+                                                        {% else %}
+                                                            <p class="text-danger fw-bold">Нягтлан хүлээлгэж өгөөгүй</p>
                                                         {% endif %}
                                                         <p></p>
                                                     {% else %}

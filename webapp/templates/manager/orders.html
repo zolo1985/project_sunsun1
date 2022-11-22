@@ -111,14 +111,14 @@
                         </span>
                     {% endfor %}
                 </div>
-                
+
                 <div class="table-responsive-sm">
                     <table id="example" class="table table-hover display">
                         <thead>
                             <tr>
                                 <th scope="col" class="bg-grad">ID</th>
                                 <th scope="col" class="bg-grad">Хаяг/Утас</th>
-                                <th scope="col" class="bg-grad">Байгууллага</th>
+                                <th scope="col" class="bg-grad">Харилцагч</th>
                                 <th scope="col" class="bg-grad">Төлөв</th>
                                 <th scope="col" class="bg-grad">Хүргэх огноо</th>
                                 <th scope="col" class="bg-grad">Бүс</th>
@@ -153,10 +153,16 @@
                                             {% endif %}
                                         </p>
                                         <p>{{ order.addresses.address }},</p>
-                                        <p>{{ order.addresses.phone }}{% if order.addresses.phone_more is not none %}, {{ order.addresses.phone_more }} {% endif %} </p>
+                                        <p>{{ order.addresses.phone }}
+                                            {% if order.addresses.phone_more is not none %},
+                                                {{ order.addresses.phone_more }}
+                                            {% endif %}
+                                        </p>
                                     </td>
                                     <td>
-                                        <a style="text-align: center; color: black;" href="{{ url_for('manager_order.manager_order_detail', order_id=order.id) }}">{{ order.supplier_company_name }}</a>
+                                        <a style="text-align: center; color: black;" href="{{ url_for('manager_order.manager_order_detail', order_id=order.id) }}">
+                                            <p class="fw-bold">{{ order.supplier_company_name }}</p>
+                                        </a>
                                     </td>
                                     <td style="text-align: center;">
                                         {% if order.status == "unassigned" %}
@@ -183,25 +189,33 @@
                                             <p class="text-danger fw-bold">цуцлагдсан</p>
                                         {% elif order.status == "postphoned" %}
                                             <p class="text-info fw-bold">хойшлуулсан</p>
-                                            <p class="text-nowrap">хойшлуулсан огноо: {{ order.postphoned_date }}</p>
-                                            <p> Шалтгаан: {{ order.driver_comment }} </p>
+                                            <p class="text-nowrap">хойшлуулсан огноо:
+                                                {{ order.postphoned_date }}</p>
+                                            <p>
+                                                Шалтгаан:
+                                                {{ order.driver_comment }}
+                                            </p>
                                         {% endif %}
 
                                         {% if (diffdates(cur_date, order.modified_date) | round | int) <= 0 %}
                                             <p>0 минутын өмнө</p>
                                         {% else %}
                                             {% if (diffdates(cur_date, order.modified_date) | round | int ) > 60 and (diffdates(cur_date, order.modified_date) | round | int ) < 1440 %}
-                                                <p>{{ ((diffdates(cur_date, order.modified_date)) / 60 ) | int }} цаг {{ ((diffdates(cur_date, order.modified_date)) % 60 ) | int }} минутын өмнө</p>
+                                                <p>{{ ((diffdates(cur_date, order.modified_date)) / 60 ) | int }}
+                                                    цаг
+                                                    {{ ((diffdates(cur_date, order.modified_date)) % 60 ) | int }}
+                                                    минутын өмнө</p>
                                             {% elif (diffdates(cur_date, order.modified_date) | round | int ) < 60 %}
-                                                <p>{{ ((diffdates(cur_date, order.modified_date)) % 60 ) | int }} минутын өмнө</p>
-                                            {% elif (diffdates(cur_date, order.modified_date) | round | int ) > 1440 %}
-                                            {% endif%}
+                                                <p>{{ ((diffdates(cur_date, order.modified_date)) % 60 ) | int }}
+                                                    минутын өмнө</p>
+                                                {% elif (diffdates(cur_date, order.modified_date) | round | int ) > 1440 %}
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                     <td>
                                         <p class="text-center text-nowrap">{{ order.delivery_date.strftime('%Y-%m-%d') }}</p>
                                     </td>
-                                    
+
                                     <td style="text-align: center;">
                                         {% if order.delivery_region is none %}
                                             <p class="text-danger fw-bold">бүсчлэгдээгүй</p>
@@ -215,7 +229,8 @@
                                             {% if order.is_postphoned %}
                                                 {% if order.status == "assigned" or order.status == "completed" or order.status == "started" %}
                                                     <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
-                                                    <p class="text-secondary fw-bold">хойшлуулсан жолооч: {{ order.postphoned_driver_name }}</p>
+                                                    <p class="text-secondary fw-bold">хойшлуулсан жолооч:
+                                                        {{ order.postphoned_driver_name }}</p>
                                                 {% else %}
                                                     <p class="text-secondary fw-bold">хойшлуулсан жолооч:
                                                         {{ order.postphoned_driver_name }}</p>
@@ -227,9 +242,10 @@
                                             {% endif %}
                                         {% else %}
                                             {% if order.is_postphoned %}
+                                                <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
                                                 {% if order.status == "assigned" or order.status == "completed" or order.status == "started" %}
-                                                    <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
-                                                    <p class="text-secondary fw-bold">хойшлуулсан жолооч: {{ order.postphoned_driver_name }}</p>
+                                                    <p class="text-secondary fw-bold">хойшлуулсан жолооч:
+                                                        {{ order.postphoned_driver_name }}</p>
                                                 {% else %}
                                                     <p class="text-secondary fw-bold">хойшлуулсан жолооч:
                                                         {{ order.postphoned_driver_name }}</p>
@@ -254,52 +270,55 @@
             </div>
         </div>
     </div>
-</div></div></div><script>$(document).ready(function () {
-    $('#example').DataTable({
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'csvHtml5',
-                text: 'CSV файл татах',
-                text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
-                tag: 'span',
-                exportOptions: {
-                    modifier: {
-                        search: 'none'
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
                     }
-                }
-            }, {
-                extend: 'print',
-                text: 'Хэвлэх',
-                text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
-                tag: 'span',
-                exportOptions: {
-                    modifier: {
-                        search: 'none'
-                    }
-                }
-            },
-        ],
-        "columnDefs": [
-            {
-                "orderData": [0, 1]
-            },
-        ],
-        pageLength: 50,
-        lengthMenu: [
-            50, 100, 200, 500
-        ],
-        "language": {
-            "lengthMenu": "_MENU_ эгнээ харах",
-            "zeroRecords": "Дата алга",
-            "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
-            "infoEmpty": "",
-            "sSearch": "Хайх",
-            "paginate": {
-                "previous": "өмнөх",
-                "next": "дараа"
-            }
 
-        }
-    });
-});</script>{% endblock main %}
+                }
+            });
+        });
+    </script>
+{% endblock main %}

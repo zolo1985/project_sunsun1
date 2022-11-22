@@ -23,7 +23,6 @@ def orders():
             "order_received": order.is_received_from_clerk,
             "address": f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
             "phone": order.addresses.phone,
-            "payment_type": str(order.payment_types[0]),
             "total_amount": order.total_amount,
             "company_name": order.supplier_company_name,
             "current_state": order.status,
@@ -47,7 +46,6 @@ def orders():
             "address": f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
             "phone": order.addresses.phone,
             "order_received": order.is_received_from_clerk,
-            "payment_type": str(order.payment_types[0]),
             "total_amount": order.total_amount,
             "company_name": order.supplier_company_name,
             "current_state": order.status,
@@ -199,11 +197,11 @@ def order_completed():
         job_history = models.DriverOrderHistory()
         job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
         job_history.delivery_status = "completed"
-        job_history.payment_type = str(order.payment_types[0])
         job_history.address = f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
         job_history.delivery_id = order.id
         job_history.type = "delivery"
         job_history.driver_id = current_user.id
+        job_history.supplier_name = order.supplier_company_name
 
         connection.add(payment_detail)
         connection.add(job_history)
@@ -262,11 +260,11 @@ def order_cancelled():
         job_history = models.DriverOrderHistory()
         job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
         job_history.delivery_status = "cancelled"
-        job_history.payment_type = str(order.payment_types[0])
         job_history.address = f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
         job_history.driver_id = current_user.id
         job_history.type = "delivery"
         job_history.delivery_id = order.id
+        job_history.supplier_name = order.supplier_company_name
 
         driver_return = models.DriverReturn()
         driver_return.delivery_status = "cancelled"
@@ -349,11 +347,11 @@ def order_postphoned():
         job_history = models.DriverOrderHistory()
         job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
         job_history.delivery_status = "postphoned"
-        job_history.payment_type = str(order.payment_types[0])
         job_history.address = f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
         job_history.driver_id = current_user.id
         job_history.type = "delivery"
         job_history.delivery_id = order.id
+        job_history.supplier_name = order.supplier_company_name
 
         driver_return = models.DriverReturn()
         driver_return.delivery_status = "postphoned"

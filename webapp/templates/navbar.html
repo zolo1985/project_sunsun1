@@ -169,12 +169,24 @@
                                 </div>
                             </li>
                             <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="demosMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Бараа буцаалт</a>
+                                <div class="dropdown-menu pb-3 pb-lg-0" aria-labelledby="demosMenu" >
+                                    <div class="d-block d-sm-flex">
+                                        <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
+                                            <a class="dropdown-item" href="{{ url_for('manager_dropoff.manager_dropoffs')}}">Бараа буцаалтууд</a>
+                                            <a class="dropdown-item" href="{{ url_for('manager_dropoff.manager_dropoffs_history')}}">Бараа буцаалтын түүх</a>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="demosMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Статистик</a>
                                 <div class="dropdown-menu pb-3 pb-lg-0" aria-labelledby="demosMenu" >
                                     <div class="d-block d-sm-flex">
                                         <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
                                             <a class="dropdown-item" href="{{ url_for('manager_analytics.manager_orders_stats')}}">Хүргэлт статистик</a>
-                                            <a class="dropdown-item" href="{{ url_for('manager_driver_stats.manager_drivers_stats')}}">Жолооч статистик</a>
+                                            <a class="dropdown-item" href="{{ url_for('manager_analytics.manager_drivers_stats')}}">Жолооч статистик</a>
+                                            <a class="dropdown-item" href="{{ url_for('manager_analytics.manager_suppliers_stats')}}">харилцагч статистик</a>
                                         </ul>
                                     </div>
                                 </div>
@@ -200,7 +212,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('driver_profile.profile') }}">Данс</a>
                             </li>
-                            {% elif current_user.has_role('accountant')%}
+                        {% elif current_user.has_role('accountant')%}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('accountant_order.accountant_orders_daily')}}">Өдрөөр</a>
                             </li>

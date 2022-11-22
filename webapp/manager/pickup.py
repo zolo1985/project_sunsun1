@@ -24,7 +24,7 @@ def manager_pickups():
     days = ["Өнөөдөр","Маргааш"]
 
     form.select_day.choices = [day for day in days]
-    pickups = connection.query(models.PickupTask).filter(models.PickupTask.status!="completed").all()
+    pickups = connection.query(models.PickupTask).filter(models.PickupTask.status!="completed").order_by(models.PickupTask.created_date.desc()).all()
 
     if form.validate_on_submit():
         line_task_id = request.form.getlist("task_id")
@@ -63,12 +63,12 @@ def manager_pickups():
 def manager_pickups_history():
     connection = Connection()
     cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
-    pickups = connection.query(models.PickupTask).filter(func.date(models.PickupTask.created_date) == cur_date).all()
+    pickups = connection.query(models.PickupTask).filter(func.date(models.PickupTask.created_date) == cur_date).order_by(models.PickupTask.created_date.desc()).all()
 
     form = FilterDateForm()
 
     if form.validate_on_submit() and form.date.data is not None:
-        pickups = connection.query(models.PickupTask).filter(func.date(models.PickupTask.created_date) == form.date.data).all()
+        pickups = connection.query(models.PickupTask).filter(func.date(models.PickupTask.created_date) == form.date.data).order_by(models.PickupTask.created_date.desc()).all()
         return render_template('/manager/pickup_histories.html', pickups=pickups, form=form)
 
     return render_template('/manager/pickup_histories.html', pickups=pickups, form=form)
@@ -81,8 +81,6 @@ def manager_pickups_history():
 def manager_pickup(pickup_id):
     connection = Connection()
     pickup = connection.query(models.PickupTask).get(pickup_id)
-
-    print(pickup.public_id)
 
     if pickup is None:
         flash('Олдсонгүй', 'danger')

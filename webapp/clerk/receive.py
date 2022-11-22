@@ -105,6 +105,7 @@ def clerk_accept_pickup_inventories(pickup_task_id):
     pickup_task.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
     driver_pickup_history.delivery_status = "completed"
+    driver_pickup_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
     if pickup_task.supplier_type == "supplier1":
         for detail in pickup_task.pickup_details:

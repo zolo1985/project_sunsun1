@@ -6,7 +6,7 @@ from webapp import models
 from webapp.database import Connection
 from webapp.supplier.supplier2.forms import OrderDetailLocalAddForm, OrderDetailLongDistanceAddForm, TransferForm, OrderEditForm, DateSelectForm
 from datetime import datetime, time, timedelta
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from webapp.utils import is_time_between
 import pytz
 
@@ -67,7 +67,7 @@ def supplier2_order_add(destination):
             line_address = request.form.getlist("address")
             line_total_amount = request.form.getlist("total_amount")
 
-            pickup_task = connection.query(models.PickupTask).filter(models.PickupTask.supplier_id==current_user.id).filter(models.PickupTask.status=="waiting").filter(models.PickupTask.is_completed==False).first()
+            pickup_task = connection.query(models.PickupTask).filter(models.PickupTask.supplier_id==current_user.id).filter(or_(models.PickupTask.status=="waiting", models.PickupTask.status=="enroute")).filter(models.PickupTask.is_completed==False).filter(models.PickupTask.created_date).first()
 
             if pickup_task:
                 pickup_task.supplier_id = current_user.id
@@ -159,7 +159,7 @@ def supplier2_order_add(destination):
             line_address = request.form.getlist("address")
             line_total_amount = request.form.getlist("total_amount")
 
-            pickup_task = connection.query(models.PickupTask).filter(models.PickupTask.supplier_id==current_user.id).filter(models.PickupTask.status=="waiting").filter(models.PickupTask.is_completed==False).first()
+            pickup_task = connection.query(models.PickupTask).filter(models.PickupTask.supplier_id==current_user.id).filter(or_(models.PickupTask.status=="waiting", models.PickupTask.status=="enroute")).filter(models.PickupTask.is_completed==False).filter(models.PickupTask.created_date).first()
 
             if pickup_task:
                 pickup_task.supplier_id = current_user.id
@@ -246,7 +246,12 @@ def supplier2_order_cancel(pickup_task_id):
     if task is None:
         flash('Хүргэлт олдсонгүй!', 'danger')
         connection.close()
-        return redirect(url_for('supplier2_order.supplier2_orders'))
+        return redirect(url_for('supplier2_order.supplier2_orders_ready'))
+
+    if task.status == "completed" or task.status == "pickedup":
+        flash('Цуцлах боломжгүй', 'danger')
+        connection.close()
+        return redirect(url_for('supplier2_order.supplier2_orders_ready'))
 
     if current_user.id != task.supplier_id:
         abort(403)
@@ -259,12 +264,12 @@ def supplier2_order_cancel(pickup_task_id):
             flash('Алдаа гарлаа!', 'danger')
             connection.rollback()
             connection.close()
-            return redirect(url_for('supplier2_order.supplier2_orders'))
+            return redirect(url_for('supplier2_order.supplier2_orders_ready'))
         else:
             connection.close()
-            return redirect(url_for('supplier2_order.supplier2_orders'))
+            return redirect(url_for('supplier2_order.supplier2_orders_ready'))
 
-    return redirect(url_for('supplier2_order.supplier2_orders'))
+    return redirect(url_for('supplier2_order.supplier2_orders_ready'))
 
 
 @supplier2_order_blueprint.route('/supplier2/orders/edit/<int:pickup_task_id>/<int:pickup_task_detail_id>', methods=['GET', 'POST'])
@@ -324,8 +329,6 @@ def supplier2_order_edit(pickup_task_id, pickup_task_detail_id):
             return redirect(url_for('supplier2_order.supplier2_orders_ready'))
 
     elif request.method == 'GET':
-        
-
         form.phone.data = task_detail.phone
         form.phone_more.data = task_detail.phone_more
         form.district.data = task_detail.district
@@ -333,7 +336,6 @@ def supplier2_order_edit(pickup_task_id, pickup_task_detail_id):
         form.aimag.data = task_detail.aimag
         form.address.data = task_detail.address
         form.total_amount.data = task_detail.total_amount
-
         return render_template('/supplier/supplier2/order_edit.html', form=form, task_detail=task_detail)
 
     return render_template('/supplier/supplier2/order_edit.html', form=form, task_detail=task_detail)
@@ -352,32 +354,33 @@ def supplier2_order_delete(pickup_task_id, pickup_task_detail_id):
     if task is None:
         flash('Хүргэлт олдсонгүй!', 'danger')
         connection.close()
-        return redirect(url_for('supplier2_order.supplier2_orders'))
+        return redirect(url_for('supplier2_order.supplier2_orders_ready'))
 
     if task_detail is None:
         flash('Хүргэлт олдсонгүй!', 'danger')
         connection.close()
-        return redirect(url_for('supplier2_order.supplier2_orders'))
+        return redirect(url_for('supplier2_order.supplier2_orders_ready'))
 
     if current_user.id != task.supplier_id:
         abort(403)
 
- 
-    task.pickup_details.remove(task_detail)
-    connection.query(models.PickupTaskDetail).filter_by(id=task_detail.id).delete()
+    if task.status != "waiting" or task.status != "enroute":
+        task.pickup_details.remove(task_detail)
+        connection.query(models.PickupTaskDetail).filter_by(id=task_detail.id).delete()
 
-    try:
-        connection.commit()
-    except Exception:
-        flash('Алдаа гарлаа!', 'danger')
-        connection.rollback()
-        connection.close()
-        return redirect(url_for('supplier2_order.supplier2_orders_ready'))
+        try:
+            connection.commit()
+        except Exception:
+            flash('Алдаа гарлаа!', 'danger')
+            connection.rollback()
+            connection.close()
+            return redirect(url_for('supplier2_order.supplier2_orders_ready'))
+        else:
+            flash('Хүргэлт өөрчлөгдлөө', 'info')
+            return redirect(url_for('supplier2_order.supplier2_orders_ready'))
+
     else:
-        flash('Хүргэлт өөрчлөгдлөө', 'info')
         return redirect(url_for('supplier2_order.supplier2_orders_ready'))
-
-
 
 
 
@@ -467,11 +470,12 @@ def supplier2_orders_ready():
                     pickup_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     pickup_history.type = "pickup"
                     pickup_history.task_id = pickup_task.id
+                    pickup_history.supplier_name = pickup_task.supplier_company
 
                     connection.add(pickup_history)
                     connection.commit()
 
-        except Exception:
+        except Exception as e:
             flash('Алдаа гарлаа!', 'danger')
             connection.rollback()
             connection.close()

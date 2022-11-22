@@ -60,6 +60,7 @@ class User(Base, UserMixin):
     refresh_token                                = Column(Unicode(2000))
     current_orders_list                          = Column(MutableList.as_mutable(PickleType), default=[])
     avatar_id                                    = Column(Unicode(255))
+    fee                                          = Column(Integer, nullable=False, default = 3000)
     created_date                                 = Column(DateTime)
     modified_date                                = Column(DateTime)
     last_login_date                              = Column(DateTime)
@@ -67,8 +68,11 @@ class User(Base, UserMixin):
     roles = relationship("Role", secondary=roles_table)
     products = relationship("Product", back_populates="supplier")
     pickups = relationship("PickupTask", back_populates="supplier")
+    dropoffs = relationship("DropoffTask", back_populates="supplier")
     deliveries = relationship("Delivery", back_populates="user")
     returns = relationship("DriverReturn", back_populates="driver")
+    substractions = relationship("DriverProductReturn", back_populates="driver")
+    total_inventories = relationship("TotalInventory", back_populates="supplier")
 
     def __repr__(self):
         return self.firstname
@@ -197,6 +201,10 @@ class Product(Base):
     inventory = relationship("Inventory", back_populates="product")
 
     product_pickups = relationship("PickupTaskDetail", back_populates="product")
+
+    product_substracts = relationship("DriverProductReturn", back_populates="product")
+
+    product_dropoffs = relationship("DropoffTaskDetail", back_populates="product")
 
     total_inventories_product = relationship("TotalInventory", back_populates="total_inventory_product")
 
@@ -377,7 +385,6 @@ class Delivery(Base):
     is_driver_received                       = Column(Boolean, default=False)
     is_processed_by_accountant               = Column(Boolean, default=False)
     is_returned                              = Column(Boolean, default=False)
-    # is_returned_to_supplier                  = Column(Boolean, default=False)
 
     assigned_driver_id                       = Column(Integer)
     assigned_driver_name                     = Column(Unicode(255))
@@ -406,6 +413,7 @@ class Delivery(Base):
     payment_details = relationship("PaymentDetail", back_populates="delivery", uselist=False)
     delivery_regions = relationship("Region", secondary=regions_table, passive_deletes=True)
     delivery_returns = relationship("DriverReturn", back_populates="delivery")
+    delivery_substacts = relationship("DriverProductReturn", back_populates="delivery")
 
     def __repr__(self):
         return f'Харилцагч: %s'%(self.supplier_company_name)
@@ -458,6 +466,8 @@ class TotalInventory(Base):
 
     total_inventory_product = relationship("Product", back_populates="total_inventories_product")
     total_inventories = relationship("Inventory", back_populates="total_inventory")
+    supplier = relationship("User", back_populates="total_inventories")
+
 
 
 class DriverOrderHistory(Base):
@@ -471,8 +481,10 @@ class DriverOrderHistory(Base):
     payment_type                    = Column(Unicode(50))
     address                         = Column(Text)
     type                            = Column(Unicode(50))#delivery or pickup
+    supplier_name                   = Column(Unicode(255))
 
     task_id                         = Column(Integer, ForeignKey('pickup_task.id'))
+    dropoff_id                      = Column(Integer, ForeignKey('dropoff_task.id'))
     driver_id                       = Column(Integer, ForeignKey('user.id'))
     delivery_id                     = Column(Integer, ForeignKey('delivery.id'))
 
@@ -521,7 +533,6 @@ class PickupTaskDetail(Base):
     aimag                                    = Column(Unicode(255))
     address                                  = Column(Unicode(255))
     total_amount                             = Column(Integer)
-    payment_type                             = Column(Unicode(255))
     destination_type                         = Column(Unicode(255))
     
     inventory_id                             = Column(Integer, ForeignKey('inventory.id', ondelete="CASCADE"))
@@ -539,6 +550,7 @@ class DriverReturn(Base):
     public_id = Column(Unicode(50), nullable=False, unique=True, default=generate_uuid)
 
     is_returned                              = Column(Boolean, default=False)
+    # is_returned_to_supplier                  = Column(Boolean, default=False)
     delivery_status                          = Column(Unicode(255))
     returned_clerk_name                      = Column(Unicode(255))
 
@@ -595,3 +607,48 @@ class DriverProductReturn(Base):
     driver_id                                = Column(Integer, ForeignKey('user.id'))
     delivery_id                              = Column(Integer, ForeignKey('delivery.id'))
     product_id                               = Column(Integer, ForeignKey('product.id'))
+
+    driver = relationship("User", back_populates="substractions")
+    delivery = relationship("Delivery", back_populates="delivery_substacts")
+    product = relationship("Product", back_populates="product_substracts")
+
+
+class DropoffTask(Base):
+    __tablename__ = 'dropoff_task'
+
+    id = Column(Integer, primary_key=True)
+    public_id = Column(Unicode(50), nullable=False, unique=True, default=generate_uuid)
+
+    is_ready                                = Column(Boolean, default=False)
+    is_completed                            = Column(Boolean, default=False)
+    status                                  = Column(Unicode(255))
+    supplier_company                        = Column(Unicode(255))
+    delivered_date                          = Column(DateTime)
+    created_date                            = Column(DateTime)
+    modified_date                           = Column(DateTime)
+    driver_id                               = Column(Integer)
+    driver_name                             = Column(Unicode(255))
+    assigned_manager_id                     = Column(Integer)
+    supplier_id                             = Column(Integer, ForeignKey('user.id'))
+
+    supplier = relationship("User", back_populates="dropoffs")
+    dropoff_details = relationship("DropoffTaskDetail", back_populates="dropoff_task", cascade="all, delete", passive_deletes=True)
+
+    
+class DropoffTaskDetail(Base):
+    __tablename__ = 'dropoff_task_detail'
+
+    id = Column(Integer, primary_key=True)
+    public_id = Column(Unicode(50), nullable=False, unique=True, default=generate_uuid)
+
+    quantity                                 = Column(Integer, nullable=False, default=0)
+    created_date                             = Column(DateTime)
+    modified_date                            = Column(DateTime)
+
+    phone                                    = Column(Unicode(255))
+    
+    product_id                               = Column(Integer, ForeignKey('product.id', ondelete="CASCADE"))
+    dropoff_task_id                          = Column(Integer, ForeignKey('dropoff_task.id', ondelete="CASCADE"))
+
+    dropoff_task = relationship("DropoffTask", back_populates="dropoff_details")
+    product = relationship("Product", back_populates="product_dropoffs")

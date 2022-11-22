@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, HiddenField, SelectField, DateField
-from wtforms.validators import Length, Email, EqualTo, ValidationError, DataRequired, Optional
+from wtforms import StringField, PasswordField, SubmitField, HiddenField, SelectField, DateField, IntegerField
+from wtforms.validators import Length, Email, EqualTo, ValidationError, DataRequired, Optional, NumberRange
 from webapp.database import Connection
 from webapp import models
 from datetime import datetime
@@ -39,7 +39,6 @@ class DriversHistoriesForm(FlaskForm):
 class OrderEditForm(FlaskForm):
     select_regions = SelectField('Бүс өөрчлөх', choices=[],validators=[Optional()])
     select_drivers = SelectField('Жолооч өөрчлөх', choices=[], validators=[Optional()])
-    current_status = SelectField('Төлөв өөрчлөх', choices=[], validators=[Optional()])
     date = DateField('Он сар өөрчлөх', validators=[Optional()])
     submit = SubmitField('Төлөв өөрчлөх')
 
@@ -124,6 +123,70 @@ class NewAccountForm(FlaskForm):
             raise ValidationError('Энэ утас өөр данс нь дээр бүртгэлтэй байна! Өөр утас ашиглана уу!')
 
 
+class EditAccountForm(FlaskForm):
+    firstname = StringField('Нэр', validators=[DataRequired()])
+    lastname = StringField('Овог', validators=[DataRequired()])
+    email = StringField('И-мэйл', validators=[DataRequired(), Email(message='И-мэйл хаяг оруулна уу!')])
+    phone = StringField('Утасны дугаар', validators=[DataRequired()])
+    fee = IntegerField('Хүргэлтийн төлбөр', validators=[DataRequired(), NumberRange(min=0)])
+    submit = SubmitField('Өөрчлөх')
+
+    def validate_firstname(self, firstname):
+        allowed_chars = set(("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZефцужэнгшүзкъйыбөахролдпячёсмитьвюЕФЦУЖЭНГШҮЗКЪЙЫБӨАХРОЛДПЯЧЁСМИТЬВЮ"))
+        validation = set((firstname.data))
+        if validation.issubset(allowed_chars):
+            pass
+        else:
+            raise ValidationError('Зөвхөн үсэг ашиглана уу!')
+
+        if firstname.data != firstname.data.strip():
+            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
+
+    def validate_lastname(self, lastname):
+        allowed_chars = set(("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZефцужэнгшүзкъйыбөахролдпячёсмитьвюЕФЦУЖЭНГШҮЗКЪЙЫБӨАХРОЛДПЯЧЁСМИТЬВЮ"))
+        validation = set((lastname.data))
+        if validation.issubset(allowed_chars):
+            pass
+        else:
+            raise ValidationError('Зөвхөн үсэг ашиглана уу!')
+
+        if lastname.data != lastname.data.strip():
+            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
+
+    def validate_email(self, email):
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        if(re.fullmatch(regex, email.data)):
+            pass
+        else:
+            raise ValidationError('Имэйл хаяг биш байна!')
+
+        if email.data != email.data.strip():
+            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
+
+        connection = Connection()
+        account = connection.query(models.User).filter_by(email=email.data).all()
+        connection.close()
+        if len(account)>1:
+            raise ValidationError('Энэ имэйл хаяг өөр данс нь дээр бүртгэлтэй байна! Өөр имэйл хаяг ашиглана уу!')
+
+    def validate_phone(self, phone):
+        allowed_chars = set(("0123456789+"))
+        validation = set((phone.data))
+        if validation.issubset(allowed_chars):
+            pass
+        else:
+            raise ValidationError('Зөвхөн тоо ашиглана уу!')
+
+        if phone.data != phone.data.strip():
+            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
+
+        connection = Connection()
+        account = connection.query(models.User).filter_by(phone=phone.data).all()
+        connection.close()
+        if len(account)>1:
+            raise ValidationError('Энэ утас өөр данс нь дээр бүртгэлтэй байна! Өөр утас ашиглана уу!')
+
+
 class SelectOption(FlaskForm):
     select_option = SelectField('Хугацаа сонгох', choices=[],validators=[DataRequired()])
     date = DateField('Он сар', validators=[DataRequired()])
@@ -132,6 +195,12 @@ class SelectOption(FlaskForm):
 class SelectDriverOption(FlaskForm):
     select_option = SelectField('Хугацаа сонгох', choices=[],validators=[DataRequired()])
     select_driver = SelectField('Жолооч сонгох', choices=[],validators=[DataRequired()])
+    date = DateField('Он сар', validators=[DataRequired()])
+    submit = SubmitField('Сонгох')
+
+class SelectSupplierOption(FlaskForm):
+    select_option = SelectField('Хугацаа сонгох', choices=[],validators=[DataRequired()])
+    select_supplier = SelectField('Харилцагч сонгох', choices=[],validators=[DataRequired()])
     date = DateField('Он сар', validators=[DataRequired()])
     submit = SubmitField('Сонгох')
 

@@ -47,8 +47,10 @@
                                                     {% if detail.destination_type == "local" %}
                                                         <p>{{ loop.index }}. {{ detail.phone }}, {{ detail.district }}, {{ detail.khoroo }}, {{ detail.address }}. <strong>Нийт дүн: {{ detail.total_amount }}</strong>
                                                             {% if (order.pickup_details|length)>1 %}
-                                                                <a href="{{ url_for('supplier2_order.supplier2_order_edit', pickup_task_id=order.id, pickup_task_detail_id=detail.id) }}" style="color: rgb(0, 105, 185);">засах</a>
-                                                                <a href="{{ url_for('supplier2_order.supplier2_order_delete', pickup_task_id=order.id, pickup_task_detail_id=detail.id) }}" style="color: rgb(185, 9, 0);">хасах</a>
+                                                                {% if order.status == "waiting" or order.status == "enroute" %}
+                                                                    <a href="{{ url_for('supplier2_order.supplier2_order_edit', pickup_task_id=order.id, pickup_task_detail_id=detail.id) }}" style="color: rgb(0, 105, 185);">засах</a>
+                                                                    <a href="{{ url_for('supplier2_order.supplier2_order_delete', pickup_task_id=order.id, pickup_task_detail_id=detail.id) }}" style="color: rgb(185, 9, 0);">хасах</a>
+                                                                {% endif %}
                                                             {% else %}
                                                             {% endif %}
                                                         </p>

@@ -9,18 +9,21 @@ def create_module(app, **kwargs):
     from .utils import utils_api
     from .user_info import user_info_api
     from .pickups import pickups_api
+    from .dropoff import dropoffs_api
 
     app.register_blueprint(orders_api)
     app.register_blueprint(auth_api)
     app.register_blueprint(utils_api)
     app.register_blueprint(user_info_api)
     app.register_blueprint(pickups_api)
+    app.register_blueprint(dropoffs_api)
 
     csrf.exempt(orders_api)
     csrf.exempt(auth_api)
     csrf.exempt(utils_api)
     csrf.exempt(user_info_api)
     csrf.exempt(pickups_api)
+    csrf.exempt(dropoffs_api)
 
 
 def token_required(f):

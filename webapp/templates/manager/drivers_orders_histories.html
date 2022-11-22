@@ -60,16 +60,28 @@
                                         {% endif %}
                                     </td>
                                     <td style="text-align: center;">
-                                        {% if order.delivery_status == "assigned" %}
-                                            <p class="text-primary fw-bold">хувиарлагдсан</p>
-                                        {% elif order.delivery_status == "started" %}
-                                            <p class="text-info fw-bold">одоо хүргэгдэж байна</p>
-                                        {% elif order.delivery_status == "completed" %}
-                                            <p class="text-success fw-bold">хүргэгдсэн</p>
-                                        {% elif order.delivery_status == "cancelled" %}
-                                            <p class="text-danger fw-bold">цуцлагдсан</p>
-                                        {% elif order.delivery_status == "postphoned" %}
-                                            <p class="text-info fw-bold">хойшлуулсан</p>
+                                        {% if order.type == "pickup" %}
+                                            {% if order.delivery_status == "waiting" %}
+                                                <p class="text-danger fw-bold">хувиарлагдаагүй.</p>
+                                            {% elif order.delivery_status == "enroute" %}
+                                                <p class="text-info fw-bold">жолооч очиж авна.</p>
+                                            {% elif order.delivery_status == "pickedup" %}
+                                                <p class="text-info fw-bold">жолоочид байна.</p>
+                                            {% elif order.delivery_status == "completed" %}
+                                                <p class="text-success fw-bold">хүргэгдсэн.</p>
+                                            {% endif %}
+                                        {% elif order.type == "delivery" %}
+                                            {% if order.delivery_status == "assigned" %}
+                                                <p class="text-primary fw-bold">хувиарлагдсан</p>
+                                            {% elif order.delivery_status == "started" %}
+                                                <p class="text-info fw-bold">одоо хүргэгдэж байна</p>
+                                            {% elif order.delivery_status == "completed" %}
+                                                <p class="text-success fw-bold">хүргэгдсэн</p>
+                                            {% elif order.delivery_status == "cancelled" %}
+                                                <p class="text-danger fw-bold">цуцлагдсан</p>
+                                            {% elif order.delivery_status == "postphoned" %}
+                                                <p class="text-info fw-bold">хойшлуулсан</p>
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                     <td style="text-align: center;">{{ order.delivery_date }}</td>

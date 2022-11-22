@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container min-vh-100">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Жолооч буцаах бараа</h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                {{ form.date.label(class="form-control-label") }}
+                                {% if form.date.errors %}
+                                    {{ form.date(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.date(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 align-self-center">
+                                    {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                    </form>
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">#</th>
+                                    <th scope="col" class="bg-grad">Харилцагч</th>
+                                    <th scope="col" class="bg-grad">Төлөв</th>
+                                    <th scope="col" class="bg-grad">Жолооч</th>
+                                    <th scope="col" class="bg-grad">Бараа</th>
+                                    <th scope="col" class="bg-grad">Нягтланд Өгсөн Огноо</th>
+                                </tr>
+                            </thead>
+                            {% for dropoff in dropoffs %}
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">{{ loop.index }}.</th>
+                                        <td class="fw-bold">{{ dropoff.supplier_company }}</td>
+                                        <td style="text-align: center;">
+                                            {% if dropoff.is_completed %}
+                                                <p class="fw-bold text-success">Хүргэгдсэн</p>
+                                            {% else %}
+                                                <p class="fw-bold text-danger">Хүргэгдээгүй</p>
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            {% if dropoff.driver_name %}
+                                                <p class="fw-bold">{{ dropoff.driver_name }}</p>
+                                            {% else %}
+                                                <p class="fw-bold text-danger">Жолооч хувиарлагдаагүй</p>
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            {% for dropoff_detail in dropoff.dropoff_details %}
+                                                <p>{{ dropoff_detail.phone }}</p>
+                                            {% endfor %}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            {% if dropoff.delivered_date is not none %}
+                                                <p class="fw-bold">Харилцагч хүлээж авсан ({{ dropoff.delivered_date }})</p>
+                                            {% else %}
+                                                
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END Products -->
+{% endblock main %}

@@ -84,6 +84,39 @@
                             {% endfor %}
                         </tbody>
                     </table>
+
+                    <h3 class="custom-header mb-4 mt-5">Захиалгаас хасагдсан хүлээж авах</h3>
+                    <div class="table-responsive-sm">
+                        <table id="example1" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">Харилцагч</th>
+                                    <th scope="col" class="bg-grad">Бараа</th>
+                                    <th scope="col" class="bg-grad">Хэнээс</th>
+                                    <th scope="col" class="bg-grad"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for substracted_product in substracted_products %}
+                                <tr>
+                                    <td>
+                                        <p class="fw-bold">{{ substracted_product.delivery.supplier_company_name }}</p>
+                                    </td>
+                                    <td>{{ substracted_product.product.name }}, {{substracted_product.product_quantity }}ш</td>
+                                    <td>
+                                        <p class="fw-bold">{{ substracted_product.driver.lastname }} {{ substracted_product.driver.firstname }}</p>
+                                    </td>
+                                    <td>
+                                        {% if substracted_product.is_returned %}
+                                            <p class="fw-bold text-success">авсан ({{ substracted_product.returned_date }})</p>
+                                        {% else %}
+                                            <a class="btn btn-outline-success" href="{{ url_for('clerk_returns.clerk_substracted_product', return_id=substracted_product.id) }}">Буцааж авах</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -140,4 +173,58 @@
             }
         });
     });
-</script>{% endblock main %}
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#example1').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'csvHtml5',
+                    text: 'CSV файл татах',
+                    text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                    tag: 'span',
+                    exportOptions: {
+                        modifier: {
+                            search: 'none'
+                        }
+                    }
+                }, {
+                    extend: 'print',
+                    text: 'Хэвлэх',
+                    text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                    tag: 'span',
+                    exportOptions: {
+                        modifier: {
+                            search: 'none'
+                        }
+                    }
+                },
+            ],
+            paging: false,
+            "columnDefs": [
+                {
+                    "orderData": [0, 1]
+                },
+            ],
+            pageLength: 50,
+            lengthMenu: [
+                50, 100, 200, 500
+            ],
+            "language": {
+                "lengthMenu": "_MENU_ эгнээ харах",
+                "zeroRecords": "Дата алга",
+                "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
+                "infoEmpty": "",
+                "sSearch": "Хайх",
+                "paginate": {
+                    "previous": "өмнөх",
+                    "next": "дараа"
+                }
+
+            }
+        });
+    });
+</script>
+{% endblock main %}

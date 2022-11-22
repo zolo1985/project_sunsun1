@@ -36,7 +36,6 @@
                                     <th scope="col" class="bg-grad">Хүргэх огноо</th>
                                     <th scope="col" class="bg-grad">Хаяг/Утас</th>
                                     <th scope="col" class="bg-grad">Бараа/Тоо ширхэг</th>
-                                    <th scope="col" class="bg-grad">Төлбөр</th>
                                     <th scope="col" class="bg-grad">Бүс</th>
                                     <th scope="col" class="bg-grad">Жолооч</th>
                                     <th scope="col" class="bg-grad">Нярваас жолооч</th>
@@ -64,7 +63,7 @@
                                         {% elif order.status == "assigned" %}
                                             <p class="text-success fw-bold">жолооч хүргэлтэнд гарсан байна</p>
                                         {% elif order.status == "started" %}
-                                            <p class="fw-bold" style="color: coral;">хүргэгдэхээр явж байна</p>
+                                            <p class="fw-bold" style="color: coral;">Одоо хүргэгдэхээр явж байна</p>
                                         {% elif order.status == "completed" %}
                                         <p class="text-success fw-bold">хүргэгдсэн</p>
                                         {% elif order.status == "cancelled" %}
@@ -113,13 +112,6 @@
                                             {% endfor %}
                                         {% else %}
                                             <p class="text-center">1</p>
-                                        {% endif%}
-                                    </td>
-                                    <td>
-                                        {% if order.order_type == "stored" %}
-                                            <p>{{ order.payment_types[0] }}</p>
-                                        {% else %}
-                                            {{ order.payment_types[0] }}
                                         {% endif%}
                                     </td>
                                     <td style="text-align: center;">

@@ -58,6 +58,7 @@ def driver_job_detail(order_id):
             job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             job_history.delivery_status = "completed"
             job_history.payment_type = job.payment_type
+            job_history.supplier_name = job.supplier_company_name
             job_history.address = job_history.address = f'%s, %s, %s,'%(job.addresses.district, job.addresses.khoroo, job.addresses.address)
             connection.add(job_history)
 
@@ -121,6 +122,7 @@ def driver_job_detail_postphoned(order_id):
             job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             job_history.delivery_status = "postphoned"
             job_history.payment_type = job.payment_type
+            job_history.supplier_name = job.supplier_company_name
             job_history.address = job_history.address = f'%s, %s, %s,'%(job.addresses.district, job.addresses.khoroo, job.addresses.address)
             connection.add(job_history)
 
@@ -168,6 +170,7 @@ def driver_job_detail_cancelled(order_id):
             job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             job_history.delivery_status = "cancelled"
             job_history.payment_type = job.payment_type
+            job_history.supplier_name = job.supplier_company_name
             job_history.address = job_history.address = f'%s, %s, %s,'%(job.addresses.district, job.addresses.khoroo, job.addresses.address)
             connection.add(job_history)
             

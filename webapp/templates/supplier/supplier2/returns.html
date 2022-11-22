@@ -11,42 +11,37 @@
                             <thead>
                                 <tr>
                                     <th scope="col" class="bg-grad">#</th>
+                                    <th scope="col" class="bg-grad">Бараа</th>
+                                    <th scope="col" class="bg-grad">Жолооч</th>
                                     <th scope="col" class="bg-grad">Төлөв</th>
-                                    <th scope="col" class="bg-grad">Хаяг/Утас</th>
+                                    <th scope="col" class="bg-grad"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for order in returned_orders %}
+                                {% for dropoff in dropoff_tasks %}
                                     <tr>
-                                        <td scope="row">{{ order.id }}</td>
+                                        <td scope="row">{{ loop.index }}</td>
                                         <td>
-                                            {% if order.status == "cancelled" %}
-                                                <p class="text-info fw-bold">Цуцалсан</p>
-                                            {% elif order.status == "postphoned" %}
-                                                <p class="text-info fw-bold">Хойшлуулсан</p>
+                                            {% for dropoff_detail in dropoff.dropoff_details %}
+                                                <p>{{ dropoff_detail.phone }}</p>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            <p class="fw-bold">{{ dropoff.driver_name }}</p>
+                                        </td>
+                                        <td>
+                                            {% if dropoff.is_completed %}
+                                                <p class="fw-bold">aвсан</p>
+                                            {% else %}
+                                                <p class="fw-bold">хүлээж аваагүй</p>
                                             {% endif %}
                                         </td>
                                         <td>
-                                            <p>
-                                                {% if order.addresses.city is not none %}
-                                                    {{ order.addresses.city }},
-                                                {% endif %}
-
-                                                {% if order.addresses.district is not none %}
-                                                    {{ order.addresses.district }},
-                                                {% endif %}
-
-                                                {% if order.addresses.khoroo is not none %}
-                                                    {{ order.addresses.khoroo }}-р хороо,
-                                                {% endif %}
-
-                                                {% if order.addresses.aimag is not none %}
-                                                    {{ order.addresses.aimag }},
-                                                {% endif %}
-
-                                                {{ order.addresses.address }}</p>
-                                            <p>{{ order.addresses.phone }},
-                                                {{ order.addresses.phone_more }}</p>
+                                            {% if dropoff.is_completed %}
+                                                <p class="fw-bold">авсан ({{ dropoff.delivered_date }})</p>
+                                            {% else %}
+                                                <a class="btn btn-outline-success" href="{{ url_for('supplier2_return.supplier2_returns_receive', dropoff_id=dropoff.id) }}">Хүлээж авах</a>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}

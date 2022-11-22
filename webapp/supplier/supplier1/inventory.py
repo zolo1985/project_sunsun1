@@ -1,5 +1,5 @@
 from flask import (Blueprint, flash, redirect, render_template, request,
-                   url_for, jsonify)
+                   url_for, jsonify, abort)
 from webapp import has_role
 from flask_login import current_user, login_required
 from webapp import models
@@ -110,10 +110,32 @@ def supplier1_inventory_pickup_add():
 def supplier1_inventory_pickup_remove(task_id):
     connection = Connection()
     task = connection.query(models.PickupTask).get(task_id)
-    connection.execute("delete from pickup_task where id=:id",{"id": task.id})
-    connection.commit()
-    return redirect(url_for('supplier1_inventory.supplier1_inventory_pickups'))
 
+    if task is None:
+        flash('Хүргэлт олдсонгүй!', 'danger')
+        connection.close()
+        return redirect(url_for('supplier1_inventory.supplier1_inventory_pickups'))
+
+    if task.status == "pickedup" or task.status=="completed":
+        flash('Цуцлах боломжгүй', 'danger')
+        connection.close()
+        return redirect(url_for('supplier1_inventory.supplier1_inventory_pickups'))
+
+    if current_user.id != task.supplier_id:
+        abort(403)
+
+    if task:
+        try:
+            connection.execute("delete from pickup_task where id=:id",{"id": task.id})
+            connection.commit()
+        except Exception:
+            flash('Алдаа гарлаа!', 'danger')
+            connection.rollback()
+            connection.close()
+            return redirect(url_for('supplier1_inventory.supplier1_inventory_pickups'))
+        else:
+            connection.close()
+            return redirect(url_for('supplier1_inventory.supplier1_inventory_pickups'))
 
 
 @supplier1_inventory_blueprint.route('/supplier1/inventories/dropoff/add', methods=['GET','POST'])
@@ -219,6 +241,7 @@ def supplier1_inventory_pickups():
                     pickup_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     pickup_history.type = "pickup"
                     pickup_history.task_id = pickup.id
+                    pickup_history.supplier_name = pickup.supplier_company
                         
                     try:
                         connection.add(pickup_history)
