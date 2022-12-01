@@ -4,7 +4,7 @@
     <div class="container-fluid mt-5" style="width: 90%;">
         <div class="row">
             <div class="col-sm-12 mb-5">
-                <h3 class="custom-header mb-4">Ажил ID: {{ order.id }}</h3>
+                <h3 class="custom-header mb-4">Хүргэлт ID: {{ order.id }}</h3>
                 <br>
                     <form id="form" method="POST" action="">
                         {{ form.csrf_token }}
@@ -82,7 +82,6 @@
                                                 {{ order.addresses.phone }},
                                                 {{ order.addresses.phone_more }}
                                             </p>
-                                            
                                         </td>
                                         <td>
                                             {% if order.order_type == "stored" %}
@@ -106,7 +105,6 @@
                                             {% else %}
                                                 <p class="fw-bold text-danger">Бүс хувиарлаагүй</p>
                                             {% endif %}
-                                            
                                         </td>
                                         <td>
                                             {% if order.assigned_driver_name %}
@@ -114,82 +112,34 @@
                                             {% else %}
                                                 <p class="fw-bold text-danger">Жолооч хувиарлаагүй</p>
                                             {% endif %}
-                                            
                                         </td>
                                         <td style=" text-align: end;">
                                             ₮{{ order.total_amount  | round | int | numberFormat }}
-                                        </td>
-                                        <td>
-                                            {% if order.driver_comment is not none %}
-                                                <p>{{ order.driver_comment }}</p>
-                                            {% else %}
-                                            {% endif%}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                <tbody>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>
-                                        {% if order.status == "assigned" or order.status == "unassigned" %}
-                                            {{ form.date.label(class="form-control-label") }}
-                                            {% if form.date.errors %}
-                                                {{ form.date(class="form-control is-invalid") }}
+
+                                            {% if form.total_amount.errors %}
+                                                {{ form.total_amount(class="form-control is-invalid") }}
                                                 <div class="invalid-feedback">
-                                                    {% for error in form.date.errors %}
+                                                    {% for error in form.total_amount.errors %}
                                                         <span>{{ error }}</span>
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ form.date(class="form-control") }}
+                                                {{ form.total_amount(class="form-control") }}
                                             {% endif %}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="pt-4">
-                                            <a class="btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_address', order_id=order.id) }}">Хаяг Өөрчлөх</a>
-                                        </div>
-                                    </td>
-                                    <td></td>
-                                    <td>
-                                        {% if order.status == "assigned" or order.status == "unassigned" %}
-                                            <div class="form-group" style="width: 150px;">
-                                                {{ form.select_regions.label(class="form-control-label") }}
-                                                {{ form.select_regions(class="form-control") }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if order.status == "assigned" or order.status == "unassigned" %}
-                                            <div class="form-group" style="width: 150px;">
-                                                {{ form.select_drivers.label(class="form-control-label") }}
-                                                {{ form.select_drivers(class="form-control") }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="pt-4">
-                                            <a class="btn btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_total_amount', order_id = order.id ) }}">Дүн Өөрчлөх</a>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% if order.driver_comment is not none %}
-                                            <div class="pt-4">
-                                                <a class="btn btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_comment', order_id = order.id ) }}">Коммент Өөрчлөх</a>
-                                            </div>
-                                        {% else %}
-                                            <div class="pt-4">
-                                                <a class="btn btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_comment', order_id = order.id ) }}">Коммент Оруулах</a>
-                                            </div>
-                                        {% endif%}
-                                    </td>
+                                        </td>
+                                        <td>
+                                            {% if order.driver_comment is not none %}
+                                                <p>{{ order.driver_comment }}</p>
+                                                <a class="btn btn-outline-success" href="{{ url_for('manager_order.manager_order_comment', order_id = order.id ) }}">Коммент Өөрчлөх</a>
+                                            {% else %}
+                                                <a class="btn btn-outline-success" href="#">Коммент Оруулах</a>
+                                            {% endif%}
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <div class="float-end">
-                                {% if order.status == "assigned" or order.status == "unassigned" %}
-                                    {{ form.submit(class="btn btn-outline-success m-0") }}
-                                {% endif %}
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
                             </div>
                         </div>
                     </form>

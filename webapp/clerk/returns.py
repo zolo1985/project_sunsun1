@@ -155,6 +155,7 @@ def clerk_cancelled_order(return_id):
             new_dropoff_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             new_dropoff_task_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             new_dropoff_task_detail.phone = product_return.delivery.delivery_details[0].phone
+            new_dropoff_task_detail.delivery_id = product_return.delivery.id
 
             dropoff_task.dropoff_details.append(new_dropoff_task_detail)
             
@@ -172,6 +173,7 @@ def clerk_cancelled_order(return_id):
             new_dropoff_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             new_dropoff_task_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             new_dropoff_task_detail.phone = product_return.delivery.delivery_details[0].phone
+            new_dropoff_task_detail.delivery_id = product_return.delivery.id
 
             new_dropoff_task.dropoff_details.append(new_dropoff_task_detail)
             connection.add(new_dropoff_task)

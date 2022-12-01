@@ -12,8 +12,6 @@ import pytz
 
 supplier2_order_blueprint = Blueprint('supplier2_order', __name__)
 
-# orders_count = connection.query(models.Delivery).filter(models.Delivery.delivery_regions.any(models.Region.name=="Хойд")).count()
-
 @supplier2_order_blueprint.route('/supplier2/orders', methods=['GET', 'POST'])
 @login_required
 @has_role('supplier2')

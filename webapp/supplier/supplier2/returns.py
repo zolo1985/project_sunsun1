@@ -43,6 +43,10 @@ def supplier2_returns_receive(dropoff_id):
 
         driver_history = connection.query(models.DriverOrderHistory).filter(models.DriverOrderHistory.dropoff_id==dropoff.id).first()
 
+        for detail in dropoff.dropoff_details:
+            driver_return = connection.query(models.DriverReturn).filter(models.DriverReturn.delivery_id==detail.delivery_id, models.DriverReturn.is_returned==True, models.DriverReturn.is_returned_to_supplier==False, models.DriverReturn.delivery_status=="cancelled").first()
+            driver_return.is_returned_to_supplier = True
+
         driver_history.delivery_status = "completed"
         driver_history.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 

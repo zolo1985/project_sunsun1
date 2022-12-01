@@ -67,7 +67,7 @@ def modify_order():
         return jsonify(msg="Хүргэлт олдсонгүй", response = False), 400
 
     if order.order_type=="stored":
-        detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(body["product_id"])).first()
+        detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(body["product_id"]), models.DeliveryDetail.quantity==abs(int(body["quantity"]))).first()
 
         if not detail:
             connection.close()
@@ -80,7 +80,11 @@ def modify_order():
         if detail.quantity == abs(int(body["quantity"])):
             total_inventory = connection.query(models.TotalInventory).filter(models.TotalInventory.product_id==detail.product_id).first()
             total_inventory.substracted_quantity = total_inventory.substracted_quantity + detail.quantity
-            order.total_amount = order.total_amount - (detail.quantity * detail.products.price)
+
+            if (detail.quantity * detail.products.price) > order.total_amount:
+                order.total_amount = 0
+            else:
+                order.total_amount = order.total_amount - (detail.quantity * detail.products.price)
 
             driver_product_return = models.DriverProductReturn()
             driver_product_return.driver_name = order.assigned_driver_name
@@ -98,7 +102,11 @@ def modify_order():
         if detail.quantity > abs(int(body["quantity"])):
             total_inventory = connection.query(models.TotalInventory).filter(models.TotalInventory.product_id==detail.product_id).first()
             total_inventory.substracted_quantity = total_inventory.substracted_quantity + abs(int(body["quantity"]))
-            order.total_amount = order.total_amount - (abs(int(body["quantity"])) * detail.products.price)
+
+            if (abs(int(body["quantity"])) * detail.products.price) > order.total_amount:
+                order.total_amount = 0
+            else:
+                order.total_amount = order.total_amount - (abs(int(body["quantity"])) * detail.products.price)
 
             driver_product_return = models.DriverProductReturn()
             driver_product_return.driver_name = order.assigned_driver_name
@@ -299,7 +307,7 @@ def order_postphoned():
         connection.close()
         return jsonify(msg="Хүргэлт олдсонгүй", response = False), 400
 
-    if order.status == "postphoned":
+    if order.status == "unassigned" and order.is_postphoned == True:
         connection.close()
         return jsonify(msg="Хүргэлт хойшлогдлоо.", response = True), 200
     else:
@@ -405,6 +413,10 @@ def order_received_from_clerk():
         connection.close()
         return jsonify(msg="Хүргэлт олдсонгүй", response = False), 400
 
+    if order.is_received_from_clerk == True:
+        connection.close()
+        return jsonify(msg="Хүлээж авсан байна", response = True), 200
+
     if order.assigned_driver_id != current_user.id:
         connection.close()
         return jsonify(msg="Таны Хүргэлт биш байна!", response = False), 400
@@ -420,7 +432,6 @@ def order_received_from_clerk():
         else:
             connection.close()
             return jsonify(msg="Хүлээж авлаа", response = True), 200
-
 
 
 @orders_api.route('/api/orders/orders-received-from-clerk', methods = ["POST"])

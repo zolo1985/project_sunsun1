@@ -11,13 +11,11 @@ from webapp.utils import generate_uuid
 
 from . import cache
 
-#####           ROLES SECONDARY        #####
 
 roles_table = Table('role_users', Base.metadata,
     Column('user_id', ForeignKey('user.id')),
     Column('role_id', ForeignKey('role.id')))
 
-    #####           ROLE         #####
 
 class Role(Base):
     __tablename__ = 'role'
@@ -40,7 +38,6 @@ class Role(Base):
         return '{}'.format(self.name)
 
 
-#####           USER         #####
 
 class User(Base, UserMixin):
     __tablename__ = 'user'
@@ -73,6 +70,7 @@ class User(Base, UserMixin):
     returns = relationship("DriverReturn", back_populates="driver")
     substractions = relationship("DriverProductReturn", back_populates="driver")
     total_inventories = relationship("TotalInventory", back_populates="supplier")
+    payment_histories = relationship("AccountantPaymentHistory", back_populates="accountant")
 
     def __repr__(self):
         return self.firstname
@@ -334,9 +332,6 @@ class DeliveryDetail(Base):
     khoroo                                   = Column(Unicode(255))
     aimag                                    = Column(Unicode(255))
     address                                  = Column(Unicode(255))
-    total_amount                             = Column(Integer)
-    payment_type                             = Column(Unicode(255))
-    destination_type                         = Column(Unicode(255))
 
     delivery_id                              = Column(Integer, ForeignKey('delivery.id'))
     product_id                               = Column(Integer, ForeignKey('product.id'))
@@ -375,7 +370,7 @@ class Delivery(Base):
     status                                   = Column(Unicode(255))
     delivery_attempts                        = Column(Integer)
     total_amount                             = Column(Integer, nullable=False, default=0)
-    order_type                               = Column(Unicode(50)) #stored #unstored
+    order_type                               = Column(Unicode(50))
     destination_type                         = Column(Unicode(255))
     is_ready                                 = Column(Boolean, default=False)
     is_delivered                             = Column(Boolean, default=False)
@@ -399,6 +394,7 @@ class Delivery(Base):
     processed_accountant_id                  = Column(Integer)
     delivery_region                          = Column(Unicode(255))
     driver_comment                           = Column(Text)
+    show_comment                             = Column(Boolean, default=False)
     delivery_date                            = Column(DateTime)
     postphoned_date                          = Column(DateTime)
     created_date                             = Column(DateTime)
@@ -414,6 +410,7 @@ class Delivery(Base):
     delivery_regions = relationship("Region", secondary=regions_table, passive_deletes=True)
     delivery_returns = relationship("DriverReturn", back_populates="delivery")
     delivery_substacts = relationship("DriverProductReturn", back_populates="delivery")
+    delivery_histories = relationship("DriverOrderHistory", back_populates="delivery")
 
     def __repr__(self):
         return f'Харилцагч: %s'%(self.supplier_company_name)
@@ -427,7 +424,7 @@ class Inventory(Base):
 
     quantity                                = Column(Integer, nullable=False, default = 0)
     status                                  = Column(Boolean, default=False)
-    inventory_type                          = Column(Unicode(50))#stored unstored
+    inventory_type                          = Column(Unicode(50))
     is_received_from_driver                 = Column(Boolean, default=False)
     is_returned_to_supplier                 = Column(Boolean, default=False)
 
@@ -480,13 +477,15 @@ class DriverOrderHistory(Base):
     delivery_date                   = Column(DateTime)
     payment_type                    = Column(Unicode(50))
     address                         = Column(Text)
-    type                            = Column(Unicode(50))#delivery or pickup
+    type                            = Column(Unicode(50))
     supplier_name                   = Column(Unicode(255))
 
     task_id                         = Column(Integer, ForeignKey('pickup_task.id'))
     dropoff_id                      = Column(Integer, ForeignKey('dropoff_task.id'))
     driver_id                       = Column(Integer, ForeignKey('user.id'))
     delivery_id                     = Column(Integer, ForeignKey('delivery.id'))
+
+    delivery = relationship("Delivery", back_populates="delivery_histories")
 
 
 class PickupTask(Base):
@@ -502,7 +501,7 @@ class PickupTask(Base):
     pickup_date                             = Column(DateTime)
     delivered_date                          = Column(DateTime)
     supplier_type                           = Column(Unicode(50))
-    status                                  = Column(Unicode(255))#waiting enroute
+    status                                  = Column(Unicode(255))
     created_date                            = Column(DateTime)
     modified_date                           = Column(DateTime)
     driver_id                               = Column(Integer)
@@ -550,7 +549,7 @@ class DriverReturn(Base):
     public_id = Column(Unicode(50), nullable=False, unique=True, default=generate_uuid)
 
     is_returned                              = Column(Boolean, default=False)
-    # is_returned_to_supplier                  = Column(Boolean, default=False)
+    is_returned_to_supplier                  = Column(Boolean, default=False)
     delivery_status                          = Column(Unicode(255))
     returned_clerk_name                      = Column(Unicode(255))
 
@@ -583,9 +582,12 @@ class AccountantPaymentHistory(Base):
     created_date                             = Column(DateTime)
     modified_date                            = Column(DateTime)
     received_date                            = Column(DateTime)
+    payment_of_date                          = Column(DateTime)
     driver_name                              = Column(Unicode(255))
-    driver_id                                = Column(Integer, ForeignKey('user.id'))
+    driver_id                                = Column(Integer)
     accountant_id                            = Column(Integer, ForeignKey('user.id'))
+
+    accountant = relationship("User", back_populates="payment_histories")
 
 
 class DriverProductReturn(Base):
@@ -646,7 +648,8 @@ class DropoffTaskDetail(Base):
     modified_date                            = Column(DateTime)
 
     phone                                    = Column(Unicode(255))
-    
+    delivery_id                              = Column(Integer)
+
     product_id                               = Column(Integer, ForeignKey('product.id', ondelete="CASCADE"))
     dropoff_task_id                          = Column(Integer, ForeignKey('dropoff_task.id', ondelete="CASCADE"))
 

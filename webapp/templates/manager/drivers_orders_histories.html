@@ -57,6 +57,8 @@
                                             <a href="{{ url_for('manager_order.manager_order_detail', order_id=order.delivery_id)}}"><p class="fw-bold">Хүргэлт: {{ order.delivery_id }}</p></a>
                                         {% elif order.task_id %}
                                             <a href="{{ url_for('manager_pickup.manager_pickup', pickup_id=order.task_id)}}"><p class="fw-bold">Таталт: {{ order.task_id }}</p></a>
+                                        {% elif order.dropoff_id %}
+                                            <a href="{{ url_for('manager_dropoff.manager_dropoff', dropoff_id=order.dropoff_id)}}"><p class="fw-bold">Буцаалт: {{ order.dropoff_id }}</p></a>
                                         {% endif %}
                                     </td>
                                     <td style="text-align: center;">
@@ -82,6 +84,16 @@
                                             {% elif order.delivery_status == "postphoned" %}
                                                 <p class="text-info fw-bold">хойшлуулсан</p>
                                             {% endif %}
+                                        {% elif order.type == "dropoff" %}
+                                            {% if order.delivery_status == "waiting" %}
+                                                <p class="text-danger fw-bold">хувиарлагдаагүй.</p>
+                                            {% elif order.delivery_status == "enroute" %}
+                                                <p class="text-info fw-bold">жолооч очиж авна.</p>
+                                            {% elif order.delivery_status == "pickedup" %}
+                                                <p class="text-info fw-bold">жолоочид байна.</p>
+                                            {% elif order.delivery_status == "completed" %}
+                                                <p class="text-success fw-bold">хүргэгдсэн.</p>
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                     <td style="text-align: center;">{{ order.delivery_date }}</td>
@@ -104,7 +116,7 @@
                     {
                         extend: 'csvHtml5',
                         text: 'CSV файл татах',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {
@@ -115,7 +127,7 @@
                     {
                         extend: 'print',
                         text: 'Хэвлэх',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {

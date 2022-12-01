@@ -71,7 +71,7 @@
                                     </td>
                                     <td>
                                         {% if return.is_returned %}
-                                            <p class="fw-bold text-success">авсан ({{ return.returned_date }})</p>
+                                            <p class="fw-bold">авсан ({{ return.returned_date }})</p>
                                         {% else %}
                                             {% if return.delivery_status=="postphoned" %}
                                                 <a class="btn btn-outline-success" href="{{ url_for('clerk_returns.clerk_postphoned_order', return_id=return.id) }}">Буцааж Авах</a>
@@ -108,7 +108,7 @@
                                     </td>
                                     <td>
                                         {% if substracted_product.is_returned %}
-                                            <p class="fw-bold text-success">авсан ({{ substracted_product.returned_date }})</p>
+                                            <p class="fw-bold">авсан ({{ substracted_product.returned_date }})</p>
                                         {% else %}
                                             <a class="btn btn-outline-success" href="{{ url_for('clerk_returns.clerk_substracted_product', return_id=substracted_product.id) }}">Буцааж авах</a>
                                         {% endif %}
@@ -130,7 +130,7 @@
                 {
                     extend: 'csvHtml5',
                     text: 'CSV файл татах',
-                    text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                    text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
                     tag: 'span',
                     exportOptions: {
                         modifier: {
@@ -140,7 +140,7 @@
                 }, {
                     extend: 'print',
                     text: 'Хэвлэх',
-                    text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                    text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
                     tag: 'span',
                     exportOptions: {
                         modifier: {
@@ -183,7 +183,7 @@
                 {
                     extend: 'csvHtml5',
                     text: 'CSV файл татах',
-                    text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                    text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
                     tag: 'span',
                     exportOptions: {
                         modifier: {
@@ -193,7 +193,7 @@
                 }, {
                     extend: 'print',
                     text: 'Хэвлэх',
-                    text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                    text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
                     tag: 'span',
                     exportOptions: {
                         modifier: {

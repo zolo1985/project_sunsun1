@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, HiddenField, SelectField, DateField, IntegerField
+from wtforms import StringField, PasswordField, SubmitField, HiddenField, SelectField, DateField, IntegerField, TextAreaField
 from wtforms.validators import Length, Email, EqualTo, ValidationError, DataRequired, Optional, NumberRange
 from webapp.database import Connection
 from webapp import models
@@ -56,6 +56,21 @@ class FilterDateForm(FlaskForm):
     date = DateField('Он сараар', validators=[Optional()])
     submit = SubmitField('Шүүх')
 
+class MakeShowCommentForm(FlaskForm):
+    order_id = HiddenField()
+    submit = SubmitField('Бүх Коммент Нээх')
+
+class EditCommentForm(FlaskForm):
+    comment = TextAreaField('Коммент', validators=[Optional()])
+    submit = SubmitField('Коммент Өөрчлөх')
+
+class EditAddressForm(FlaskForm):
+    address = TextAreaField('Хаяг', validators=[Optional()])
+    submit = SubmitField('Хаяг Өөрчлөх')
+
+class EditTotalAmountForm(FlaskForm):
+    total_amount = TextAreaField('Дүн', validators=[Optional()])
+    submit = SubmitField('Дүн Өөрчлөх')
 
 class NewAccountForm(FlaskForm):
     company_name = StringField('Байгууллагын нэр', validators=[Optional(), Length(min=6, max=255, message='Хэт урт эсвэл богино байна!')])
@@ -124,8 +139,6 @@ class NewAccountForm(FlaskForm):
 
 
 class EditAccountForm(FlaskForm):
-    firstname = StringField('Нэр', validators=[DataRequired()])
-    lastname = StringField('Овог', validators=[DataRequired()])
     email = StringField('И-мэйл', validators=[DataRequired(), Email(message='И-мэйл хаяг оруулна уу!')])
     phone = StringField('Утасны дугаар', validators=[DataRequired()])
     fee = IntegerField('Хүргэлтийн төлбөр', validators=[DataRequired(), NumberRange(min=0)])
@@ -188,19 +201,19 @@ class EditAccountForm(FlaskForm):
 
 
 class SelectOption(FlaskForm):
-    select_option = SelectField('Хугацаа сонгох', choices=[],validators=[DataRequired()])
+    select_option = SelectField('Хугацаа', choices=[],validators=[DataRequired()])
     date = DateField('Он сар', validators=[DataRequired()])
     submit = SubmitField('Сонгох')
 
 class SelectDriverOption(FlaskForm):
-    select_option = SelectField('Хугацаа сонгох', choices=[],validators=[DataRequired()])
-    select_driver = SelectField('Жолооч сонгох', choices=[],validators=[DataRequired()])
+    select_option = SelectField('Хугацаа', choices=[],validators=[DataRequired()])
+    select_driver = SelectField('Жолооч', choices=[],validators=[DataRequired()])
     date = DateField('Он сар', validators=[DataRequired()])
     submit = SubmitField('Сонгох')
 
 class SelectSupplierOption(FlaskForm):
-    select_option = SelectField('Хугацаа сонгох', choices=[],validators=[DataRequired()])
-    select_supplier = SelectField('Харилцагч сонгох', choices=[],validators=[DataRequired()])
+    select_option = SelectField('Хугацаа', choices=[],validators=[DataRequired()])
+    select_supplier = SelectField('Харилцагч', choices=[],validators=[DataRequired()])
     date = DateField('Он сар', validators=[DataRequired()])
     submit = SubmitField('Сонгох')
 

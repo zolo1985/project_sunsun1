@@ -16,8 +16,7 @@ clerk_expense_blueprint = Blueprint('clerk_expense', __name__)
 def clerk_driver_orders():
     connection = Connection()
     drivers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).filter(models.User.is_authorized==True).all()
-    # cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
-    # orders = connection.query(models.Delivery).filter(func.date(models.Delivery.delivery_date) == cur_date).filter(models.Delivery.status!="cancelled").filter(models.Delivery.is_driver_received==False).all()
+
     orders = []
 
     form = FiltersForm()

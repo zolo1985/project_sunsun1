@@ -5,6 +5,58 @@
             <div class="col-sm-12 mb-5">
                 <h3 class="custom-header mb-4">{{ cur_date.strftime('%Y-%m-%d') }}
                     Хүргэлт Хувиарлах</h3>
+
+                <section class="py-4 border mb-5 rounded-3 border-2">
+                    <div class="container">
+                        <div class="mb-3">
+                            <span style="font-size: 16px; color: black; padding-right: 1rem;">
+                                <strong>Өнөөдрийн хойшлуулсан хүргэлтүүд:</strong>
+                            </span>
+                            {% for order in total_postphoned_count_by_driver %}
+                                <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
+                                    <strong>{{ order.total_count }}</strong>
+                                </span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <span style="font-size: 16px; color: black; padding-right: 1rem;">
+                                <strong>Өнөөдрийн хүргэлт хувиарлалтаар:
+                                </strong>
+                            </span>
+                            {% for order in total_orders_count_by_driver %}
+                                <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
+                                    <strong>{{ order.total_count }}</strong>
+                                </span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <span style="font-size: 16px; color: black; padding-right: 1rem;">
+                                <strong>Өмнөх өдрүүдээс хойшлуулсан хүргэлтүүд:</strong>
+                            </span>
+                            {% for order in total_postphoned_count_by_driver_from_previous_days %}
+                                <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
+                                    <strong>{{ order.total_count }}</strong>
+                                </span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <span style="font-size: 16px; color: black; padding-right: 1rem;">
+                                <strong>Хувиарлагдаагүй хүргэлт дүүргээр:
+                                </strong>
+                            </span>
+                            {% for order in total_orders_count_by_district %}
+                                <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.district }}:
+                                    <strong>{{ order.total_count }}</strong>
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+
+
                 <form id="form" method="POST" action="">
                     {{ form1.csrf_token }}
                     <div class="row g-2">
@@ -21,51 +73,8 @@
                         </div>
                     </div>
                 </form>
-                <div class="mb-3">
-                    <span style="font-size: 16px; color: black; padding-right: 1rem;">
-                        <strong>Хувиарлагдаагүй хүргэлт дүүргээр:
-                        </strong>
-                    </span>
-                    {% for order in total_orders_count_by_district %}
-                        <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.district }}:
-                            <strong>{{ order.total_count }}</strong>
-                        </span>
-                    {% endfor %}
-                </div>
 
-                <div class="mb-3">
-                    <span style="font-size: 16px; color: black; padding-right: 1rem;">
-                        <strong>Өнөөдрийн хойшлуулсан хүргэлтүүд:</strong>
-                    </span>
-                    {% for order in total_postphoned_count_by_driver %}
-                        <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
-                            <strong>{{ order.total_count }}</strong>
-                        </span>
-                    {% endfor %}
-                </div>
 
-                <div class="mb-3">
-                    <span style="font-size: 16px; color: black; padding-right: 1rem;">
-                        <strong>Өнөөдрийн хүргэлт хувиарлалтаар:
-                        </strong>
-                    </span>
-                    {% for order in total_orders_count_by_driver %}
-                        <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
-                            <strong>{{ order.total_count }}</strong>
-                        </span>
-                    {% endfor %}
-                </div>
-
-                <div class="mb-5">
-                    <span style="font-size: 16px; color: black; padding-right: 1rem;">
-                        <strong>Өмнөх өдрүүдээс хойшлуулсан хүргэлтүүд:</strong>
-                    </span>
-                    {% for order in total_postphoned_count_by_driver_from_previous_days %}
-                        <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
-                            <strong>{{ order.total_count }}</strong>
-                        </span>
-                    {% endfor %}
-                </div>
                 <form id="form" method="POST" action="">
                     {{ form.csrf_token }}
                     <div class="table-responsive-sm">
@@ -402,7 +411,7 @@
                     {
                         extend: 'csvHtml5',
                         text: 'CSV файл татах',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {
@@ -412,7 +421,7 @@
                     }, {
                         extend: 'print',
                         text: 'Хэвлэх',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {
@@ -453,7 +462,7 @@
                     {
                         extend: 'csvHtml5',
                         text: 'CSV файл татах',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {
@@ -463,7 +472,7 @@
                     }, {
                         extend: 'print',
                         text: 'Хэвлэх',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {

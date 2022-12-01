@@ -1,9 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, TextAreaField, DateField, IntegerField, HiddenField
-from wtforms.validators import ValidationError, DataRequired, StopValidation, Optional, NumberRange
-from werkzeug.datastructures import FileStorage
-from flask_wtf.file import FileField, FileAllowed
-from collections.abc import Iterable
+from wtforms.validators import ValidationError, DataRequired, InputRequired, Optional, NumberRange
 
 
 class OrderDetailLocalAddForm(FlaskForm):
@@ -12,7 +9,7 @@ class OrderDetailLocalAddForm(FlaskForm):
     district = SelectField('Дүүрэг', choices=[],validators=[DataRequired()])
     khoroo = SelectField('Хороо', choices=[],validators=[DataRequired()])
     address = TextAreaField('Хаяг', validators=[DataRequired()])
-    total_amount = IntegerField('Үйлчлэгчээс авах дүн', validators=[DataRequired(), NumberRange(min=0)])
+    total_amount = IntegerField('Үйлчлэгчээс авах дүн', validators=[InputRequired(), NumberRange(min=0)])
     submit = SubmitField('Хүргэлт нэмэх')
 
     def validate_phone(self, phone):
@@ -29,7 +26,7 @@ class OrderDetailLongDistanceAddForm(FlaskForm):
     phone_more = StringField('Нэмэлт утасны дугаар', validators=[Optional()])
     aimag = SelectField('Аймаг', choices=[],validators=[DataRequired()])
     address = TextAreaField('Хаяг', validators=[DataRequired()])
-    total_amount = IntegerField('Үйлчлэгчээс авах дүн', validators=[DataRequired(), NumberRange(min=0)])
+    total_amount = IntegerField('Үйлчлэгчээс авах дүн', validators=[InputRequired(), NumberRange(min=0)])
     submit = SubmitField('Хүргэлт нэмэх')
 
     def validate_phone(self, phone):
@@ -48,7 +45,7 @@ class OrderEditForm(FlaskForm):
     khoroo = SelectField('Хороо', choices=[],validators=[Optional()])
     aimag = SelectField('Аймаг', choices=[],validators=[Optional()])
     address = TextAreaField('Хаяг', validators=[DataRequired()])
-    total_amount = IntegerField('Нийт дүн', validators=[DataRequired(), NumberRange(min=0)])
+    total_amount = IntegerField('Үйлчлэгчээс авах дүн', validators=[InputRequired(), NumberRange(min=0)])
     submit = SubmitField('Өөрчлөх')
 
     def validate_phone(self, phone):

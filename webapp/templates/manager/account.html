@@ -24,28 +24,10 @@
                                 <tr>
                                     <td scope="row">{{ account.id }}</td>
                                     <td>
-                                        {% if form.lastname.errors %}
-                                            {{ form.lastname(class="form-control is-invalid") }}
-                                            <div class="invalid-feedback">
-                                                {% for error in form.lastname.errors %}
-                                                    <span>{{ error }}</span>
-                                                {% endfor %}
-                                            </div>
-                                        {% else %}
-                                            {{ form.lastname(class="form-control") }}
-                                        {% endif %}
+                                        {{ account.lastname }}
                                     </td>
                                     <td>
-                                        {% if form.firstname.errors %}
-                                            {{ form.firstname(class="form-control is-invalid") }}
-                                            <div class="invalid-feedback">
-                                                {% for error in form.firstname.errors %}
-                                                    <span>{{ error }}</span>
-                                                {% endfor %}
-                                            </div>
-                                        {% else %}
-                                            {{ form.firstname(class="form-control") }}
-                                        {% endif %}
+                                        {{ account.firstname }}
                                     </td>
                                     <td>
                                         {% if form.phone.errors %}

@@ -12,6 +12,7 @@
                                 <tr>
                                     <th scope="col" class="bg-grad">#</th>
                                     <th scope="col" class="bg-grad">Төлөв</th>
+                                    <th scope="col" class="bg-grad">Хүргэлт</th>
                                     <th scope="col" class="bg-grad">Хаяг/Утас</th>
                                     <th scope="col" class="bg-grad"></th>
                                 </tr>
@@ -22,11 +23,16 @@
                                     <tr>
                                         <td scope="row">{{ order.id }}</td>
                                         <td>
-                                            {% if order.delivery_status == "cancelled" %}
-                                                <p class="text-info fw-bold">цуцалсан</p>
-                                            {% elif order.delivery_status == "postphoned" %}
-                                                <p class="text-info fw-bold">хойшлуулсан</p>
+                                            {% if order.delivery.is_returned %}
+                                                <p class="fw-bold text-success">Нярав буцааж авсан</p>
                                             {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if order.delivery_status == "cancelled" %}
+                                                <p class="fw-bold text-danger">Цуцалсан</p>
+                                            {% elif order.delivery_status == "postphoned" %}
+                                                <p class="fw-bold text-info">Хойшлуулсан</p>
+                                            {% endif%}
                                         </td>
                                         <td>
                                             <p>
@@ -51,9 +57,16 @@
                                                 {{ order.delivery.addresses.phone_more }}</p>
                                         </td>
                                         <td>
-                                            {% if order.delivery.is_returned %}
-                                                <p class="fw-bold text-success">Буцааж авсан</p>
-                                            {% endif %}
+                                            {% if order.delivery_status == "cancelled" %}
+                                                {% if order.is_returned_to_supplier %}
+                                                    <p class="fw-bold text-success">Харилцагч авсан</p>
+                                                {% else %}
+                                                    <p class="fw-bold text-danger">Харилцагч аваагүй</p>
+                                                {% endif %}
+                                            {% elif order.delivery_status == "postphoned" %}
+                                                <p class="fw-bold text-info">Хойшлуулсан</p>
+                                            {% endif%}
+                                            
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -74,7 +87,7 @@
                     {
                         extend: 'csvHtml5',
                         text: 'CSV файл татах',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {
@@ -84,7 +97,7 @@
                     }, {
                         extend: 'print',
                         text: 'Хэвлэх',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {

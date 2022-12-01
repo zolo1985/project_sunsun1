@@ -4,20 +4,109 @@ from webapp import has_role
 from flask_login import current_user, login_required
 from webapp import models
 from webapp.database import Connection
-from webapp.supplier.supplier1.forms import InventoryAddForm, ChooseType, InventoryPickupAddForm, DriverPickupForm
+from webapp.supplier.supplier1.forms import InventoryAddForm, ChooseType, InventoryPickupAddForm, DriverPickupForm, FiltersForm
 from datetime import datetime
 from flask_paginate import Pagination, get_page_parameter
 import pytz
+import calendar
+import pytz
+from dateutil.rrule import DAILY,rrule
 
 supplier1_inventory_blueprint = Blueprint('supplier1_inventory', __name__)
 
-@supplier1_inventory_blueprint.route('/supplier1/inventories')
+@supplier1_inventory_blueprint.route('/supplier1/inventories', methods=['GET','POST'])
 @login_required
 @has_role('supplier1')
 def supplier1_inventories():
+    current_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
     connection = Connection()
+
+    final_inventories = []
+    days_data = []
+
+    form = FiltersForm()
+
     inventories = connection.query(models.TotalInventory).filter_by(user_id=current_user.id)
-    return render_template('/supplier/supplier1/inventories.html', inventories=inventories)
+
+    if (calendar.monthrange(current_date.year, current_date.month)[1]) < 15:
+        for inventory in inventories:
+            data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
+            days_list = []
+            days_data = []
+            for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, 1)), until=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, 15))):
+                day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
+                day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
+                
+                day_format = (i.day, 0 if day_added is None else int(day_added), 0 if day_expense is None else int(day_expense))
+                days_list.append(day_format)
+                days_data.append(i.day)
+
+            data_format.insert(2, (days_list))
+            data_format.insert(3, inventory.total_inventory_product.price)
+            final_inventories.append(data_format)
+
+    else:
+        for inventory in inventories:
+            data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
+            days_list = []
+            days_data = []
+            for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
+                day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
+                day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
+                
+                day_format = (i.day, 0 if day_added is None else int(day_added), 0 if day_expense is None else int(day_expense))
+                days_list.append(day_format)
+                days_data.append(i.day)
+
+            data_format.insert(2, (days_list))
+            data_format.insert(3, inventory.total_inventory_product.price)
+            final_inventories.append(data_format)
+
+
+    print(final_inventories)
+    
+    if form.date.data is not None and form.validate_on_submit():
+
+        final_inventories = []
+        days_data = []
+
+        if (form.date.data.day) <= 15:
+            for inventory in inventories:
+                data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
+                days_list = []
+                days_data = []
+                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(form.date.data.year, form.date.data.month, "01")), until=datetime.fromisoformat(f'%s-%s-%s'%(form.date.data.year, form.date.data.month, 15))):
+                    day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
+                    day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
+                    
+                    day_format = (i.day, 0 if day_added is None else int(day_added), 0 if day_expense is None else int(day_expense))
+                    days_list.append(day_format)
+                    days_data.append(i.day)
+
+                data_format.insert(2, (days_list))
+                final_inventories.append(data_format)
+        else:
+            for inventory in inventories:
+                data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
+                days_list = []
+                days_data = []
+                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(form.date.data.year, form.date.data.month, 16)), until=datetime.fromisoformat(f'%s-%s-%s'%(form.date.data.year, form.date.data.month, calendar.monthrange(form.date.data.year, form.date.data.month)[1]))):
+                    day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
+                    day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
+                    
+                    day_format = (i.day, 0 if day_added is None else int(day_added), 0 if day_expense is None else int(day_expense))
+                    days_list.append(day_format)
+                    days_data.append(i.day)
+
+
+                data_format.insert(2, (days_list))
+                final_inventories.append(data_format)
+
+        print(final_inventories)
+        
+        return render_template('/supplier/supplier1/inventories.html', form=form, inventories=inventories, current_date=form.date.data, day_list=days_data, final_inventories=final_inventories)
+
+    return render_template('/supplier/supplier1/inventories.html', form=form, inventories=inventories, current_date=current_date, day_list=days_data, final_inventories=final_inventories)
 
 
 @supplier1_inventory_blueprint.route('/supplier1/inventories/add', methods=['GET','POST'])
@@ -275,7 +364,6 @@ def supplier1_inventory_pickups():
             return redirect(url_for('supplier1_inventory.supplier1_inventory_pickups'))
 
     return render_template('/supplier/supplier1/pickup_inventories.html', pickups=pickups, form=form, pagination=pagination)
-
 
 
 def get_pickups(page, per_page):

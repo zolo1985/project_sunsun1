@@ -21,5 +21,6 @@ class FilterDateForm(FlaskForm):
 
 
 class SupplierChooseForm(FlaskForm):
+    date = DateField('Он сараар', validators=[Optional()])
     select_supplier = SelectField('Харилцагч', choices=[], validators=[DataRequired()])
     submit = SubmitField('Шүүх')

@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block main %}
+    <section>
+        <div class="container min-vh-100">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Тооцоо</h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                {{ form.select_date.label(class="form-control-label") }}
+                                {% if form.select_date.errors %}
+                                    {{ form.select_date(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.select_date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.select_date(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 align-self-center">
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                    </form>
+                    {% if payment_histories|length > 0 %}
+                        <div class="table-responsive-sm">
+                            <table id="example" class="table table-lg table-bordered display" style="display: block; overflow-y: hidden; overflow-x: auto;">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="bg-grad">Жолооч</th>
+                                        <th scope="col" class="bg-grad">Нийт дүн</th>
+                                        <th scope="col" class="bg-grad">Бэлнээр</th>
+                                        <th scope="col" class="bg-grad">Дансаар</th>
+                                        <th scope="col" class="bg-grad">Үлдэгдэл</th>
+                                        <th scope="col" class="bg-grad">Тэмдэглэл</th>
+                                        <th scope="col" class="bg-grad">Тооцоо хийсэн огноо</th>
+                                        <th scope="col" class="bg-grad">Тооцоо хийсэн нягтлан</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment_history in payment_histories %}
+                                        <tr>
+                                            <td>{{ payment_history.driver_name }}</td>
+                                            <td>{{ payment_history.card_amount + payment_history.cash_amount + payment_history.remaining_amount }}</td>
+                                            <td>{{ payment_history.cash_amount }}</td>
+                                            <td>{{ payment_history.card_amount }}</td>
+                                            <td>{{ payment_history.remaining_amount }}</td>
+                                            <td>{{ payment_history.comment }}</td>
+                                            <td>{{ payment_history.received_date }}</td>
+                                            <td>{{ payment_history.accountant.firstname }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock main %}

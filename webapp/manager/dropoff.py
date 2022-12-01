@@ -77,3 +77,18 @@ def manager_dropoffs_history():
         return render_template('/manager/dropoff_histories.html', dropoffs=dropoffs, form=form)
 
     return render_template('/manager/dropoff_histories.html', dropoffs=dropoffs, form=form)
+
+
+@manager_dropoff_blueprint.route('/manager/dropoffs/<int:dropoff_id>', methods=['GET'])
+@login_required
+@has_role('manager')
+def manager_dropoff(dropoff_id):
+    connection = Connection()
+    dropoff = connection.query(models.DropoffTask).get(dropoff_id)
+
+    if dropoff is None:
+        flash('Олдсонгүй', 'danger')
+        connection.close()
+        return redirect(url_for('manager_dropoff.manager_dropoffs'))
+
+    return render_template('/manager/dropoff.html', dropoff=dropoff)

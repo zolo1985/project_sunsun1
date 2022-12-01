@@ -43,7 +43,7 @@
                                     {% for pickup in pickups %}
                                         <tr>
                                             <td class="fw-bold">{{ loop.index }}.</td>
-                                            <th scope="col" class="bg-grad">{{ pickup.supplier_company }}</th>
+                                            <th scope="col">{{ pickup.supplier_company }}</th>
                                             <td class="fw-bold">
                                                 {% if pickup.supplier_type == "supplier1" %}
                                                     {% for detail in pickup.pickup_details %}
@@ -88,7 +88,7 @@
                                             </td>
                                             <td class="text-end">
                                                 {% if pickup.is_received %}
-                                                    <p>Хүлээж авсан.({{ pickup.clerk_received_date}})</p>
+                                                    <p class="fw-bold">хүлээж авсан.({{ pickup.clerk_received_date}})</p>
                                                 {% else %}
                                                     {% if pickup.status == "pickedup" %}
                                                         <a class="btn btn-outline-success" href="{{ url_for('clerk_receive.clerk_accept_pickup_inventories', pickup_task_id=pickup.id)}}">Хүлээж Авах</a>
@@ -118,7 +118,7 @@
                     {
                         extend: 'csvHtml5',
                         text: 'CSV файл татах',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {
@@ -128,7 +128,7 @@
                     }, {
                         extend: 'print',
                         text: 'Хэвлэх',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {

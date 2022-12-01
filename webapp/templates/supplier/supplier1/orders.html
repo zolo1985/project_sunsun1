@@ -51,8 +51,11 @@
                                                         <strong>хойшлуулсан огноо:</strong>
                                                         {{ order.postphoned_date | datefilter }}</p>
                                                     <p>
-                                                        <strong>Шалтгаан:</strong>
-                                                        {{ order.driver_comment }}</p>
+                                                        {% if order.show_comment %}
+                                                            <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                        {% else %}
+                                                        {% endif %}
+                                                    </p>
                                                 {% else %}
                                                     <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
                                                 {% endif %}
@@ -74,8 +77,11 @@
                                                             <strong>хойшлуулсан огноо:</strong>
                                                             {{ order.postphoned_date | datefilter }}</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
+                                                        </p>
                                                     {% else %}
                                                         <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
                                                     {% endif %}
@@ -89,8 +95,10 @@
                                                         <strong>хойшлуулсан огноо:</strong>
                                                         {{ order.postphoned_date | datefilter }}</p>
                                                     <p>
-                                                        <strong>Шалтгаан:</strong>
-                                                        {{ order.driver_comment }}</p>
+                                                        {% if order.show_comment %}
+                                                            <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                        {% else %}
+                                                        {% endif %}
                                                 {% else %}
                                                     <p class="text-success fw-bold">жолооч хүргэлтэнд гарсан байна</p>
                                                 {% endif %}
@@ -112,8 +120,10 @@
                                                             <strong>хойшлуулсан огноо:</strong>
                                                             {{ order.postphoned_date | datefilter }}</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
                                                     {% else %}
                                                         <p class="text-success fw-bold">жолооч хүргэлтэнд гарсан байна</p>
                                                     {% endif %}
@@ -124,8 +134,10 @@
                                                             <strong>хойшлуулсан огноо:</strong>
                                                             {{ order.postphoned_date | datefilter }}</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
                                                     {% else %}
                                                         <p class="text-success fw-bold">жолооч хүргэлтэнд гарсан байна</p>
                                                     {% endif %}
@@ -139,8 +151,10 @@
                                                         <strong>хойшлуулсан огноо:</strong>
                                                         {{ order.postphoned_date | datefilter }}</p>
                                                     <p>
-                                                        <strong>Шалтгаан:</strong>
-                                                        {{ order.driver_comment }}</p>
+                                                        {% if order.show_comment %}
+                                                            <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                        {% else %}
+                                                        {% endif %}
                                                 {% else %}
                                                     <p class="fw-bold" style="color: coral;">хүргэгдэхээр явж байна</p>
                                                 {% endif %}
@@ -162,8 +176,10 @@
                                                             <strong>хойшлуулсан огноо:</strong>
                                                             {{ order.postphoned_date | datefilter }}</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
                                                     {% else %}
                                                         <p class="fw-bold" style="color: coral;">хүргэгдэхээр явж байна</p>
                                                     {% endif %}
@@ -174,8 +190,10 @@
                                                             <strong>хойшлуулсан огноо:</strong>
                                                             {{ order.postphoned_date | datefilter }}</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
                                                     {% else %}
                                                         <p class="fw-bold" style="color: coral;">хүргэгдэхээр явж байна</p>
                                                     {% endif %}
@@ -184,20 +202,22 @@
                                         {% elif order.status == "completed" %}
                                             {% if form.date.data is none %}
                                                 {% if order.is_postphoned %}
-                                                    <p class="text-success fw-bold">хүргэгдсэн*</p>
+                                                    <p class="text-success fw-bold">хойшилж хүргэгдсэн*</p>
                                                     <p>
                                                         <strong>хойшлуулсан огноо:</strong>
                                                         {{ order.postphoned_date | datefilter }}</p>
                                                     <p>
-                                                        <strong>Шалтгаан:</strong>
-                                                        {{ order.driver_comment }}</p>
+                                                        {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
                                                 {% else %}
                                                     <p class="text-success fw-bold">хүргэгдсэн</p>
                                                 {% endif %}
                                             {% else %}
                                                 {% if form.date.data > cur_date.date() %}
                                                     {% if order.is_postphoned %}
-                                                        <p class="text-success fw-bold">хүргэгдсэн*</p>
+                                                        <p class="text-success fw-bold">хойшилж хүргэгдсэн*</p>
                                                         <p class="text-info fw-bold">{{ order.created_date.strftime('%Y-%m-%d') }}
                                                             нд хойшлогдсон
                                                             {{ order.postphoned_date.strftime('%Y-%m-%d') }}
@@ -207,13 +227,15 @@
                                                     {% endif %}
                                                 {% elif form.date.data == cur_date.date() %}
                                                     {% if order.is_postphoned %}
-                                                        <p class="text-success fw-bold">хүргэгдсэн*</p>
+                                                        <p class="text-success fw-bold">хойшилж хүргэгдсэн*</p>
                                                         <p>
                                                             <strong>хойшлуулсан огноо:</strong>
                                                             {{ order.postphoned_date | datefilter }}</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
                                                     {% else %}
                                                         <p class="text-success fw-bold">хүргэгдсэн</p>
                                                     {% endif %}
@@ -224,8 +246,10 @@
                                                             <strong>хойшлуулсан огноо:</strong>
                                                             {{ order.postphoned_date | datefilter }}</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
                                                     {% else %}
                                                         <p class="text-success fw-bold">хүргэгдсэн</p>
                                                     {% endif %}
@@ -234,26 +258,34 @@
                                         {% elif order.status == "cancelled" %}
                                             {% if form.date.data is none %}
                                                 {% if order.is_postphoned %}
-                                                    <p class="text-danger fw-bold">цуцлагдсан</p>
+                                                    <p class="text-danger fw-bold">хойшилж цуцлагдсан*</p>
                                                     <p>
-                                                        <strong>Шалтгаан:</strong>
-                                                        {{ order.driver_comment }}</p>
+                                                        {% if order.show_comment %}
+                                                            <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                        {% else %}
+                                                        {% endif %}
                                                     <p>
                                                         <strong>хойшлуулсан огноо:</strong>
                                                         {{ order.postphoned_date | datefilter }}</p>
                                                 {% else %}
                                                     <p class="text-danger fw-bold">цуцлагдсан</p>
                                                     <p>
-                                                        <strong>Шалтгаан:</strong>
-                                                        {{ order.driver_comment }}</p>
+                                                        {% if order.show_comment %}
+                                                            <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                        {% else %}
+                                                        {% endif %}
+                                                    </p>
                                                 {% endif %}
                                             {% else %}
                                                 {% if form.date.data > cur_date.date() %}
                                                     {% if order.is_postphoned %}
-                                                        <p class="text-danger fw-bold">цуцлагдсан</p>
+                                                        <p class="text-danger fw-bold">хойшилж цуцлагдсан*</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
+                                                        </p>
                                                         <p class="text-info fw-bold">{{ order.created_date.strftime('%Y-%m-%d') }}
                                                             нд хойшлогдсон
                                                             {{ order.postphoned_date.strftime('%Y-%m-%d') }}
@@ -261,23 +293,32 @@
                                                     {% else %}
                                                         <p class="text-danger fw-bold">цуцлагдсан</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
+                                                        </p>
                                                     {% endif %}
                                                 {% elif form.date.data == cur_date.date() %}
                                                     {% if order.is_postphoned %}
-                                                        <p class="text-danger fw-bold">цуцлагдсан</p>
+                                                        <p class="text-danger fw-bold">хойшилж цуцлагдсан*</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
+                                                        </p>
                                                         <p>
                                                             <strong>хойшлуулсан огноо:</strong>
                                                             {{ order.postphoned_date | datefilter }}</p>
                                                     {% else %}
                                                         <p class="text-danger fw-bold">цуцлагдсан</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
+                                                        </p>
                                                     {% endif %}
                                                 {% elif form.date.data < cur_date.date() %}
                                                     {% if order.is_postphoned %}
@@ -286,13 +327,19 @@
                                                             <strong>хойшлуулсан огноо:</strong>
                                                             {{ order.postphoned_date | datefilter }}</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
+                                                        </p>
                                                     {% else %}
                                                         <p class="text-danger fw-bold">цуцлагдсан</p>
                                                         <p>
-                                                            <strong>Шалтгаан:</strong>
-                                                            {{ order.driver_comment }}</p>
+                                                            {% if order.show_comment %}
+                                                                <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                            {% else %}
+                                                            {% endif %}
+                                                        </p>
                                                     {% endif %}
                                                 {% endif %}
                                             {% endif %}
@@ -302,11 +349,14 @@
                                                 <strong>хойшлуулсан огноо:</strong>
                                                 {{ order.postphoned_date }}</p>
                                             <p>
-                                                <strong>Шалтгаан:</strong>
-                                                {{ order.driver_comment }}</p>
+                                                {% if order.show_comment %}
+                                                    <strong>Шалтгаан:</strong> {{ order.driver_comment }}
+                                                {% else %}
+                                                {% endif %}
+                                            </p>
                                         {% endif %}
                                     </td>
-                                    <td>{{ order.created_date }}</td>
+                                    <td>{{ order.created_date.strftime('%Y-%m-%d') }}</td>
                                     <td style="max-width: 300px; word-wrap: break-word;">
                                         <p>
                                             {% if order.addresses.city is not none %}
@@ -347,6 +397,7 @@
                                         {% endif %}
                                     </td>
                                     <td style=" text-align: end;">
+                                        <span class="m-2">₮{{ order.total_amount  | round | int | numberFormat }}</span>
                                         {% if order.status == "unassigned" %}
                                             {% if order.is_postphoned %}
 
@@ -354,7 +405,6 @@
                                                     <a class="btn btn-outline-danger" href="{{ url_for('supplier1_order.supplier1_order_delete', order_id=order.id) }}">Устгах</a>
                                             {% endif %}
                                         {% endif %}
-                                        ₮{{ order.total_amount  | round | int | numberFormat }}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -373,7 +423,7 @@
                 {
                     extend: 'csvHtml5',
                     text: 'CSV файл татах',
-                    text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                    text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
                     tag: 'span',
                     exportOptions: {
                         modifier: {
@@ -383,7 +433,7 @@
                 }, {
                     extend: 'print',
                     text: 'Хэвлэх',
-                    text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                    text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
                     tag: 'span',
                     exportOptions: {
                         modifier: {

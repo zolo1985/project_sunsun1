@@ -84,7 +84,7 @@ def supplier1_order_add(destination):
             order.is_ready = True
             order.delivery_attempts = 0
             order.supplier_company_name = current_user.company_name
-            order.total_amount = form.total_amount.data
+            order.total_amount = abs(form.total_amount.data)
 
             if is_time_between(time(12,00), time(00,00)):
                 order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -118,6 +118,7 @@ def supplier1_order_add(destination):
                 total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=product).first()
                 total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantity[i])
                 total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
                 order.delivery_details.append(order_detail)
                 
             try:

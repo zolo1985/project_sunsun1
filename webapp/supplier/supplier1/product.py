@@ -43,13 +43,6 @@ def supplier1_product_add():
             line_images = request.files.getlist("image")
 
             for i, name in enumerate(line_names):
-                product_database = connection.execute('select product.name, color.name, size.name from product product join user user on product.user_id = user.id join product_colors as colors on product.id = colors.product_id join product_color as color on colors.product_color_id = color.id join product_sizes as sizes on product.id = sizes.product_id join product_size as size on sizes.product_size_id = size.id where user.id = :user_id and product.name = :product_name and color.id = :color_id and size.id = :size_id',{'user_id': current_user.id, 'product_name': line_names[i], 'color_id': line_colors[i], 'size_id':line_sizes[i]}).first()
-                if product_database:
-                    flash('Бараа агуулахад бүртгэлтэй байна!', 'danger')
-                    connection.rollback()
-                    connection.close()
-                    raise Exception()
-
                 product = models.Product()
                 product.name = name
                 product.price = line_prices[i]
@@ -64,7 +57,6 @@ def supplier1_product_add():
                 product.colors.append(connection.query(models.ProductColor).get(line_colors[i]))
                 product.sizes.append(connection.query(models.ProductSize).get(line_sizes[i]))
                 current_user.products.append(product)
-                connection.commit()
 
                 total_inventory = models.TotalInventory()
                 total_inventory.quantity = 0
@@ -75,16 +67,14 @@ def supplier1_product_add():
                 connection.add(total_inventory)
                 connection.commit()
 
-        except Exception:
-            flash('Алдаа гарлаа!', 'danger')
+        except Exception as ex:
+            flash(f'%s'%(ex), 'danger')
             connection.rollback()
             connection.close()
             return redirect(request.url)
         else:
-            connection.close()
             flash('Шинэ бараа агуулахад амжилттай нэмэгдлээ.', 'success')
             return redirect(url_for('supplier1_product.supplier1_products'))
-    connection.close()
     return render_template('/supplier/supplier1/product_add.html', form=form)
 
 

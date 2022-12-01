@@ -1,47 +1,173 @@
 {% extends "layout.html" %}
 {% block main %}
-    <!-- Products -->
-    <section>
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12 mb-5">
-                    <h3 class="custom-header mb-4">Агуулах үлдэгдэл</h3>
-                    <div class="table-responsive-sm">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col" class="bg-grad">ID</th>
-                                    <th scope="col" class="bg-grad">Барааны нэр</th>
-                                    <th scope="col" class="bg-grad">Өнгө</th>
-                                    <th scope="col" class="bg-grad">Хэмжээ</th>
-                                    <th scope="col" class="bg-grad">Үлдэгдэл</th>
-                                    <th scope="col" class="bg-grad">Нэгж үнэ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for inventory in inventories %}
-                                    <tr class="header">
-                                        <td scope="row">{{ inventory.id }}</td>
-                                        <td>
-                                            <a class="show-more" style="color:black; font-weight: 700; font-size: 16px;">{{ inventory.total_inventory_product.name }}</a>
-                                        </td>
-                                        <td>{{ inventory.total_inventory_product.colors | first }}</td>
-                                        <td>{{ inventory.total_inventory_product.sizes | first }}</td>
-                                        <td>{{ (inventory.quantity + inventory.cancelled_quantity + inventory.postphoned_quantity + inventory.substracted_quantity) | round | int | numberFormat }} ширхэг</td>
-                                        <td>{{ inventory.total_inventory_product.price | round | int | numberFormat }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+<section>
+    <div class="container mt-5 min-vh-100">
+        <div class="row">
+            <div class="col-sm-12 mb-5">
+                <h3 class="custom-header mb-4">
+                    {% if final_inventories|length > 0 %}
+                        <p>Агуулах</p>
+                        {{ current_date.strftime('%Y-%m') }} сарын {{ day_list | first }}-{{ day_list | last }}хооронд
+                    {% else %}
+                        Агуулах
+                    {% endif %}
+                </h3>
+                <form id="form" method="POST" action="">
+                    {{ form.csrf_token }}
+                    <div class="row g-2 m-2">
+                        {% if final_inventories|length > 0 %}
+                            <div class="col-md-3">
+                                {{ form.date.label(class="form-control-label") }}
+                                {% if form.date.errors %}
+                                    {{ form.date(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.date(class="form-control") }}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        <div class="col-md-3 align-self-center">
+                            {{ form.submit(class="btn btn-outline-success m-0") }}
+                        </div>
                     </div>
+                </form>
+                {% if final_inventories|length > 0 %}
+                <div class="table-responsive-sm">
+                    <table id="example" class="table table-lg table-bordered display" style="display: block; overflow-y: hidden; overflow-x: auto;">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="bg-grad">Бараа/Өдөр</th>
+                                <th scope="col" class="bg-grad">Төрөл</th>
+                                {% for day in day_list %}
+                                    <th scope="col" class="bg-grad">
+                                        {{ day }}
+                                    </th>
+                                {% endfor %}
+                                <th scope="col" class="bg-grad">Нийт</th>
+                                <th scope="col" class="bg-grad">Үлдэгдэл</th>
+                                <th scope="col" class="bg-grad">Нэгж үнэ</th>
+                                <th scope="col" class="bg-grad">Нийт үнэ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in final_inventories %}
+                                {% set added_total = namespace (added_total = 0) %}
+                                {% set expense_total = namespace (expense_total = 0) %}
+                                {% for dt in data[2] %}
+                                    {% set added_total.added_total = added_total.added_total + dt[1] %}
+                                    {% set expense_total.expense_total = expense_total.expense_total + dt[2] %}
+                                {% endfor %}
+                                <tr style="border-bottom: 2px solid black">
+                                    <td class="text-center align-middle" rowspan="2">
+                                        <span class="fw-bold">{{ data[0] }}</span>
+                                    </td>
+                                    <td class="text-center align-middle">Орлого</td>
+                                    {% for dt in data[2] %}
+                                        <td class="text-center align-middle">
+                                            {% if dt[1]>0 %}
+                                                <span class="fw-bold">{{ dt[1] }}</span>
+                                            {% else %}
+                                                {{ dt[1] }}
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                    <td class="text-center align-middle">
+                                        <span class="fw-bold">{{ (added_total.added_total)  | numberFormat }}</span>
+                                    </td>
+                                    <td class="text-center align-middle" rowspan="2">
+                                        <span class="fw-bold" >{{ (added_total.added_total - expense_total.expense_total)  | numberFormat }}</span>
+                                    </td>
+                                    <td class="text-center align-middle" rowspan="2">
+                                        <span class="fw-bold" >{{ data[3] | numberFormat }}</span>
+                                    </td>
+                                    
+                                    <td class="text-center align-middle" rowspan="2">
+                                        <span class="fw-bold" >{{ (data[3]*(added_total.added_total - expense_total.expense_total)) | numberFormat }}</span>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid black">
+                                    <td style="display:none">
+                                        <span class="fw-bold">{{ data[0] }}</span>
+                                    </td>
+                                    <td class="text-center align-middle">Зарлага</td>
+                                    {% for dt in data[2] %}
+                                        <td class="text-center align-middle">
+                                            {% if dt[2]>0 %}
+                                                <span class="fw-bold">{{ dt[2] }}</span>
+                                            {% else %}
+                                                {{ dt[2] }}
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                    <td class="text-center align-middle">
+                                        <span class="fw-bold">{{ (expense_total.expense_total) | numberFormat }}</span>
+                                    </td>
+                                    <td class="text-center align-middle" style="display:none">
+                                    </td>
+                                    <td class="text-center align-middle" style="display:none">
+                                    </td>
+                                    <td class="text-center align-middle" style="display:none">
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
+                {% endif %}
             </div>
         </div>
-    </section>
-    <!-- END Products -->
-    <script>
-        $('.show-more').click(function () {
-            $('.header').toggleClass('expand').nextUntil('tr.header').slideToggle(100);
+    </div>
+</section>
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'csvHtml5',
+                    text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
+                    tag: 'span',
+                    exportOptions: {
+                        modifier: {
+                            search: 'none'
+                        }
+                    }
+                }, {
+                    extend: 'print',
+                    text: 'Хэвлэх',
+                    text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                    tag: 'span',
+                    exportOptions: {
+                        modifier: {
+                            search: 'none'
+                        }
+                    }
+                },
+            ],
+            paging: false,
+            sorting: false,
+            ordering: false,
+            pageLength: 50,
+            lengthMenu: [
+                50, 100, 200, 500
+            ],
+            "language": {
+                "lengthMenu": "_MENU_ эгнээ харах",
+                "zeroRecords": "Дата алга",
+                "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: {{ (final_inventories|length|int) }} бараа",
+                "infoEmpty": "",
+                "sSearch": "Хайх",
+                "paginate": {
+                    "previous": "өмнөх",
+                    "next": "дараа"
+                }
+
+            }
         });
-    </script>
+    });
+</script>
 {% endblock main %}

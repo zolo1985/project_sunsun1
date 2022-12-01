@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container min-vh-100">
+            <div class="row">
+
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">Таталт</h3>
+                    <div class="table-responsive-sm">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">Харилцагч</th>
+                                    <th scope="col" class="bg-grad">Дэлгэрэнгүй</th>
+                                    <th scope="col" class="bg-grad">Хүсэлт Үүсгэсэн Огноо</th>
+                                    <th scope="col" class="bg-grad">Авах Огноо</th>
+                                    <th scope="col" class="bg-grad">Жолооч</th>
+                                    <th scope="col" class="bg-grad">Төлөв</th>
+                                </tr>
+                            </thead>
+                            {% if (dropoff.status != "completed") and (dropoff.status != "pickedup") %}
+                                {{ form.task_id(class="form-control", value=dropoff.id) }}
+                            {% endif %}
+
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <p class="fw-bold">{{ dropoff.supplier_company }}</p>
+                                    </td>
+                                    <td style="text-align: start;">
+                                        {% for dropoff_detail in dropoff.dropoff_details %}
+                                            <p class="fw-fold">{{ dropoff_detail.phone }}</p>
+                                        {% endfor %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <p>{{ dropoff.created_date }}</p>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if  dropoff.created_date is not none %}
+                                            <p>{{ dropoff.created_date.strftime('%Y-%m-%d') }}</p>
+                                        {% else %}
+                                            <p></p>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        {% if dropoff.driver_name %}
+                                            <p class="fw-bold">{{ dropoff.driver_name }}</p>
+                                        {% else %}
+                                            <p class="fw-bold text-danger">Жолооч хувиарлагдаагүй байна.</p>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: end;">
+                                        {% if dropoff.status == "completed" %}
+                                            <p class="text-success fw-bold">Хүргэгдсэн({{ dropoff.delivered_date }})</p>
+                                        {% elif dropoff.status == "enroute" %}
+                                            <p class="text-info fw-bold">Жолоочид хувиарлагдсан. Жолооч аваагүй байна.</p>
+                                        {% elif dropoff.status == "pickedup" %}
+                                            <p class="text-success fw-bold">Бараа жолоочид байна.</p>
+                                        {% elif dropoff.status == "waiting" %}
+                                            <p class="text-danger fw-bold">Ажил хувиарлагдахыг хүлээж байна.</p>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END Products -->
+{% endblock main %}

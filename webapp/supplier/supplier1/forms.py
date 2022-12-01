@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, TextAreaField, DateField, IntegerField, HiddenField
-from wtforms.validators import ValidationError, DataRequired, Optional, NumberRange
+from wtforms.validators import ValidationError, DataRequired, Optional, NumberRange, InputRequired
 from flask_wtf.file import FileField, FileAllowed
+from webapp.database import Connection
+from webapp import models
 
 
 class FiltersForm(FlaskForm):
@@ -22,7 +24,7 @@ class OrderDetailLocalAddForm(FlaskForm):
     address = TextAreaField('Хаяг', validators=[DataRequired()])
     products = SelectField('Бараа', choices=[], validators=[DataRequired()])
     quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)])
-    total_amount = IntegerField('Нийт үнэ', validators=[DataRequired(), NumberRange(min=0)])
+    total_amount = IntegerField('Нийт үнэ', validators=[InputRequired(), NumberRange(min=0)])
     submit = SubmitField('Хүргэлт нэмэх')
 
     def validate_phone(self, phone):
@@ -33,6 +35,9 @@ class OrderDetailLocalAddForm(FlaskForm):
         else:
             raise ValidationError('Зөвхөн тоо ашиглана уу!')
 
+    def validate_products(self, products):
+        print(products)
+
 
 class OrderDetailLongDistanceAddForm(FlaskForm):
     phone = StringField('Утасны дугаар', validators=[DataRequired()])
@@ -41,7 +46,7 @@ class OrderDetailLongDistanceAddForm(FlaskForm):
     address = TextAreaField('Хаяг', validators=[DataRequired()])
     products = SelectField('Бараа', choices=[], validators=[DataRequired()])
     quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)], id='price')
-    total_amount = IntegerField('Нийт үнэ', validators=[DataRequired(), NumberRange(min=0)])
+    total_amount = IntegerField('Нийт үнэ', validators=[InputRequired(), NumberRange(min=0)])
     submit = SubmitField('Хүргэлт нэмэх')
 
     def validate_phone(self, phone):
@@ -78,7 +83,20 @@ class ProductAddForm(FlaskForm):
         if validation.issubset(allowed_chars):
             pass
         else:
-            raise ValidationError('Зөвхөн үсэг, тоо ашиглана уу!')
+            raise ValidationError('Зөвхөн тоо ашиглана уу!')
+
+        if name.data != name.data.strip():
+            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
+
+        connection = Connection()
+        # print(self.color.data)
+        # print(self.size.data)
+        # print(name.data)
+        product_database = connection.execute('select count(*) from sunsundatabase1.product as product join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.name = :product_name and color.id = :color_id and size.id = :size_id',{'product_name': name.data, 'color_id': self.color, 'size_id': self.size}).scalar()
+        # product = connection.query(models.Product).filter_by(name=name.data).first()
+        # print(product_database)
+        if product_database>0:
+            raise ValidationError('Ийм нэртэй бараа байна!')
 
 
 class ProductEditForm(FlaskForm):
@@ -90,12 +108,21 @@ class ProductEditForm(FlaskForm):
     submit = SubmitField('Өөрчлөх')
 
     def validate_name(self, name):
-        allowed_chars = set(("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZефцужэнгшүзкъйыбөахролдпячёсмитьвюЕФЦУЖЭНГШҮЗКЪЙЫБӨАХРОЛДПЯЧЁСМИТЬВЮ0123456789"))
+        allowed_chars = set(("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZефцужэнгшүзкъйыбөахролдпячёсмитьвюЕФЦУЖЭНГШҮЗКЪЙЫБӨАХРОЛДПЯЧЁСМИТЬВЮ0123456789 "))
         validation = set((name.data))
         if validation.issubset(allowed_chars):
             pass
         else:
-            raise ValidationError('Зөвхөн үсэг, тоо ашиглана уу!')
+            raise ValidationError('Зөвхөн тоо ашиглана уу!')
+
+        if name.data != name.data.strip():
+            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
+
+        connection = Connection()
+        products = connection.query(models.Product).filter_by(name=name.data).all()
+        connection.close()
+        if len(products)>1:
+            raise ValidationError('Ийм нэртэй бараа байна!')
 
 
 class InventoryAddForm(FlaskForm):

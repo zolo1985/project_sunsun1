@@ -27,7 +27,11 @@
                                             {% endfor %}
                                         </td>
                                         <td>
-                                            <p class="fw-bold">{{ dropoff.driver_name }}</p>
+                                            {% if dropoff.driver_name is none %}
+                                                <p class="fw-bold text-danger">жолооч хувиарлагдаагүй байна</p>
+                                            {% else %}
+                                                <p class="fw-bold">{{ dropoff.driver_name }}</p>
+                                            {% endif %}
                                         </td>
                                         <td>
                                             {% if dropoff.is_completed %}
@@ -40,7 +44,11 @@
                                             {% if dropoff.is_completed %}
                                                 <p class="fw-bold">авсан ({{ dropoff.delivered_date }})</p>
                                             {% else %}
-                                                <a class="btn btn-outline-success" href="{{ url_for('supplier2_return.supplier2_returns_receive', dropoff_id=dropoff.id) }}">Хүлээж авах</a>
+                                                {% if dropoff.driver_name is none %}
+                                                    
+                                                {% else %}
+                                                    <a class="btn btn-outline-success" href="{{ url_for('supplier2_return.supplier2_returns_receive', dropoff_id=dropoff.id) }}">Хүлээж авах</a>
+                                                {% endif %}
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -61,7 +69,7 @@
                     {
                         extend: 'csvHtml5',
                         text: 'CSV файл татах',
-                        text: '<a class="btn btn-outline-secondary" style="float: left;">CSV файл татах</a>',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {

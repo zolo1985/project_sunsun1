@@ -27,7 +27,7 @@
                                             <td scope="row">{{ loop.index }}.</td>
                                             <td>
                                                 {% if  order.status == "waiting"%}
-                                                    <p class="fw-bold text-danger">Авахыг хүлээж</p>
+                                                    <p class="fw-bold text-danger">Авахыг хүлээж байна</p>
                                                 {% elif order.status == "enroute" %}
                                                     <p class="fw-bold text-info">Жолооч авахаар очиж байна</p>
                                                 {% elif order.status == "pickedup" or order.status == "completed" %}

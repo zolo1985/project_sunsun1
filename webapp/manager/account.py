@@ -43,8 +43,6 @@ def manager_account(account_id):
         account_to_update.email = form.email.data
         account_to_update.phone = form.phone.data
         account_to_update.fee = form.fee.data
-        account_to_update.firstname = form.firstname.data
-        account_to_update.lastname = form.lastname.data
 
         try:
             connection.commit()
@@ -61,8 +59,6 @@ def manager_account(account_id):
         form.email.data = account.email
         form.phone.data = account.phone
         form.fee.data = account.fee
-        form.firstname.data = account.firstname
-        form.lastname.data = account.lastname
         return render_template('/manager/account.html', form=form, account=account)
     return render_template('/manager/account.html', form=form, account=account)
 
