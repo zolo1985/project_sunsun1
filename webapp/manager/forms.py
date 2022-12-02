@@ -217,4 +217,8 @@ class SelectSupplierOption(FlaskForm):
     date = DateField('Он сар', validators=[DataRequired()])
     submit = SubmitField('Сонгох')
 
+class SearchForm(FlaskForm):
+    search_text = StringField('Хайх', validators=[DataRequired(), Length(min=2, max=50, message='Нэр 2-50 урттай')])
+    submit = SubmitField('Хайх')
+
 

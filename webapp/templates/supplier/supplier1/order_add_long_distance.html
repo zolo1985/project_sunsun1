@@ -8,20 +8,20 @@
                 {{ form.csrf_token }}
                 <!-- Tab default -->
 				<div class="col-sm-12 col-md-12">
+                    {% if order_window %}
+                        <div class="p-5 mb-5 rounded" style="background-color: rgb(255, 48, 48);">
+                            <h3 style="color: white; ">Өглөөний 10:30 минутаас хойш оруулсан хүргэлтүүд автоматаар маргаашийн хүргэлтэнд орохыг анхаарна уу!</h3>
+                        </div>
+                    {% else %}
+                        
+                    {% endif %}
 					<h3 class="custom-header mb-4">Шинэ Хүргэлт Оруулах</h3>
+                    
 					<ul class="nav nav-tabs">
 						<li class="nav-item"> <a class="nav-link" href="{{ url_for('supplier1_order.supplier1_order_add', destination='local') }}"> Улаанбаатар </a> </li>
 						<li class="nav-item"> <a class="nav-link active" href="{{ url_for('supplier1_order.supplier1_order_add', destination='long') }}"> Орон нутаг</a> </li>
                         <li class="nav-item"> <a class="nav-link" href="{{ url_for('supplier1_order.supplier1_order_add', destination='file') }}"> Файлаар(Excel)</a> </li>
 					</ul>
-
-                    {% if order_window %}
-                        <div class="p-5 mt-5 mb-5 rounded" style="background-color: rgb(255, 48, 48);">
-                            <h3 style="color: white; ">Өдрийн 12 цагаас хойш оруулсан ажлууд автоматаар маргаашийн хүргэлтэнд орохыг анхаарна уу!</h3>
-                        </div>
-                    {% else %}
-                        
-                    {% endif %}
 
                     <div class="mt-5">
                         <span style="font-size: 16px; color: black; padding-right: 1rem;">Өнөөдрийн захиалгын тоо: <strong>{{ todays_order_count }}</strong></span>
@@ -73,7 +73,16 @@
             
                                                     <td>
                                                         {{ form.aimag.label(class="form-control-label") }}
-                                                        {{ form.aimag(class="form-control")}}
+                                                            {% if form.aimag.errors %}
+                                                            {{ form.aimag(class="form-control is-invalid m-0") }}
+                                                                <div class="invalid-feedback">
+                                                                    {% for error in form.aimag.errors %}
+                                                                    <span>{{ error }}</span>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            {% else %}
+                                                            {{ form.aimag(class="form-control") }}
+                                                        {% endif %}
                                                     </td>
             
                                                     <td>
@@ -163,4 +172,20 @@
     </div>
 </section>
 <!-- END ORDERS ADD -->
+<script>
+    function checkDistrictAndKhorooField() {
+        var districtValue = document.getElementById("aimag").value
+        if (districtValue == "Аймаг сонгох") {
+            alert("Аймаг сонгоогүй байна! Сонголтоо хийгээд үргэлжлүүлнэ үү!")
+        }
+    }
+</script>
+<script>
+   $('#address').on('focusout', function () {
+        var districtValue = document.getElementById("aimag").value
+        if (districtValue == "Аймаг сонгох") {
+            alert("Аймаг сонгоогүй байна! Сонголтоо хийгээд үргэлжлүүлнэ үү!")
+        }
+    });
+</script>
 {% endblock main %}

@@ -36,7 +36,7 @@
 
                             <thead>
                                 <tr>
-                                    <th scope="col" class="bg-grad">Жолооч/Өдөр</th>
+                                    <th scope="col" class="bg-grad">Жолооч/{{ day_list | first }}-{{ day_list | last }} хооронд</th>
                                     <th scope="col" class="bg-grad"></th>
                                     {% for day in day_list %}
                                         <th scope="col" class="bg-grad">
@@ -106,10 +106,11 @@
                                         <td class="text-center align-middle">
                                             <span class="fw-bold">{{ pickups_total_data.pickup_total }}</span>
                                         </td>
-                                        <td style="display:none"></td>
+                                        
                                         <td class="text-center align-middle">
                                             <span>{{ (pickups_total_data.pickup_total * (data[3]|int)) | numberFormat }}₮</span>
                                         </td>
+                                        <td style="display:none"></td>
                                         <td style="display:none"></td>
                                     </tr>
 
@@ -130,10 +131,11 @@
                                         <td class="text-center align-middle">
                                             <span class="fw-bold">{{ dropoffs_total_data.dropoff_total }}</span>
                                         </td>
-                                        <td style="display:none"></td>
+                                        
                                         <td class="text-center align-middle">
                                             <span>{{ (dropoffs_total_data.dropoff_total * (data[3]|int)) | numberFormat }}₮</span>
                                         </td>
+                                        <td style="display:none"></td>
                                         <td style="display:none"></td>
                                     </tr>
                                 {% endfor %}
@@ -162,6 +164,17 @@
                         extend: 'print',
                         text: 'Хэвлэх',
                         text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {

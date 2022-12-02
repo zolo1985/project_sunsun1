@@ -3,159 +3,22 @@
     <div class="container-fluid mt-5 min-vh-100" style="width: 80%;">
         <div class="row">
             <div class="col-sm-12 mb-5">
-                <h3 class="custom-header mb-4">Өнөөдрийн Нийт Хүргэлт</h3>
-
-                <section class="py-4 border mb-5 rounded-3 border-2">
-                    <div class="container">
-                        <div class="row">
-                            <!-- count item -->
-                            <div class="col mb-4 mb-md-0">
-                                <div class="text-center">
-                                    <i class="display-6 ti-write"></i>
-                                    <h2 class="fw-bold mt-2 mb-0 purecounter" data-purecounter-start="0" data-purecounter-delay="10" data-purecounter-duration="1" data-purecounter-end="{{ total_orders }}">0</h2>
-                                    <p class="mb-0">Нийт хүргэлт</p>
-                                </div>
-                            </div>
-                            <!-- count item -->
-                            <div class="col mb-4 mb-md-0">
-                                <div class="text-center">
-                                    <i class="display-6 ti-truck"></i>
-                                    <h2 class="fw-bold mt-2 mb-0 purecounter" data-purecounter-start="0" data-purecounter-delay="10" data-purecounter-duration="1" data-purecounter-end="{{ unassigned_orders }}">0</h2>
-                                    <p class="mb-0">Хувиарлагдаагүй</p>
-                                </div>
-                            </div>
-                            <!-- count item -->
-                            <div class="col mb-4 mb-md-0">
-                                <div class="text-center">
-                                    <i class="display-6 ti-truck"></i>
-                                    <h2 class="fw-bold mt-2 mb-0 purecounter" data-purecounter-start="0" data-purecounter-delay="10" data-purecounter-duration="1" data-purecounter-end="{{ delivered_orders }}">0</h2>
-                                    <p class="mb-0">Хүргэгдсэн</p>
-                                </div>
-                            </div>
-                            <!-- count item -->
-                            <div class="col mb-4 mb-md-0">
-                                <div class="text-center">
-                                    <i class="display-6 ti-face-smile"></i>
-                                    <h2 class="fw-bold mt-2 mb-0 purecounter" data-purecounter-start="0" data-purecounter-delay="10" data-purecounter-duration="1" data-purecounter-end="{{ postphoned_orders }}">0</h2>
-                                    <p class="mb-0">Хойшлуулсан</p>
-                                </div>
-                            </div>
-                            <!-- count item -->
-                            <div class="col mb-4 mb-md-0">
-                                <div class="text-center">
-                                    <i class="display-6 ti-cup"></i>
-                                    <h2 class="fw-bold mt-2 mb-0 purecounter" data-purecounter-start="0" data-purecounter-delay="10" data-purecounter-duration="1" data-purecounter-end="{{ cancelled_orders }}">0</h2>
-                                    <p class="mb-0">Цуцалсан</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="py-4 border mb-5 rounded-3 border-2">
-                    <div class="container">
-                        <div class="mb-3">
-                            <span style="font-size: 16px; color: black; padding-right: 1rem;">
-                                <strong>Өнөөдрийн хүргэлт дүүргээр:
-                                </strong>
-                            </span>
-                            {% for order in total_orders_count_by_district %}
-                                <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.district }}:
-                                    <strong>{{ order.total_count }}</strong>
-                                </span>
-                            {% endfor %}
-                        </div>
-        
-                        <div class="mb-3">
-                            <span style="font-size: 16px; color: black; padding-right: 1rem;">
-                                <strong>Өнөөдрийн хүргэлт хувиарлалтаар:
-                                </strong>
-                            </span>
-                            {% for order in total_orders_count_by_driver %}
-                                <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
-                                    <strong>{{ order.total_count }}</strong>
-                                </span>
-                            {% endfor %}
-                        </div>
-        
-                        {% if total_postphoned_count_by_driver %}
-                            <div class="mb-3">
-                                <span style="font-size: 16px; color: black; padding-right: 1rem;">
-                                    <strong>Өнөөдрийн хойшлуулсан хүргэлтүүд:</strong>
-                                </span>
-                                {% for order in total_postphoned_count_by_driver %}
-                                    <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
-                                        <strong>{{ order.total_count }}</strong>
-                                    </span>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-        
-                        <div class="mb-3">
-                            <span style="font-size: 16px; color: black; padding-right: 1rem;">
-                                <strong>Өнөөдрийн хүргэлт аймгаар:
-                                </strong>
-                            </span>
-                            {% for order in total_orders_count_by_aimag %}
-                                <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.aimag }}:
-                                    <strong>{{ order.total_count }}</strong>
-                                </span>
-                            {% endfor %}
-                        </div>
-        
-                        <div>
-                            <span style="font-size: 16px; color: black; padding-right: 1rem;">
-                                <strong>Өмнөх өдрүүдээс хойшлуулсан хүргэлтүүд:</strong>
-                            </span>
-                            {% for order in total_postphoned_count_by_driver_from_previous_days %}
-                                <span style="font-size: 16px; color: black; padding-right: 1rem;">{{ order.driver }}:
-                                    <strong>{{ order.total_count }}</strong>
-                                </span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </section>
+                <h3 class="custom-header mb-4">Хайлт</h3>
 
                 <form id="form" method="POST" action="">
                     {{ form.csrf_token }}
                     <div class="row g-2">
                         <div class="col-md-3">
-                            {{ form.date.label(class="form-control-label") }}
-                            {% if form.date.errors %}
-                                {{ form.date(class="form-control is-invalid") }}
+                            {{ form.search_text.label(class="form-control-label") }}
+                            {% if form.search_text.errors %}
+                                {{ form.search_text(class="form-control is-invalid") }}
                                 <div class="invalid-feedback">
-                                    {% for error in form.date.errors %}
+                                    {% for error in form.search_text.errors %}
                                         <span>{{ error }}</span>
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                {{ form.date(class="form-control") }}
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3">
-                            {{ form.regions.label(class="form-control-label") }}
-                            {% if form.regions.errors %}
-                                {{ form.regions(class="form-control is-invalid") }}
-                                <div class="invalid-feedback">
-                                    {% for error in form.regions.errors %}
-                                        <span>{{ error }}</span>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                {{ form.regions(class="form-control") }}
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3">
-                            {{ form.status.label(class="form-control-label") }}
-                            {% if form.status.errors %}
-                                {{ form.status(class="form-control is-invalid") }}
-                                <div class="invalid-feedback">
-                                    {% for error in form.status.errors %}
-                                        <span>{{ error }}</span>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                {{ form.status(class="form-control") }}
+                                {{ form.search_text(class="form-control") }}
                             {% endif %}
                         </div>
                         <div class="col-md-3 align-self-center">
@@ -376,9 +239,5 @@
                 }
             });
         });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@srexi/purecounterjs/dist/purecounter_vanilla.js"></script>
-    <script>
-        new PureCounter();
     </script>
 {% endblock main %}

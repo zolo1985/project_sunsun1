@@ -165,9 +165,10 @@ def manager_order_detail(order_id):
             else:
                 try:
                     order.assigned_manager_id = current_user.id
-                    order.assigned_driver_id = None
-                    order.assigned_driver_name = None
-                    order.delivery_region = None
+                    if order.status == "unassigned":
+                        order.assigned_driver_id = None
+                        order.assigned_driver_name = None
+                        order.delivery_region = None
                     order.delivery_date = form.date.data
                     order.created_date = form.date.data
                     order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -241,6 +242,8 @@ def manager_order_detail(order_id):
                 try:
                     driver_name = connection.query(models.User).get(form.select_drivers.data)
                     region = connection.query(models.Region).get(form.select_regions.data)
+                    if order.status == "unassigned":
+                        order.status = "assigned"
                     order.assigned_manager_id = current_user.id
                     order.assigned_driver_id = form.select_drivers.data
                     order.assigned_driver_name = f'%s %s'%(driver_name.lastname, driver_name.firstname)
@@ -687,3 +690,12 @@ def manager_order_total_amount(order_id):
         return render_template('/manager/edit_total_amount.html', form=form, order=order, cur_date=cur_date)
 
     return render_template('/manager/edit_total_amount.html', form=form, order=order, cur_date=cur_date)
+
+
+
+# @manager_order_blueprint.route('/manager/order/add', methods=['GET', 'POST'])
+# @login_required
+# @has_role('manager')
+# def manager_order_add():
+#     connection = Connection()
+    

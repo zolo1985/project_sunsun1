@@ -32,12 +32,12 @@ def clerk_inventories():
         supplier = connection.query(models.User).filter(models.User.id==form.select_supplier.data).first()
         inventories = supplier.total_inventories
 
-        if (calendar.monthrange(current_date.year, current_date.month)[1]) < 15:
+        if current_date.day < 15:
             for inventory in inventories:
                 data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
                 days_list = []
                 days_data = []
-                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, 1)), until=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, 15))):
+                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))):
                     day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
                     day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
                     
@@ -48,13 +48,14 @@ def clerk_inventories():
                 day_total = connection.execute('SELECT total_inventory.quantity as available_quantity, total_inventory.postphoned_quantity as postphoned_quantity, total_inventory.cancelled_quantity as cancelled_quantity, total_inventory.substracted_quantity as substracted_quantity FROM sunsundatabase1.total_inventory as total_inventory where total_inventory.product_id=:product_id;', {"product_id": inventory.product_id }).first()
                 data_format.insert(2, (days_list))
                 data_format.insert(3, (day_total))
+                data_format.insert(4, (inventory.quantity, inventory.postphoned_quantity, inventory.cancelled_quantity, inventory.substracted_quantity))
                 final_inventories.append(data_format)
         else:
             for inventory in inventories:
                 data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
                 days_list = []
                 days_data = []
-                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
+                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
                     day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
                     day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
                     
@@ -65,6 +66,7 @@ def clerk_inventories():
                 day_total = connection.execute('SELECT total_inventory.quantity as available_quantity, total_inventory.postphoned_quantity as postphoned_quantity, total_inventory.cancelled_quantity as cancelled_quantity, total_inventory.substracted_quantity as substracted_quantity FROM sunsundatabase1.total_inventory as total_inventory where total_inventory.product_id=:product_id;', {"product_id": inventory.product_id }).first()
                 data_format.insert(2, (days_list))
                 data_format.insert(3, (day_total))
+                data_format.insert(4, (inventory.quantity, inventory.postphoned_quantity, inventory.cancelled_quantity, inventory.substracted_quantity))
                 final_inventories.append(data_format)
 
         return render_template('/clerk/inventories.html', supplier=supplier, form=form, inventories=inventories, current_date=current_date, day_list=days_data, final_inventories=final_inventories)
@@ -78,7 +80,7 @@ def clerk_inventories():
                 data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
                 days_list = []
                 days_data = []
-                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(form.date.data.year, form.date.data.month, "01")), until=datetime.fromisoformat(f'%s-%s-%s'%(form.date.data.year, form.date.data.month, 15))):
+                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, 15))):
                     day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
                     day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
                     
@@ -89,13 +91,14 @@ def clerk_inventories():
                 day_total = connection.execute('SELECT total_inventory.quantity as available_quantity, total_inventory.postphoned_quantity as postphoned_quantity, total_inventory.cancelled_quantity as cancelled_quantity, total_inventory.substracted_quantity as substracted_quantity FROM sunsundatabase1.total_inventory as total_inventory where total_inventory.product_id=:product_id;', {"product_id": inventory.product_id }).first()    
                 data_format.insert(2, (days_list))
                 data_format.insert(3, (day_total))
+                data_format.insert(4, (inventory.quantity, inventory.postphoned_quantity, inventory.cancelled_quantity, inventory.substracted_quantity))
                 final_inventories.append(data_format)
         else:
             for inventory in inventories:
                 data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
                 days_list = []
                 days_data = []
-                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(form.date.data.year, form.date.data.month, 16)), until=datetime.fromisoformat(f'%s-%s-%s'%(form.date.data.year, form.date.data.month, calendar.monthrange(form.date.data.year, form.date.data.month)[1]))):
+                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, calendar.monthrange(form.date.data.year, form.date.data.month)[1]))):
                     day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
                     day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
                     
@@ -107,6 +110,7 @@ def clerk_inventories():
 
                 data_format.insert(2, (days_list))
                 data_format.insert(3, (day_total))
+                data_format.insert(4, (inventory.quantity, inventory.postphoned_quantity, inventory.cancelled_quantity, inventory.substracted_quantity))
                 final_inventories.append(data_format)
         
         return render_template('/clerk/inventories.html', supplier=supplier, form=form, inventories=inventories, current_date=form.date.data, day_list=days_data, final_inventories=final_inventories)

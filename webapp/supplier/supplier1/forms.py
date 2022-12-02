@@ -16,11 +16,11 @@ class FiltersForm(FlaskForm):
 
 
 class OrderDetailLocalAddForm(FlaskForm):
-    phone = StringField('Утасны дугаар', validators=[DataRequired()])
-    phone_more = StringField('Нэмэлт утасны дугаар', validators=[Optional()])
-    district = SelectField('Дүүрэг', choices=[],validators=[DataRequired()])
-    khoroo = SelectField('Хороо', choices=[],validators=[DataRequired()])
-    aimag = SelectField('Аймаг', choices=[],validators=[Optional()])
+    phone = IntegerField('Утасны дугаар', validators=[DataRequired()])
+    phone_more = IntegerField('Нэмэлт утасны дугаар', validators=[Optional()])
+    district = SelectField('Дүүрэг', choices=[], validators=[DataRequired()])
+    khoroo = SelectField('Хороо', choices=[], validators=[DataRequired()])
+    aimag = SelectField('Аймаг', choices=[], validators=[Optional()])
     address = TextAreaField('Хаяг', validators=[DataRequired()])
     products = SelectField('Бараа', choices=[], validators=[DataRequired()])
     quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)])
@@ -29,19 +29,28 @@ class OrderDetailLocalAddForm(FlaskForm):
 
     def validate_phone(self, phone):
         allowed_chars = set(("0123456789"))
-        validation = set((phone.data))
+        validation = set((str(phone.data)))
         if validation.issubset(allowed_chars):
             pass
         else:
             raise ValidationError('Зөвхөн тоо ашиглана уу!')
 
-    def validate_products(self, products):
-        print(products)
+    def validate_district(self, district):
+        if district.data == "0" or district.data == "Дүүрэг сонгох":
+            raise ValidationError('Дүүрэг сонгоно уу!')
+        else:
+            pass
+
+    def validate_khoroo(self, khoroo):
+        if khoroo.data == "0" or khoroo.data == "Хороо сонгох":
+            raise ValidationError('Хорооны дугаар сонгоно уу!')
+        else:
+            pass
 
 
 class OrderDetailLongDistanceAddForm(FlaskForm):
-    phone = StringField('Утасны дугаар', validators=[DataRequired()])
-    phone_more = StringField('Нэмэлт утасны дугаар', validators=[Optional()])
+    phone = IntegerField('Утасны дугаар', validators=[DataRequired()])
+    phone_more = IntegerField('Нэмэлт утасны дугаар', validators=[Optional()])
     aimag = SelectField('Аймаг', choices=[],validators=[DataRequired()])
     address = TextAreaField('Хаяг', validators=[DataRequired()])
     products = SelectField('Бараа', choices=[], validators=[DataRequired()])
@@ -51,11 +60,17 @@ class OrderDetailLongDistanceAddForm(FlaskForm):
 
     def validate_phone(self, phone):
         allowed_chars = set(("0123456789"))
-        validation = set((phone.data))
+        validation = set((str(phone.data)))
         if validation.issubset(allowed_chars):
             pass
         else:
             raise ValidationError('Зөвхөн тоо ашиглана уу!')
+
+    def validate_aimag(self, aimag):
+        if aimag.data == "0" or aimag.data == "Аймаг сонгох":
+            raise ValidationError('Аймаг сонгоно уу!')
+        else:
+            pass
 
 
 class OrderDetailFileAddForm(FlaskForm):
@@ -89,12 +104,7 @@ class ProductAddForm(FlaskForm):
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
         connection = Connection()
-        # print(self.color.data)
-        # print(self.size.data)
-        # print(name.data)
         product_database = connection.execute('select count(*) from sunsundatabase1.product as product join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.name = :product_name and color.id = :color_id and size.id = :size_id',{'product_name': name.data, 'color_id': self.color, 'size_id': self.size}).scalar()
-        # product = connection.query(models.Product).filter_by(name=name.data).first()
-        # print(product_database)
         if product_database>0:
             raise ValidationError('Ийм нэртэй бараа байна!')
 

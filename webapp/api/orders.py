@@ -2,11 +2,9 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from webapp.database import Connection
 from webapp import models
-from datetime import datetime, timezone
-from sqlalchemy import and_, or_, func
-from dateutil import tz
+from datetime import datetime
+from sqlalchemy import or_, func
 import pytz
-import json
 
 orders_api = Blueprint('orders_api', __name__)
 
@@ -67,8 +65,7 @@ def modify_order():
         return jsonify(msg="Хүргэлт олдсонгүй", response = False), 400
 
     if order.order_type=="stored":
-        detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(body["product_id"]), models.DeliveryDetail.quantity==abs(int(body["quantity"]))).first()
-
+        detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(body["product_id"])).first()
         if not detail:
             connection.close()
             return jsonify(msg="Бараа олдсонгүй", response = False), 400
@@ -397,7 +394,6 @@ def order_histories():
             "current_state": history.delivery_status,
             "type": history.type,
         })
-            
     return jsonify(payload), 200
 
 
@@ -489,7 +485,6 @@ def orders_current_list():
     else:
         connection.close()
         return jsonify(msg="Хүлээж авлаа", response = True), 200
-
 
 
 @orders_api.route('/api/driver-stats', methods = ["GET", "POST"])

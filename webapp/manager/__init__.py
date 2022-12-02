@@ -5,6 +5,7 @@ def create_module(app, **kwargs):
     from .pickup import manager_pickup_blueprint
     from .dropoff import manager_dropoff_blueprint
     from .analytics import manager_analytics_blueprint
+    from .search import manager_search_blueprint
 
     app.register_blueprint(manager_profile_blueprint)
     app.register_blueprint(manager_order_blueprint)
@@ -12,3 +13,4 @@ def create_module(app, **kwargs):
     app.register_blueprint(manager_pickup_blueprint)
     app.register_blueprint(manager_dropoff_blueprint)
     app.register_blueprint(manager_analytics_blueprint)
+    app.register_blueprint(manager_search_blueprint)

@@ -55,7 +55,9 @@ def supplier2_order_add(destination):
         districts = connection.query(models.District).all()
         form = OrderDetailLocalAddForm()
         form.district.choices = [(district) for district in districts]
-        form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
+        form.district.choices.insert(0,'Дүүрэг сонгох')
+        form.khoroo.choices = [(f'%s'%(khoroo_num+1)) for khoroo_num in range(32)]
+        form.khoroo.choices.insert(0,'Хороо сонгох')
 
         if form.validate_on_submit():
             line_phone = request.form.getlist("phone")
@@ -134,7 +136,7 @@ def supplier2_order_add(destination):
                 return redirect(request.url)
             else:
                 connection.close()
-                if is_time_between(time(12,00), time(00,00)):
+                if is_time_between(time(10,30), time(00,00)):
                     flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
                 else:
                     flash('Хүргэлт нэмэгдлээ.', 'success')
@@ -149,6 +151,7 @@ def supplier2_order_add(destination):
         form1 = OrderDetailLongDistanceAddForm()
         aimags = connection.query(models.Aimag).all()
         form1.aimag.choices = [(aimag) for aimag in aimags]
+        form1.aimag.choices.insert(0,'Аймаг сонгох')
 
         if form1.validate_on_submit():
             line_phone = request.form.getlist("phone")
@@ -224,7 +227,7 @@ def supplier2_order_add(destination):
                 return redirect(request.url)
             else:
                 connection.close()
-                if is_time_between(time(12,00), time(00,00)):
+                if is_time_between(time(10,30), time(00,00)):
                     flash('Маргаашийн Хүргэлтд нэмэгдлээ.', 'success')
                 else:
                     flash('Хүргэлт нэмэгдлээ.', 'success')
@@ -421,7 +424,7 @@ def supplier2_orders_ready():
                         new_delivery.supplier_company_name = current_user.company_name
                         new_delivery.total_amount = pickup_task_detail.total_amount
 
-                        if is_time_between(time(12,00), time(00,00)):
+                        if is_time_between(time(10,30), time(00,00)):
                             new_delivery.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                             new_delivery.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                             new_delivery.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)

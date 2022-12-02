@@ -25,7 +25,7 @@ def accountant_driver_salary():
             data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
             days_list = []
             days_data = []
-            for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, 1)), until=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, 15))):
+            for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 1)), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))):
                 day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
                 day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
                 day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()
@@ -44,7 +44,7 @@ def accountant_driver_salary():
             data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
             days_list = []
             days_data = []
-            for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%s-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
+            for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
                 day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
                 day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
                 day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()
@@ -59,8 +59,6 @@ def accountant_driver_salary():
 
     form = DateSelect()
 
-    print(drivers_datas)
-
     if form.select_date.data is not None and form.validate_on_submit():
         drivers_datas = []
         drivers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).all()
@@ -70,7 +68,7 @@ def accountant_driver_salary():
                 data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
                 days_list = []
                 days_data = []
-                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(form.select_date.data.year, form.select_date.data.month, "01")), until=datetime.fromisoformat(f'%s-%s-%s'%(form.select_date.data.year, form.select_date.data.month, 15))):
+                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 15))):
                     day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
                     day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
                     day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()
@@ -86,9 +84,8 @@ def accountant_driver_salary():
             for driver in drivers:
                 data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
                 days_list = []
-                print(days_list)
                 days_data = []
-                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%s-%s'%(form.select_date.data.year, form.select_date.data.month, 16)), until=datetime.fromisoformat(f'%s-%s-%s'%(form.select_date.data.year, form.select_date.data.month, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1]))):
+                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1]))):
                     day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
                     day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
                     day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()

@@ -76,10 +76,22 @@
                                 search: 'none'
                             }
                         }
-                    }, {
+                    },
+                    {
                         extend: 'print',
                         text: 'Хэвлэх',
                         text: '<a class="btn btn-outline-secondary" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
                         tag: 'span',
                         exportOptions: {
                             modifier: {

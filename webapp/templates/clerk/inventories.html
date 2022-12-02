@@ -95,19 +95,31 @@
                                         <span class="fw-bold">{{ (added_total.added_total)  | numberFormat }}</span>
                                     </td>
                                     <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold">{{ data[3]["postphoned_quantity"] }}</span>
+                                        {% if data[4][1] > 0 %}
+                                            <span class="fw-bold text-danger" style="font-size:18px;">{{ data[4][1] }}</span>
+                                        {% else %}
+                                            <span class="fw-bold" style="font-size:18px;">{{ data[4][1] }}</span>
+                                        {% endif %}
                                     </td>
                                     <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold">{{ data[3]["substracted_quantity"] }}</span>
+                                        {% if data[4][3] > 0 %}
+                                            <span class="fw-bold text-danger" style="font-size:18px;">{{ data[4][3] }}</span>
+                                        {% else %}
+                                            <span class="fw-bold" style="font-size:18px;">{{ data[4][3] }}</span>
+                                        {% endif %}
                                     </td>
                                     <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold">{{ data[3]["cancelled_quantity"] }}</span>
+                                        {% if data[4][2] > 0 %}
+                                            <span class="fw-bold text-danger" style="font-size:18px;">{{ data[4][2] }}</span>
+                                        {% else %}
+                                            <span class="fw-bold" style="font-size:18px;">{{ data[4][2] }}</span>
+                                        {% endif %}
                                     </td>
                                     <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold" >{{ (added_total.added_total - expense_total.expense_total - data[3]["cancelled_quantity"] - data[3]["substracted_quantity"] - data[3]["postphoned_quantity"])  | numberFormat }}</span>
+                                        <span class="fw-bold" style="font-size:18px;">{{ (data[4][0])  | numberFormat }}</span>
                                     </td>
                                     <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold" >{{ (added_total.added_total - expense_total.expense_total)  | numberFormat }}</span>
+                                        <span class="fw-bold" style="font-size:18px;">{{ (data[4]|sum)  | numberFormat }}</span>
                                     </td>
                                 </tr>
                                 <tr style="border-bottom: 2px solid black">
@@ -170,6 +182,17 @@
                     extend: 'print',
                     text: 'Хэвлэх',
                     text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                    tag: 'span',
+                    exportOptions: {
+                        modifier: {
+                            search: 'none'
+                        }
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: 'Excel',
+                    text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
                     tag: 'span',
                     exportOptions: {
                         modifier: {

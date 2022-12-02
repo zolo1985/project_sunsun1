@@ -10,7 +10,7 @@ load_dotenv(dotenv_path=env_path)
 
 class Config(object):
 
-    # SERVER_NAME = os.environ.get("SERVER_NAME")
+    SERVER_NAME = os.environ.get("SERVER_NAME")
     
     CACHE_TYPE = os.environ.get("CACHE_TYPE")
     CACHE_REDIS_HOST = os.environ.get("CACHE_REDIS_HOST")

@@ -52,7 +52,7 @@ def supplier1_orders():
 @has_role('supplier1')
 def supplier1_order_add(destination):
     cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
-    order_window = is_time_between(time(12,00), time(00,00))
+    order_window = is_time_between(time(10,30), time(00,00))
     form = FiltersForm()
 
     if destination == 'local':
@@ -64,7 +64,9 @@ def supplier1_order_add(destination):
         form = OrderDetailLocalAddForm()
         form.products.choices = [(product.id, f'%s,  (сүнсүн агуулахад: %s, хэмжээ: %s, өнгө: %s, үнэ: %s₮)'%(product.name, product.quantity, str(product.prod_size_name).replace('[','').replace(']',''), str(product.prod_color_name).replace('[','').replace(']',''), str(product.price).replace('[','').replace(']',''))) for product in user_products]
         form.district.choices = [(district) for district in districts]
-        form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
+        form.district.choices.insert(0,'Дүүрэг сонгох')
+        form.khoroo.choices = [(f'%s'%(khoroo_num+1)) for khoroo_num in range(32)]
+        form.khoroo.choices.insert(0,'Хороо сонгох')
 
         if form.validate_on_submit():
             line_products = request.form.getlist("products")
@@ -86,7 +88,7 @@ def supplier1_order_add(destination):
             order.supplier_company_name = current_user.company_name
             order.total_amount = abs(form.total_amount.data)
 
-            if is_time_between(time(12,00), time(00,00)):
+            if is_time_between(time(10,30), time(00,00)):
                 order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                 order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                 order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -96,6 +98,7 @@ def supplier1_order_add(destination):
                 order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
             current_user.deliveries.append(order)
+            connection.flush()
 
             address = models.Address()
             address.phone = form.phone.data
@@ -119,7 +122,13 @@ def supplier1_order_add(destination):
                 total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantity[i])
                 total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                order.delivery_details.append(order_detail)
+                is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(product)).first()
+
+                if is_detail:
+                    is_detail.quantity = is_detail.quantity + int(line_quantity[i])
+                else:
+                    order.delivery_details.append(order_detail)
+                    connection.flush()
                 
             try:
                 connection.commit()
@@ -128,7 +137,7 @@ def supplier1_order_add(destination):
                 connection.rollback()
                 return redirect(url_for('supplier1_order.supplier1_orders'))
             else:
-                if is_time_between(time(12,00), time(00,00)):
+                if is_time_between(time(10,30), time(00,00)):
                     flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
                 else:
                     flash('Хүргэлт нэмэгдлээ.', 'success')
@@ -144,7 +153,8 @@ def supplier1_order_add(destination):
 
         form1 = OrderDetailLongDistanceAddForm()
         form1.products.choices = [(product.id, f'%s,  (сүнсүн агуулахад: %s, хэмжээ: %s, өнгө: %s, үнэ: %s₮)'%(product.name, product.quantity, str(product.prod_size_name).replace('[','').replace(']',''), str(product.prod_color_name).replace('[','').replace(']',''), str(product.price).replace('[','').replace(']',''))) for product in user_products]
-        form1.aimag.choices = [(district) for district in aimags]
+        form1.aimag.choices = [(aimag) for aimag in aimags]
+        form1.aimag.choices.insert(0,'Аймаг сонгох')
 
         if form1.validate_on_submit():
             line_products = request.form.getlist("products")
@@ -166,7 +176,7 @@ def supplier1_order_add(destination):
             order.supplier_company_name = current_user.company_name
             order.total_amount = form1.total_amount.data
 
-            if is_time_between(time(12,00), time(00,00)):
+            if is_time_between(time(10,30), time(00,00)):
                 order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                 order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                 order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -176,6 +186,7 @@ def supplier1_order_add(destination):
                 order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
             current_user.deliveries.append(order)
+            connection.flush()
             
             address = models.Address()
             address.phone = form1.phone.data
@@ -197,7 +208,14 @@ def supplier1_order_add(destination):
                 total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=product).first()
                 total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantity[i])
                 total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                order.delivery_details.append(order_detail)
+
+                is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(product)).first()
+
+                if is_detail:
+                    is_detail.quantity = is_detail.quantity + int(line_quantity[i])
+                else:
+                    order.delivery_details.append(order_detail)
+                    connection.flush()
                 
             try:
                 connection.commit()
@@ -206,7 +224,7 @@ def supplier1_order_add(destination):
                 connection.rollback()
                 return redirect(url_for('supplier1_order.supplier1_orders'))
             else:
-                if is_time_between(time(12,00), time(00,00)):
+                if is_time_between(time(10,30), time(00,00)):
                     flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
                 else:
                     flash('Хүргэлт нэмэгдлээ.', 'success')
@@ -311,7 +329,7 @@ def supplier1_order_add(destination):
                             new_order.supplier_company_name = current_user.company_name
                             new_order.total_amount = order["Нийт үнэ"]
 
-                            if is_time_between(time(12,00), time(00,00)):
+                            if is_time_between(time(10,30), time(00,00)):
                                 new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                                 new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                                 new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -356,7 +374,7 @@ def supplier1_order_add(destination):
                             new_order.supplier_company_name = current_user.company_name
                             new_order.total_amount = order["Нийт үнэ"]
 
-                            if is_time_between(time(12,00), time(00,00)):
+                            if is_time_between(time(10,30), time(00,00)):
                                 new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                                 new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                                 new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -398,7 +416,7 @@ def supplier1_order_add(destination):
                         flash('Алдаа гарлаа!', 'danger')
                         connection.rollback()
                     else:
-                        if is_time_between(time(12,00), time(00,00)):
+                        if is_time_between(time(10,30), time(00,00)):
                             flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
                         else:
                             flash('Хүргэлт нэмэгдлээ.', 'success')
