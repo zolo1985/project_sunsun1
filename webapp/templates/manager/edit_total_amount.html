@@ -35,7 +35,7 @@
                                                 {% if order.is_postphoned %}
                                                     <p class="text-info fw-bold">хойшлуулсан</p>
                                                     <p>хойшлуулсан огноо: {{ order.postphoned_date | datefilter }}</p>
-                                                    <p>Шалтгаан: {{ order.driver_comment }}</p>
+                                                    <p>Коммент: {{ order.driver_comment }}</p>
                                                 {% else %}
                                                     <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
                                                 {% endif %}
@@ -47,13 +47,13 @@
                                             <p class="text-success fw-bold">хүргэгдсэн</p>
                                             {% elif order.status == "cancelled" %}
                                                 <p class="text-danger fw-bold">цуцлагдсан</p>
-                                                <p>Шалтгаан:
+                                                <p>Коммент:
                                                     {{ order.driver_comment }}</p>
                                             {% elif order.status == "postphoned" %}
                                                 <p class="text-info fw-bold">хойшлуулсан</p>
                                                 <p>хойшлуулсан огноо:
                                                     {{ order.postphoned_date }}</p>
-                                                <p>Шалтгаан:
+                                                <p>Коммент:
                                                     {{ order.driver_comment }}</p>
                                             {% endif %}
                                         </td>
@@ -132,7 +132,7 @@
                                                 <p>{{ order.driver_comment }}</p>
                                                 <a class="btn btn-outline-success" href="{{ url_for('manager_order.manager_order_comment', order_id = order.id ) }}">Коммент Өөрчлөх</a>
                                             {% else %}
-                                                <a class="btn btn-outline-success" href="#">Коммент Оруулах</a>
+                                                <a class="btn btn-outline-success" href="{{ url_for('manager_order.manager_order_comment', order_id = order.id ) }}">Коммент Оруулах</a>
                                             {% endif%}
                                         </td>
                                     </tr>

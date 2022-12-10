@@ -48,7 +48,12 @@
                                                 <p>{{ dropoff.created_date }}</p>
                                             </td>
                                             <td style="text-align: center;">
-                                                <p>{{ dropoff.delivered_date }}</p>
+                                                
+                                                    {% if dropoff.delivered_date is none %}
+                                                        <p class="text-danger">Хүргэгдээгүй байна</p>
+                                                    {% else %}
+                                                        <p>{{ dropoff.delivered_date }}</p>
+                                                    {% endif %}
                                             </td>
                                             <td style="text-align: center;">
                                                 {% if dropoff.driver_name %}

@@ -4,7 +4,7 @@ def create_module(app, **kwargs):
     from .product import supplier1_product_blueprint
     from .inventory import supplier1_inventory_blueprint
     from .expense import supplier1_expense_blueprint
-    from .profile import supplier1_profile_blueprint
+    from .user_profile import supplier1_profile_blueprint
     from .stats import supplier1_stats_blueprint
     app.register_blueprint(supplier1_order_blueprint)
     app.register_blueprint(supplier1_util_blueprint)

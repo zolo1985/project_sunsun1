@@ -75,7 +75,7 @@
                                     <div class="d-block d-sm-flex">
                                         <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
                                             <a class="dropdown-item" href="{{ url_for('supplier1_order.supplier1_orders') }}">Хүргэлт</a>
-                                            <a class="dropdown-item" href="{{ url_for('supplier1_order.supplier1_order_add', destination='local') }}">Шинэ Хүргэлт үүсгэх</a>
+                                            <a class="dropdown-item" href="{{ url_for('supplier1_order.supplier1_order_add') }}">Шинэ Хүргэлт үүсгэх</a>
                                         </ul>
                                         <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
                                             <a class="dropdown-item" href="{{ url_for('supplier1_stats.supplier1_stats')}}">Статистик</a>
@@ -117,7 +117,7 @@
                                     <div class="d-block d-sm-flex">
                                         <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
                                             <a class="dropdown-item" href="{{ url_for('supplier2_order.supplier2_orders')}}">Хүргэлт</a>
-                                            <a class="dropdown-item" href="{{ url_for('supplier2_order.supplier2_order_add', destination='local')}}">Шинэ Хүргэлт Үүсгэх</a>
+                                            <a class="dropdown-item" href="{{ url_for('supplier2_order.supplier2_order_add')}}">Шинэ Хүргэлт Үүсгэх</a>
                                         </ul>
                                         <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
                                             <a class="dropdown-item" href="{{ url_for('supplier2_stats.supplier2_stats')}}">Статистик</a>
@@ -149,8 +149,9 @@
                                         <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
                                             <a class="dropdown-item" href="{{ url_for('manager_order.manager_orders')}}">Хүргэлт</a>
                                             <a class="dropdown-item" href="{{ url_for('manager_order.manager_order_assign_region')}}">Хувиарлах</a>
-                                            <a class="dropdown-item" href="{{ url_for('manager_order.manager_commented_orders')}}">Коммент</a>
-                                            <a class="dropdown-item" href="{{ url_for('manager_search.search')}}">Хайх</a>
+                                            <a class="dropdown-item" href="{{ url_for('manager_order.manager_commented_orders')}}">Төлөв, Коммент</a>
+                                            <a class="dropdown-item" href="{{ url_for('manager_order.manager_order_add')}}">Хүргэлт Үүсгэх</a>
+                                            <a class="dropdown-item" href="{{ url_for('manager_order.manager_unassign_orders')}}">Хувиарлалт Буцаах</a>
                                         </ul>
                                     </div>
                                 </div>
@@ -207,6 +208,9 @@
                                     </div>
                                 </div>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('manager_search.search')}}"><i class="fas fa-search fs-6 "></i> Хайх</a>
+                            </li>
                         {% elif current_user.has_role('driver')%}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('driver_job.driver_jobs')}}">Ажлууд</a>
@@ -230,6 +234,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('accountant_profile.profile') }}">Данс</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('accountant_search.search')}}"><i class="fas fa-search fs-6 "></i> Хайх</a>
+                            </li>
                         {% elif current_user.has_role('clerk')%}
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="demosMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Бараа хүлээж авах</a>
@@ -248,6 +255,7 @@
                                     <div class="d-block d-sm-flex">
                                         <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
                                             <a class="dropdown-item" href="{{ url_for('clerk_expense.clerk_driver_orders')}}">Бараа хүлээлгэж өгөх</a>
+                                            <a class="dropdown-item" href="{{ url_for('clerk_expense.clerk_manager_orders')}}">Агуулахаас хүлээлгэж өгөх</a>
                                         </ul>
                                     </div>
                                 </div>
@@ -269,6 +277,7 @@
                                         <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
                                             <a class="dropdown-item" href="{{ url_for('clerk_inventory.clerk_inventories') }}">Агуулахтай Харилцагч</a>
                                             <a class="dropdown-item" href="{{ url_for('clerk_inventory.clerk_inventories_supplier2') }}">Агуулахгүй Харилцагч</a>
+                                            <a class="dropdown-item" href="{{ url_for('clerk_inventory.clerk_inventories_return') }}">Агуулахаас Харилцагчид Бараа Буцаах</a>
                                         </ul>
                                     </div>
                                 </div>
@@ -276,9 +285,12 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('clerk_profile.profile') }}">Данс</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('clerk_search.search')}}"><i class="fas fa-search fs-6 "></i> Хайх</a>
+                            </li>
                         {% endif %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('auth.signout')}}">Гарах</a>
+                                <a class="nav-link" href="{{ url_for('auth.signout')}}"><i class="fas fa-sign-out fs-6 "></i> Гарах</a>
                             </li>
                     {% else %}
                         <li class="nav-item">

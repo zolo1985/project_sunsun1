@@ -88,25 +88,3 @@ def manager_pickup(pickup_id):
         return redirect(url_for('manager_pickup.manager_pickups'))
 
     return render_template('/manager/pickup.html', pickup=pickup)
-
-
-
-# @manager_pickup_blueprint.route('/manager/pickups/history', methods=['GET','POST'])
-# @login_required
-# @has_role('manager')
-# def manager_pickups_history():
-#     connection = Connection()
-#     count = connection.query(models.PickupTask).filter(models.PickupTask.status=="completed").count()
-
-#     page = request.args.get(get_page_parameter(), type=int, default=1)
-#     per_page = 50
-#     pickups = get_pickups(page, per_page)
-#     pagination = Pagination(page=page, total=count,  per_page=per_page, bs_version='5')
-#     return render_template('/manager/pickup_histories.html', pickups=pickups, pagination=pagination)
-
-# def get_pickups(page, per_page):
-#     per_page_pickups=per_page
-#     offset = (page - 1) * per_page_pickups
-#     connection = Connection()
-#     pickups = connection.query(models.PickupTask).filter(models.PickupTask.status=="completed").order_by(models.PickupTask.modified_date.desc()).offset(offset).limit(per_page_pickups)
-#     return pickups

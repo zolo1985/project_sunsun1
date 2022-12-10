@@ -218,34 +218,37 @@
                                     <td style="text-align: center;">
                                         {% if order.status == "unassigned" %}
                                             {% if order.is_postphoned %}
-                                                <p class="text-info fw-bold">хойшлуулсан</p>
-                                                <p>хойшлуулсан огноо:
-                                                    {{ order.postphoned_date | datefilter }}</p>
-                                                <p>Шалтгаан:
-                                                    {{ order.driver_comment }}</p>
+                                                <p class="text-info fw-bold">Хойшлуулсан</p>
+                                                <p><strong>Хойшлуулсан огноо: </strong>{{ order.postphoned_date | datefilter }}</p>
+                                                <p><strong>Коммент: </strong>{{ order.driver_comment }}</p>
                                             {% else %}
-                                                <p class="text-danger fw-bold">хувиарлагдаагүй</p>
+                                                <p class="text-danger fw-bold">Хувиарлагдаагүй</p>
                                             {% endif %}
                                         {% elif order.status == "assigned" %}
-                                            <p class="text-primary fw-bold">хувиарлагдсан</p>
+                                            <p class="text-primary fw-bold">Хувиарлагдсан</p>
                                         {% elif order.status == "started" %}
-                                            <p class="fw-bold" style="color: coral;">одоо хүргэгдэж байна</p>
+                                            <p class="fw-bold" style="color: coral;">Одоо хүргэгдэж байна</p>
                                         {% elif order.status == "completed" %}
                                             {% if order.is_postphoned %}
-                                                <p class="text-success fw-bold">хүргэгдсэн*</p>
+                                                <p class="text-success fw-bold">Хүргэгдсэн*</p>
+                                                    {% if order.driver_comment is not none %}
+                                                        <strong>Нэмэлт тэмдэглэгээ:</strong> {{ order.driver_comment }}
+                                                    {% endif %}
                                             {% else %}
-                                                <p class="text-success fw-bold">хүргэгдсэн</p>
+                                                <p class="text-success fw-bold">Хүргэгдсэн</p>
+                                                    {% if order.driver_comment is not none %}
+                                                        <strong>Нэмэлт тэмдэглэгээ:</strong> {{ order.driver_comment }}
+                                                    {% endif %}
                                             {% endif %}
                                         {% elif order.status == "cancelled" %}
-                                            <p class="text-danger fw-bold">цуцлагдсан</p>
+                                            <p class="text-danger fw-bold">Цуцлагдсан</p>
+                                            {% if order.driver_comment is not none %}
+                                                <p><strong>Коммент: </strong>{{ order.driver_comment }}</p>
+                                            {% endif %}
                                         {% elif order.status == "postphoned" %}
-                                            <p class="text-info fw-bold">хойшлуулсан</p>
-                                            <p class="text-nowrap">хойшлуулсан огноо:
-                                                {{ order.postphoned_date }}</p>
-                                            <p>
-                                                Шалтгаан:
-                                                {{ order.driver_comment }}
-                                            </p>
+                                            <p class="text-info fw-bold">Хойшлуулсан</p>
+                                            <p class="text-nowrap"><strong>Хойшлуулсан огноо: </strong>{{ order.postphoned_date }}</p>
+                                            <p><strong>Коммент: </strong>{{ order.driver_comment }}</p>
                                         {% endif %}
 
                                         {% if (diffdates(cur_date, order.modified_date) | round | int) <= 0 %}

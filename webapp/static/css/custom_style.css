@@ -37,7 +37,7 @@ th, td {
 }
 
 .alert-success {
-    background: linear-gradient(150deg, #97c74e 0%, #2ab9a5 100%);
+    background: linear-gradient(150deg, #1b713b 0%, #33a294 100%);
     color: white;
 }
 
@@ -80,4 +80,25 @@ th, td {
     font-size: 16px;
     color: black;
     font-weight: 500;
+}
+
+#select2-product-container {
+    height: 40px !important;
+    font-size: 15px;
+}
+
+.selector-container {
+    height: 60px !important;
+    font-size: 15px;
+}
+
+.select2-selection, .select2-selection__rendered {
+    height: 40px !important;
+    font-size: 15px;
+}
+
+.form-check-input {width: 20px; height: 20px;}
+
+.bg-grad-custom {
+    background: linear-gradient(150deg, #94b8eb 0%, #2aa3b9 100%);
 }

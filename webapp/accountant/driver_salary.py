@@ -20,12 +20,12 @@ def accountant_driver_salary():
     connection = Connection()
     drivers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).all()
 
-    if (calendar.monthrange(current_date.year, current_date.month)[1]) < 15:
+    if current_date.day < 15:
         for driver in drivers:
             data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
             days_list = []
             days_data = []
-            for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 1)), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))):
+            for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))):
                 day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
                 day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
                 day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()

@@ -38,7 +38,6 @@
                                 <th scope="col" class="bg-grad">Хүргэх огноо</th>
                                 <th scope="col" class="bg-grad">Бүс</th>
                                 <th scope="col" class="bg-grad">Жолооч</th>
-                                <th scope="col" class="bg-grad"></th>
                             </tr>
                         </thead>
 
@@ -46,7 +45,7 @@
                             {% for order in orders %}
                                 <tr>
                                     <td scope="row">
-                                        <a class="fw-bold" style="color: black;" href="{{ url_for('manager_order.manager_order_detail', order_id=order.id) }}">{{ order.id }}</a>
+                                        {{ order.id }}
                                     </td>
                                     <td class="fw-bold">
                                         <p>
@@ -74,9 +73,7 @@
                                         </p>
                                     </td>
                                     <td>
-                                        <a style="text-align: center; color: black;" href="{{ url_for('manager_order.manager_order_detail', order_id=order.id) }}">
-                                            <p class="fw-bold">{{ order.supplier_company_name }}</p>
-                                        </a>
+                                        <p class="fw-bold">{{ order.supplier_company_name }}</p>
                                     </td>
                                     <td style="text-align: center;">
                                         {% if order.status == "unassigned" %}
@@ -171,9 +168,6 @@
                                                 <p class="text-success fw-bold">{{ order.assigned_driver_name }}</p>
                                             {% endif %}
                                         {% endif %}
-                                    </td>
-                                    <td>
-                                        <a class="btn btn-outline-success" href="{{ url_for('manager_order.manager_order_detail', order_id=order.id) }}">Ажлыг нээх</a>
                                     </td>
                                 </tr>
                             {% endfor %}

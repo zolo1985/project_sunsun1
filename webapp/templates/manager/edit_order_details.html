@@ -1,0 +1,264 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- ORDER DETAIL-->
+    <div class="container-fluid mt-5" style="width: 90%;">
+        <div class="row">
+            <div class="col-sm-12 mb-5">
+                <h3 class="custom-header mb-4">Ажил ID:
+                    {{ order.id }}</h3>
+                <br>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="table-responsive-sm">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="bg-grad">ID</th>
+                                        <th scope="col" class="bg-grad">Байгууллага</th>
+                                        <th scope="col" class="bg-grad">Хүргэх огноо</th>
+                                        <th scope="col" class="bg-grad">Хаяг/Утас</th>
+                                        <th scope="col" class="bg-grad">Коммент</th>
+                                        <th scope="col" class="bg-grad">Бараа</th>
+                                        <th scope="col" class="bg-grad">Дүн</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td scope="row">
+                                            <p class="fw-bold">{{ order.id }}</p>
+                                        </td>
+                                        <td>
+                                            <p class="fw-bold">{{ order.supplier_company_name }}</p>
+                                        </td>
+                                        <td>
+                                            <p class="text-nowrap">{{ order.delivery_date.strftime('%Y-%m-%d') }}</p>
+                                        </td>
+                                        <td>
+                                            <p>
+                                                {% if order.addresses.city is not none %}
+                                                    {{ order.addresses.city }},
+                                                {% endif %}
+
+                                                {% if order.addresses.district is not none %}
+                                                    {{ order.addresses.district }},
+                                                {% endif %}
+
+                                                {% if order.addresses.khoroo is not none %}
+                                                    {{ order.addresses.khoroo }}-р хороо,
+                                                {% endif %}
+
+                                                {% if order.addresses.aimag is not none %}
+                                                    {{ order.addresses.aimag }},
+                                                {% endif %}
+
+                                                {{ order.addresses.address }},
+                                                {{ order.addresses.phone }},
+                                                {{ order.addresses.phone_more }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            {% if order.driver_comment is not none %}
+                                                <p>{{ order.driver_comment }}</p>
+                                                {% else %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if order.order_type == "stored" %}
+                                                {% set odpt = namespace (order_payment_type = "") %}
+                                                {% for order_detail in order.delivery_details %}
+                                                    <p>
+                                                        {{ order_detail.products.name }},
+                                                        {{ order_detail.quantity }}
+                                                        ширхэг,
+                                                        {% set odpt.order_payment_type = order_detail.payment_type %}
+                                                        ₮{{ (order_detail.products.price)  | round | int | numberFormat }}
+                                                        {% if order.order_type == "stored" %}
+                                                            {% if (order.status == "assigned" and order.is_driver_received == false and order.is_received_from_clerk == false) or (order.status == "unassigned") %}
+                                                                <a href="{{ url_for('manager_order.manager_orders_remove_detail', order_detail_id=order_detail.id) }}" style="color: rgb(185, 9, 0);">Хасах</a>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </p>
+                                                {% endfor %}
+                                            {% else %}
+                                                {{ order.total_amount }}
+                                            {% endif %}
+                                        </td>
+                                        <td style=" text-align: end;">
+                                            ₮{{ order.total_amount  | round | int | numberFormat }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <div class="pt-4">
+                                            <a class="btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_address', order_id=order.id) }}">Хаяг Өөрчлөх</a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if order.driver_comment is not none %}
+                                            <div class="pt-4">
+                                                <a class="btn btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_comment', order_id = order.id ) }}">Коммент Өөрчлөх</a>
+                                            </div>
+                                        {% else %}
+                                            <div class="pt-4">
+                                                <a class="btn btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_comment', order_id = order.id ) }}">Коммент Оруулах</a>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if order.order_type == "stored" %}
+                                            {% if (order.status == "assigned" and order.is_driver_received == false and order.is_received_from_clerk == false) or (order.status == "unassigned") %}
+                                                <div class="pt-4">
+                                                    <a class="btn btn-outline-success btn-sm" onclick="showAddProductSection();">Бараа нэмэх</a>
+                                                </div>
+                                            {% endif%}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="pt-4">
+                                            <a class="btn btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_total_amount', order_id = order.id ) }}">Дүн Өөрчлөх</a>
+                                        </div>
+                                    </td>
+                                </tbody>
+                            </table>
+
+                            <div id="addProductSection" style="display: none;">
+                                <h3 class="custom-header mb-4">Бараа нэмэх хэсэг</h3>
+                                <div class="row">
+                                    <div class="col">
+                                        <span class="selector-container form-control form-control-lg" style="position:relative;">
+                                            <select class="searchBar" id="product" style="width: 100%;"></select>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-auto">
+                                        <input autocomplete="off" class="form-control form-control-lg" step="0" name="quantityInput" id="quantityInput" placeholder="Тоо ширхэг" type="number"></div>
+                                        <div class="col-md-auto">
+                                            <a id="add-product" class="btn btn-outline-info" onclick="addProduct();">Нэмэх</a>
+                                        </div>
+                                    </div>
+                                    <table class="table table-hover" id="lines">
+                                        <thead>
+                                            <tr>
+                                                <th style="font-size: 18px;">Нэмэх бараа</th>
+                                                <th style="font-size: 18px;">Тоо ширхэг</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="float-end">
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END ORDER DETAIL -->
+    <script type="text/javascript">
+        var csrf_token = "{{ csrf_token() }}";
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                }
+            }
+        });
+    </script>
+    <script>
+        var parentElement = $(".selector-container");
+        var supplier = "{{ order.user_id }}";
+        $(".searchBar").select2({
+            dropdownParent: parentElement,
+            placeholder: 'Бараа хайх',
+            minimumInputLength: 2,
+            width: 'resolve',
+            ajax: {
+                headers: {
+                    'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
+                },
+                url: "/manager/orders/search/products/" + supplier,
+                dataType: 'json',
+                delay: 250,
+                type: "POST",
+                data: function (term) {
+                    return {term: term.term};
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.name + ' ' + '(' + item.color + ',' + ' ' + item.size + ',' + ' ' + item.quantity + 'ш' + ',' + ' ' + item.price + '₮' + ')'
+                            }
+                        })
+                    };
+                }
+            }
+        });
+    </script>
+    <script>
+        function addProduct() {
+            var product_id = $('#product').find(":selected").val();
+            var product_name = $('#product').find(":selected").text();
+            var quantity = document.getElementById("quantityInput").value;
+
+            if (quantity == null || quantity == "") {
+                alert('Барааны тоо ширхэг оруулна уу!')
+                return false;
+            }
+
+            if (parseInt((product_name.split(",")[2].slice(0, -1))) <= 0 || parseInt((product_name.split(",")[2].slice(0, -1))) < parseInt(quantity)) {
+                alert('Агуулахын үлдэгдэл хүрэлцэхгүй байна!')
+                return false;
+            }
+
+            if (product_id == null) {
+                alert('Нэмэх бараа эхлээд сонгоно уу!')
+            } else {
+                $('#lines').find('tbody').append($('#tr-placeholder tr:first').clone());
+                $('#lines').find('tbody tr:last input[name="product"]').val(product_id);
+                $('#lines').find('tbody tr:last p[data-name="product_name"]').text(product_name);
+                $('#lines').find('tbody tr:last input[name="quantity"]').val(quantity);
+                $('#lines').find('tbody tr:last p[data-name="quantity_name"]').text(quantity);
+            }
+        }
+    </script>
+    <script>
+        function showAddProductSection() {
+            var x = document.getElementById("addProductSection");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+        }
+    </script>
+    <table style="display: none;">
+        <tbody id="tr-placeholder">
+            <tr>
+                <td>
+                    <input type="hidden" name="product" class="form-control" required>
+                        <p class="fw-bold" data-name="product_name" style="font-size: 16px;"></p>
+                    </td>
+                    <td>
+                        <input type="hidden" name="quantity" class="form-control" required>
+                            <p class="fw-bold" data-name="quantity_name" style="font-size: 16px;"></p>
+                        </td>
+                        <td>
+                            <button type="button" class="btn p-0 m-0" onclick="$(this).parent().parent().remove();">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endblock main %}
+    </tbody>

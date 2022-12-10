@@ -57,6 +57,7 @@ def supplier1_product_add():
                 product.colors.append(connection.query(models.ProductColor).get(line_colors[i]))
                 product.sizes.append(connection.query(models.ProductSize).get(line_sizes[i]))
                 current_user.products.append(product)
+                connection.flush()
 
                 total_inventory = models.TotalInventory()
                 total_inventory.quantity = 0
@@ -78,8 +79,6 @@ def supplier1_product_add():
     return render_template('/supplier/supplier1/product_add.html', form=form)
 
 
-
-
 @supplier1_product_blueprint.route('/supplier1/products/edit/<int:product_id>', methods=['GET','POST'])
 @login_required
 @has_role('supplier1')
@@ -95,21 +94,30 @@ def supplier1_product_edit(product_id):
     if product.supplier_id != current_user.id:
         abort(403)
 
+    colors = connection.query(models.ProductColor).all()
+    sizes = connection.query(models.ProductSize).all()
+
     form = ProductEditForm()
+    form.color.choices = [(color.id, color.name) for color in colors]
+    form.size.choices = [(size.id, size.name) for size in sizes]
 
     if form.validate_on_submit():
-        try:
-            product.name = form.name.data
-            product.price = form.price.data
-            product.description = form.description.data
-            product.usage_guide = form.usage_guide.data
-            product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-            image_file = request.files['image']
-            if image_file:
-                product.image = add_and_resize_image(form.image.data),
-            
-            connection.commit()
+        update_product = connection.query(models.Product).filter(models.Product.id==product.id).first()
+        update_product.name = form.name.data
+        update_product.price = form.price.data
+        update_product.description = form.description.data
+        update_product.usage_guide = form.usage_guide.data
+        update_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+        update_product.colors.clear()
+        update_product.sizes.clear()
+        update_product.colors.append(connection.query(models.ProductColor).get(form.color.data))
+        update_product.sizes.append(connection.query(models.ProductSize).get(form.size.data))
+        image_file = request.files['image']
+        if image_file:
+            update_product.image = add_and_resize_image(form.image.data),
 
+        try:
+            connection.commit()
         except Exception:
             flash('Алдаа гарлаа!', 'danger')
             connection.rollback()

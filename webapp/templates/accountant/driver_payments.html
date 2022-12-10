@@ -31,7 +31,7 @@
                         <form id="form" method="POST" action="">
                             {{ form1.csrf_token }}
                             <div class="table-responsive-sm">
-                                <table class="table table-hover">
+                                <table id="example" class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th scope="col" class="bg-grad">ID</th>
@@ -40,7 +40,6 @@
                                             <th scope="col" class="bg-grad">Хүргэлт огноо</th>
                                             <th scope="col" class="bg-grad">Хаяг/Утас</th>
                                             <th scope="col" class="bg-grad">Бараа/Тоо ширхэг</th>
-                                            <th scope="col" class="bg-grad">Төлбөр</th>
                                             <th scope="col" class="bg-grad">Жолооч</th>
                                             <th scope="col" class="bg-grad">Бэлнээр</th>
                                             <th scope="col" class="bg-grad">Дансаар</th>
@@ -51,9 +50,8 @@
                                     {% set card_total = namespace(value=0) %}
                                     <tbody>
                                         {% for order in orders %}
-                                            {{ form1.order_id(class="form-control", value=order.id) }}
                                             <tr>
-                                                <td scope="row">{{ order.id }}</td>
+                                                <td scope="row">{{ order.id }}{{ form1.order_id(class="form-control", value=order.id) }}</td>
                                                 <td style="text-align: center;">{{ order.supplier_company_name }}</td>
                                                 <td style="text-align: center;">
                                                     {% if order.is_processed_by_accountant %}
@@ -101,13 +99,6 @@
                                                         {% endfor %}
                                                     {% else %}
                                                         <p class="text-center">1</p>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if order.order_type == "stored" %}
-                                                        <p>{{ order.payment_types[0] }}</p>
-                                                    {% else %}
-                                                        {{ order.payment_types[0] }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
@@ -223,4 +214,63 @@
             </div>
         </div>
     </section>
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                paging: false,
+                sorting: false,
+                ordering: false,
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ тооцоо",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+
+                }
+            });
+        });
+    </script>
 {% endblock main %}

@@ -21,7 +21,6 @@
                                         <th scope="col" class="bg-grad">Бүс</th>
                                         <th scope="col" class="bg-grad">Жолооч</th>
                                         <th scope="col" class="bg-grad">Дүн</th>
-                                        <th scope="col" class="bg-grad">Коммент</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -35,9 +34,13 @@
                                                 {% if order.is_postphoned %}
                                                     <p class="text-info fw-bold">хойшлуулсан</p>
                                                     <p>хойшлуулсан огноо: {{ order.postphoned_date | datefilter }}</p>
-                                                    <p>Шалтгаан: {{ order.driver_comment }}</p>
+                                                    <p>Коммент: {{ order.driver_comment }}</p>
                                                 {% else %}
                                                     <p class="text-danger fw-bold">жолооч хувиарлагдаагүй байна</p>
+                                                    {% if order.driver_comment %}
+                                                        <p><strong>Коммент:</strong> {{ order.driver_comment }}</p>
+                                                    {% else %}
+                                                    {% endif %}
                                                 {% endif %}
                                             {% elif order.status == "assigned" %}
                                                 <p class="text-success fw-bold">жолооч хүргэлтэнд гарсан байна</p>
@@ -47,13 +50,13 @@
                                             <p class="text-success fw-bold">хүргэгдсэн</p>
                                             {% elif order.status == "cancelled" %}
                                                 <p class="text-danger fw-bold">цуцлагдсан</p>
-                                                <p>Шалтгаан:
+                                                <p>Коммент:
                                                     {{ order.driver_comment }}</p>
                                             {% elif order.status == "postphoned" %}
                                                 <p class="text-info fw-bold">хойшлуулсан</p>
                                                 <p>хойшлуулсан огноо:
                                                     {{ order.postphoned_date }}</p>
-                                                <p>Шалтгаан:
+                                                <p>Коммент:
                                                     {{ order.driver_comment }}</p>
                                             {% endif %}
                                         </td>
@@ -119,12 +122,6 @@
                                         <td style=" text-align: end;">
                                             ₮{{ order.total_amount  | round | int | numberFormat }}
                                         </td>
-                                        <td>
-                                            {% if order.driver_comment is not none %}
-                                                <p>{{ order.driver_comment }}</p>
-                                            {% else %}
-                                            {% endif%}
-                                        </td>
                                     </tr>
                                 </tbody>
                                 <tbody>
@@ -146,11 +143,7 @@
                                             {% endif %}
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        <div class="pt-4">
-                                            <a class="btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_address', order_id=order.id) }}">Хаяг Өөрчлөх</a>
-                                        </div>
-                                    </td>
+                                    <td></td>
                                     <td></td>
                                     <td>
                                         {% if order.status == "assigned" or order.status == "unassigned" %}
@@ -170,19 +163,8 @@
                                     </td>
                                     <td>
                                         <div class="pt-4">
-                                            <a class="btn btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_total_amount', order_id = order.id ) }}">Дүн Өөрчлөх</a>
+                                            <a class="btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_orders_edit', order_id=order.id) }}">Мэдээлэл Засах</a>
                                         </div>
-                                    </td>
-                                    <td>
-                                        {% if order.driver_comment is not none %}
-                                            <div class="pt-4">
-                                                <a class="btn btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_comment', order_id = order.id ) }}">Коммент Өөрчлөх</a>
-                                            </div>
-                                        {% else %}
-                                            <div class="pt-4">
-                                                <a class="btn btn btn-outline-info btn-sm" href="{{ url_for('manager_order.manager_order_comment', order_id = order.id ) }}">Коммент Оруулах</a>
-                                            </div>
-                                        {% endif%}
                                     </td>
                                 </tbody>
                             </table>

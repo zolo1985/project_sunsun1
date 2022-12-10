@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, SelectField, DateField, HiddenField, TextAreaField, IntegerField
-from wtforms.validators import DataRequired, Optional, NumberRange
+from wtforms import StringField, PasswordField, SubmitField, HiddenField, SelectField, DateField, IntegerField, TextAreaField
+from wtforms.validators import Length, Email, EqualTo, ValidationError, DataRequired, Optional, NumberRange, InputRequired
+
 
 class FiltersForm(FlaskForm):
     order_id = HiddenField()
@@ -22,3 +23,7 @@ class PaymentReceived(FlaskForm):
 class DateSelect(FlaskForm):
     select_date = DateField('Хугацаа сонгох', validators=[Optional()])
     submit = SubmitField('Сонгох')
+
+class SearchForm(FlaskForm):
+    search_text = StringField('Хайх', validators=[DataRequired(), Length(min=2, max=50, message='Нэр 2-50 урттай')])
+    submit = SubmitField('Хайх')

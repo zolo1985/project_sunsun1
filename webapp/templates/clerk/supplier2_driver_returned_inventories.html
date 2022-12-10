@@ -1,0 +1,186 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- ORDERS -->
+    <section>
+        <div class="container min-vh-100">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">
+                        {% if orders|length > 0 %}
+                            <p>Агуулахгүй Харилцагч</p>
+                            {{ current_date.strftime('%Y-%m') }} сарын {{ day_list | first }}-{{ day_list | last }}хооронд
+                        {% else %}
+                            <p>Агуулахгүй Харилцагч</p>
+                        {% endif %}
+                    </h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="row g-2 m-2">
+                            <div class="col-md-3">
+                                {{ form.select_supplier.label(class="form-control-label") }}
+                                {% if form.select_supplier.errors %}
+                                    {{ form.select_supplier(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.select_supplier.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.select_supplier(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form.date.label(class="form-control-label") }}
+                                {% if form.date.errors %}
+                                    {{ form.date(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.date(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 align-self-center">
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                    </form>
+                        <div class="table-responsive-sm">
+                            <table id="example" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="bg-grad">#</th>
+                                        <th scope="col" class="bg-grad">Төлөв</th>
+                                        <th scope="col" class="bg-grad">Хүргэлт</th>
+                                        <th scope="col" class="bg-grad">Хаяг/Утас</th>
+                                        <th scope="col" class="bg-grad"></th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for order in orders %}
+                                        <tr>
+                                            <td scope="row">{{ order.id }}</td>
+                                            <td>
+                                                {% if order.delivery.is_returned %}
+                                                    <p class="fw-bold text-success">Нярав буцааж авсан</p>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if order.delivery_status == "cancelled" %}
+                                                    <p class="fw-bold text-danger">Цуцалсан</p>
+                                                {% elif order.delivery_status == "postphoned" %}
+                                                    <p class="fw-bold text-info">Хойшлуулсан</p>
+                                                {% endif%}
+                                            </td>
+                                            <td>
+                                                <p>
+                                                    {% if order.delivery.addresses.city is not none %}
+                                                        {{ order.delivery.addresses.city }},
+                                                    {% endif %}
+
+                                                    {% if order.delivery.addresses.district is not none %}
+                                                        {{ order.delivery.addresses.district }},
+                                                    {% endif %}
+
+                                                    {% if order.delivery.addresses.khoroo is not none %}
+                                                        {{ order.delivery.addresses.khoroo }}-р хороо,
+                                                    {% endif %}
+
+                                                    {% if order.delivery.addresses.aimag is not none %}
+                                                        {{ order.delivery.addresses.aimag }},
+                                                    {% endif %}
+
+                                                    {{ order.delivery.addresses.address }}</p>
+                                                <p>{{ order.delivery.addresses.phone }},
+                                                    {{ order.delivery.addresses.phone_more }}</p>
+                                            </td>
+                                            <td>
+                                                {% if order.delivery_status == "cancelled" %}
+                                                    {% if order.is_returned_to_supplier %}
+                                                        <p class="fw-bold text-success">Харилцагч авсан</p>
+                                                    {% else %}
+                                                        <p class="fw-bold text-danger">Харилцагч аваагүй</p>
+                                                    {% endif %}
+                                                {% elif order.delivery_status == "postphoned" %}
+                                                    <p class="fw-bold text-info">Хойшлуулсан</p>
+                                                {% endif%}
+                                                
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END ORDERS -->
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                paging: false,
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+
+                }
+            });
+        });
+    </script>
+
+{% endblock main %}

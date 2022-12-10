@@ -1,13 +1,13 @@
 from io import BytesIO
 from flask import (Blueprint, flash, redirect, render_template, request,
-                   url_for, abort, send_file)
+                   url_for, abort, send_file, jsonify)
 from webapp import has_role
 from flask_login import current_user, login_required
 from webapp import models
 from webapp.database import Connection
-from webapp.supplier.supplier1.forms import OrderDetailLocalAddForm, FiltersForm, OrderDetailLongDistanceAddForm, OrderDetailFileAddForm, SubmitFileOrders
+from webapp.supplier.supplier1.forms import OrderAddForm, FiltersForm, OrderDetailFileAddForm, SubmitFileOrders
 from datetime import datetime, time, timedelta
-from sqlalchemy import func
+from sqlalchemy import func, or_
 import logging
 from webapp.utils import is_time_between
 import pandas as pd
@@ -47,37 +47,38 @@ def supplier1_orders():
     return render_template('/supplier/supplier1/orders.html', orders=orders, cur_date=cur_date, form=form)
 
 
-@supplier1_order_blueprint.route('/supplier1/orders/add/<string:destination>', methods=['GET', 'POST'])
+@supplier1_order_blueprint.route('/supplier1/orders/add', methods=['GET', 'POST'])
 @login_required
 @has_role('supplier1')
-def supplier1_order_add(destination):
+def supplier1_order_add():
     cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
-    order_window = is_time_between(time(10,30), time(00,00))
-    form = FiltersForm()
+    order_window = is_time_between(time(22,30), time(00,00))
 
-    if destination == 'local':
-        connection = Connection()
-        todays_order_count = connection.execute('SELECT count(*) FROM sunsundatabase1.delivery as delivery join sunsundatabase1.user as user on delivery.user_id=user.id where user.id=:current_user and DATE(delivery.created_date) = CURDATE();', {'current_user': current_user.id}).scalar()
-        user_products = connection.execute('SELECT distinct product.*, inventory.quantity as quantity, color.name as prod_color_name, size.name as prod_size_name FROM sunsundatabase1.product product join sunsundatabase1.total_inventory inventory on product.id=inventory.product_id join sunsundatabase1.inventory as invent on product.id = invent.product_id join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.supplier_id=:current_user and inventory.quantity > 0 and invent.status = true;', {'current_user': current_user.id}).all()
+    connection = Connection()
+    districts = connection.query(models.District).all()
+    aimags = connection.query(models.Aimag).all()
+    last_five_orders = connection.query(models.Delivery).filter(models.Delivery.user_id==current_user.id).order_by(models.Delivery.created_date.desc()).limit(5)
 
-        districts = connection.query(models.District).all()
-        form = OrderDetailLocalAddForm()
-        form.products.choices = [(product.id, f'%s,  (сүнсүн агуулахад: %s, хэмжээ: %s, өнгө: %s, үнэ: %s₮)'%(product.name, product.quantity, str(product.prod_size_name).replace('[','').replace(']',''), str(product.prod_color_name).replace('[','').replace(']',''), str(product.price).replace('[','').replace(']',''))) for product in user_products]
-        form.district.choices = [(district) for district in districts]
-        form.district.choices.insert(0,'Дүүрэг сонгох')
-        form.khoroo.choices = [(f'%s'%(khoroo_num+1)) for khoroo_num in range(32)]
-        form.khoroo.choices.insert(0,'Хороо сонгох')
+    form = OrderAddForm()
 
-        if form.validate_on_submit():
-            line_products = request.form.getlist("products")
-            line_quantity = request.form.getlist("quantity")
+    form.district.choices = [(district) for district in districts]
+    form.district.choices.insert(0,'Дүүрэг сонгох')
+    form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
+    form.khoroo.choices.insert(0,'Хороо сонгох')
+    form.aimag.choices = [(aimag) for aimag in aimags]
+    form.aimag.choices.insert(0,'Аймаг сонгох')
 
-            for i, product1 in enumerate(line_products):
-                quantity = connection.execute('SELECT CAST(SUM(quantity) as UNSIGNED) as quantity FROM sunsundatabase1.total_inventory inventory join sunsundatabase1.product product on product.id=inventory.product_id where product.supplier_id=:current_user and product.id=:product_id group by product_id;', {'current_user': current_user.id, 'product_id': product1}).scalar()
+    if form.validate_on_submit():
+        line_products = request.form.getlist("product")
+        line_quantities = request.form.getlist("quantity")
+
+        if form.order_type.data == "0":
+            for i, product in enumerate(line_products):
+                quantity = connection.execute('SELECT SUM(quantity) as quantity FROM sunsundatabase1.total_inventory inventory join sunsundatabase1.product product on product.id=inventory.product_id where product.supplier_id=:current_user and product.id=:product_id group by product_id;', {'current_user': current_user.id, 'product_id': int(line_products[i])}).scalar()
                     
-                if int(quantity) < int(line_quantity[i]):
+                if int(quantity) < int(line_quantities[i]):
                     flash(f'Агуулахад байгаа барааны тоо хүрэхгүй байна', 'danger')
-                    return redirect(url_for('supplier1_order.supplier1_order_add', destination='local'))
+                    return redirect(url_for('supplier1_order.supplier1_order_add'))
 
             order = models.Delivery()
             order.status = "unassigned"
@@ -88,7 +89,7 @@ def supplier1_order_add(destination):
             order.supplier_company_name = current_user.company_name
             order.total_amount = abs(form.total_amount.data)
 
-            if is_time_between(time(10,30), time(00,00)):
+            if is_time_between(time(22,30), time(00,00)):
                 order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                 order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                 order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -113,19 +114,19 @@ def supplier1_order_add(destination):
 
             for i, product in enumerate(line_products):
                 order_detail = models.DeliveryDetail()
-                order_detail.quantity = int(line_quantity[i])
-                order_detail.product_id = product
+                order_detail.quantity = int(line_quantities[i])
+                order_detail.product_id = int(line_products[i])
                 order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                 order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=product).first()
-                total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantity[i])
+                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(line_products[i])).first()
+                total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantities[i])
                 total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(product)).first()
+                is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(line_products[i])).first()
 
                 if is_detail:
-                    is_detail.quantity = is_detail.quantity + int(line_quantity[i])
+                    is_detail.quantity = is_detail.quantity + int(line_quantities[i])
                 else:
                     order.delivery_details.append(order_detail)
                     connection.flush()
@@ -137,35 +138,19 @@ def supplier1_order_add(destination):
                 connection.rollback()
                 return redirect(url_for('supplier1_order.supplier1_orders'))
             else:
-                if is_time_between(time(10,30), time(00,00)):
+                if is_time_between(time(22,30), time(00,00)):
                     flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
                 else:
                     flash('Хүргэлт нэмэгдлээ.', 'success')
                 return redirect(url_for('supplier1_order.supplier1_order_add', destination='local'))
 
-        return render_template('/supplier/supplier1/order_add.html', form=form, cur_date=cur_date, order_window=order_window, todays_order_count=todays_order_count)
-
-    elif destination == 'long':
-        connection = Connection()
-        user_products = connection.execute('SELECT distinct product.*, inventory.quantity as quantity, color.name as prod_color_name, size.name as prod_size_name FROM sunsundatabase1.product product join sunsundatabase1.total_inventory inventory on product.id=inventory.product_id join sunsundatabase1.inventory as invent on product.id = invent.product_id join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.supplier_id=:current_user and inventory.quantity > 0 and invent.status = true;', {'current_user': current_user.id}).all()
-        todays_order_count = connection.execute('SELECT count(*) FROM sunsundatabase1.delivery as delivery join sunsundatabase1.user as user on delivery.user_id=user.id where user.id=:current_user and DATE(delivery.created_date) = CURDATE();', {'current_user': current_user.id}).scalar()
-        aimags = connection.query(models.Aimag).all()
-
-        form1 = OrderDetailLongDistanceAddForm()
-        form1.products.choices = [(product.id, f'%s,  (сүнсүн агуулахад: %s, хэмжээ: %s, өнгө: %s, үнэ: %s₮)'%(product.name, product.quantity, str(product.prod_size_name).replace('[','').replace(']',''), str(product.prod_color_name).replace('[','').replace(']',''), str(product.price).replace('[','').replace(']',''))) for product in user_products]
-        form1.aimag.choices = [(aimag) for aimag in aimags]
-        form1.aimag.choices.insert(0,'Аймаг сонгох')
-
-        if form1.validate_on_submit():
-            line_products = request.form.getlist("products")
-            line_quantity = request.form.getlist("quantity")
-
-            for i, product1 in enumerate(line_products):
-                quantity = connection.execute('SELECT CAST(SUM(quantity) as UNSIGNED) as quantity FROM sunsundatabase1.total_inventory inventory join sunsundatabase1.product product on product.id=inventory.product_id where product.supplier_id=:current_user and product.id=:product_id group by product_id;', {'current_user': current_user.id, 'product_id': product1}).scalar()
+        elif form.order_type.data == "1":
+            for i, product in enumerate(line_products):
+                quantity = connection.execute('SELECT SUM(quantity) as quantity FROM sunsundatabase1.total_inventory inventory join sunsundatabase1.product product on product.id=inventory.product_id where product.supplier_id=:current_user and product.id=:product_id group by product_id;', {'current_user': current_user.id, 'product_id': int(line_products[i])}).scalar()
                     
-                if int(quantity) < int(line_quantity[i]):
+                if int(quantity) < int(line_quantities[i]):
                     flash(f'Агуулахад байгаа барааны тоо хүрэхгүй байна', 'danger')
-                    return redirect(url_for('supplier1_order.supplier1_order_add', destination='long'))
+                    return redirect(url_for('supplier1_order.supplier1_order_add'))
             
             order = models.Delivery()
             order.status = "unassigned"
@@ -174,9 +159,9 @@ def supplier1_order_add(destination):
             order.is_ready = True
             order.delivery_attempts = 0
             order.supplier_company_name = current_user.company_name
-            order.total_amount = form1.total_amount.data
+            order.total_amount = form.total_amount.data
 
-            if is_time_between(time(10,30), time(00,00)):
+            if is_time_between(time(22,30), time(00,00)):
                 order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                 order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                 order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -189,10 +174,10 @@ def supplier1_order_add(destination):
             connection.flush()
             
             address = models.Address()
-            address.phone = form1.phone.data
-            address.phone_more = form1.phone_more.data
-            address.aimag = form1.aimag.data
-            address.address = form1.address.data
+            address.phone = form.phone.data
+            address.phone_more = form.phone_more.data
+            address.aimag = form.aimag.data
+            address.address = form.address.data
             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             
@@ -200,19 +185,19 @@ def supplier1_order_add(destination):
             
             for i, product in enumerate(line_products):
                 order_detail = models.DeliveryDetail()
-                order_detail.quantity = int(line_quantity[i])
-                order_detail.product_id = product
+                order_detail.quantity = int(line_quantities[i])
+                order_detail.product_id = int(line_products[i])
                 order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                 order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=product).first()
-                total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantity[i])
+                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(line_products[i])).first()
+                total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantities[i])
                 total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(product)).first()
+                is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(line_products[i])).first()
 
                 if is_detail:
-                    is_detail.quantity = is_detail.quantity + int(line_quantity[i])
+                    is_detail.quantity = is_detail.quantity + int(line_quantities[i])
                 else:
                     order.delivery_details.append(order_detail)
                     connection.flush()
@@ -224,16 +209,29 @@ def supplier1_order_add(destination):
                 connection.rollback()
                 return redirect(url_for('supplier1_order.supplier1_orders'))
             else:
-                if is_time_between(time(10,30), time(00,00)):
+                if is_time_between(time(22,30), time(00,00)):
                     flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
                 else:
                     flash('Хүргэлт нэмэгдлээ.', 'success')
                 return redirect(url_for('supplier1_order.supplier1_order_add', destination='long'))
-        return render_template('/supplier/supplier1/order_add_long_distance.html', form=form1, cur_date=cur_date, order_window=order_window, todays_order_count=todays_order_count)
-    
-    elif destination == "file":
-        form2 = OrderDetailFileAddForm()
-        form3 = SubmitFileOrders()
+    return render_template('/supplier/supplier1/order_add.html', cur_date=cur_date, order_window=order_window, form=form, last_five_orders=last_five_orders)
+
+
+
+@supplier1_order_blueprint.route('/supplier1/orders/add/excel', methods=['GET', 'POST'])
+@login_required
+@has_role('supplier1')
+def supplier1_order_add_excel():
+    cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
+    order_window = is_time_between(time(22,30), time(00,00))
+    form2 = OrderDetailFileAddForm()
+    form3 = SubmitFileOrders()
+    orders = []
+    insufficient_product_ids = []
+    products_list = []
+    products_list_result = []
+
+    if form2.validate_on_submit():
         orders = []
         insufficient_product_ids = []
         products_list = []
@@ -244,7 +242,6 @@ def supplier1_order_add(destination):
                 excel_file = request.files['excel_file']
                 df = pd.read_excel(excel_file)
 
-                #order sheet
                 phones = df['Утасны дугаар'].values
                 districts = df['Дүүрэг'].values
                 khoroos = df['Хороо'].values
@@ -329,7 +326,7 @@ def supplier1_order_add(destination):
                             new_order.supplier_company_name = current_user.company_name
                             new_order.total_amount = order["Нийт үнэ"]
 
-                            if is_time_between(time(10,30), time(00,00)):
+                            if is_time_between(time(22,30), time(00,00)):
                                 new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                                 new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                                 new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -374,7 +371,7 @@ def supplier1_order_add(destination):
                             new_order.supplier_company_name = current_user.company_name
                             new_order.total_amount = order["Нийт үнэ"]
 
-                            if is_time_between(time(10,30), time(00,00)):
+                            if is_time_between(time(22,30), time(00,00)):
                                 new_order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                                 new_order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
                                 new_order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) + timedelta(hours=+24)
@@ -416,13 +413,14 @@ def supplier1_order_add(destination):
                         flash('Алдаа гарлаа!', 'danger')
                         connection.rollback()
                     else:
-                        if is_time_between(time(10,30), time(00,00)):
+                        if is_time_between(time(22,30), time(00,00)):
                             flash('Маргаашийн хүргэлтэнд нэмэгдлээ.', 'success')
                         else:
                             flash('Хүргэлт нэмэгдлээ.', 'success')
                         return redirect(url_for('supplier1_order.supplier1_orders'))
 
-        return render_template('/supplier/supplier1/order_add_excel.html', cur_date=cur_date, order_window=order_window, form2=form2, form3=form3, orders=orders, insufficient_product_ids=insufficient_product_ids)
+    return render_template('/supplier/supplier1/order_add_excel.html', cur_date=cur_date, order_window=order_window, form2=form2, form3=form3, orders=orders, insufficient_product_ids=insufficient_product_ids)
+
 
 
 @supplier1_order_blueprint.route('/supplier1/orders/add/file/template/download', methods=['GET', 'POST'])
@@ -489,6 +487,28 @@ def supplier1_order_excel_template():
     file_stream.seek(0)
 
     return send_file(file_stream, attachment_filename="order_template.xlsx", as_attachment=True)
+
+
+
+@supplier1_order_blueprint.route("/supplier1/orders/search/products", methods=['GET', 'POST'])
+@login_required
+@has_role('supplier1')
+def supplier1_search_products():
+    query = request.form.get("term")
+    connection = Connection()
+    search = "%{}%".format(query)
+    products = connection.query(models.Product).filter(models.Product.supplier_id==current_user.id, models.Product.name.like(search)).all()
+    results = []
+    for product in products:
+        results.append({
+            'id': product.id,
+            'name': product.name,
+            'color': str(product.colors[0]),
+            'size': str(product.sizes[0]),
+            'quantity': int(connection.query(models.TotalInventory.quantity).filter(models.TotalInventory.product_id==product.id).scalar()),
+            'price': int(product.price),
+        })
+    return jsonify(results)
 
 
 

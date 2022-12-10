@@ -41,6 +41,7 @@
                                     <th scope="col" class="bg-grad">Хүргэх огноо</th>
                                     <th scope="col" class="bg-grad">Бүс</th>
                                     <th scope="col" class="bg-grad">Жолооч</th>
+                                    <th scope="col" class="bg-grad">Нээгдсэн</th>
                                     <th scope="col" class="bg-grad"></th>
                                 </tr>
                             </thead>
@@ -92,7 +93,7 @@
                                                     <p class="text-info fw-bold">хойшлуулсан</p>
                                                     <p>хойшлуулсан огноо:
                                                         {{ order.postphoned_date | datefilter }}</p>
-                                                    <p>Шалтгаан:
+                                                    <p>Коммент:
                                                         {{ order.driver_comment }}</p>
                                                 {% else %}
                                                     <p class="text-danger fw-bold">хувиарлагдаагүй</p>
@@ -114,7 +115,7 @@
                                                 <p class="text-nowrap">хойшлуулсан огноо:
                                                     {{ order.postphoned_date }}</p>
                                                 <p>
-                                                    Шалтгаан:
+                                                    Коммент:
                                                     {{ order.driver_comment }}
                                                 </p>
                                             {% endif %}
@@ -178,6 +179,13 @@
                                             {% endif %}
                                         </td>
                                         <td>
+                                            {% if order.show_comment %}
+                                                <p class="fw-bold">Тийм</p>
+                                            {% else %}
+                                                <p class="fw-bold">Үгүй</p>
+                                            {% endif %}
+                                        </td>
+                                        <td>
                                             <a class="btn btn-outline-success" href="{{ url_for('manager_order.manager_order_detail', order_id=order.id) }}">Ажлыг нээх</a>
                                         </td>
                                     </tr>
@@ -186,7 +194,7 @@
                         </table>
                     </div>
                     {% if orders|length > 0 %}
-                        <div class="float-end">
+                        <div class="float-end mt-5">
                             {{ form1.submit(class="btn btn-outline-success m-0") }}
                         </div>
                     {% endif %}
@@ -194,4 +202,68 @@
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                order: [[1, 'asc']],
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+    
+                }
+            });
+        });
+    </script>
 {% endblock main %}

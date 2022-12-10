@@ -30,7 +30,7 @@ def supplier1_inventories():
 
     if current_date.day < 15:
         for inventory in inventories:
-            data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
+            data_format = [f"%s (%s, %s)"%(inventory.total_inventory_product.name.capitalize(), inventory.total_inventory_product.colors[0], inventory.total_inventory_product.sizes[0]), inventory.quantity]
             days_list = []
             days_data = []
             for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))):
@@ -48,7 +48,7 @@ def supplier1_inventories():
 
     else:
         for inventory in inventories:
-            data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
+            data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize(), inventory.total_inventory_product.sizes), inventory.quantity]
             days_list = []
             days_data = []
             for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
@@ -253,6 +253,7 @@ def supplier1_inventory_dropoff_add():
                     inventory.product_id = line_product[i]
                     inventory.clerk_name = f'%s %s'%(received_by.lastname, received_by.firstname)
                     inventory.clerk_id = received_by.id
+                    inventory.supplier_id = current_user.id
                     inventory.received_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 

@@ -65,7 +65,10 @@ def modify_order():
         return jsonify(msg="Хүргэлт олдсонгүй", response = False), 400
 
     if order.order_type=="stored":
+
+        order.driver_comment = str(body["comment"])
         detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(body["product_id"])).first()
+
         if not detail:
             connection.close()
             return jsonify(msg="Бараа олдсонгүй", response = False), 400
@@ -180,6 +183,8 @@ def order_completed():
             order.status = "completed"
             order.is_delivered = True
             order.is_ready = False
+            if len(body["driver_comment"]) > 5:
+                order.driver_comment = body["driver_comment"]
             order.delivery_attempts = order.delivery_attempts + 1
             order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -188,6 +193,8 @@ def order_completed():
             order.status = "completed"
             order.is_delivered = True
             order.is_ready = False
+            if len(body["driver_comment"]) > 5:
+                order.driver_comment = body["driver_comment"]
             order.delivery_attempts = order.delivery_attempts + 1
             order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))

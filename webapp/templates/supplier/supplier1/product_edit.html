@@ -13,6 +13,8 @@
                                 <thead>
                                     <tr>
                                         <th scope="col" class="bg-grad">Нэр</th>
+                                        <th scope="col" class="bg-grad">Өнгө</th>
+                                        <th scope="col" class="bg-grad">Хэмжээ</th>
                                         <th scope="col" class="bg-grad">Үнэ</th>
                                         <th scope="col" class="bg-grad">Бусад</th>
                                         <th scope="col" class="bg-grad">Хэрэглэх заавар</th>
@@ -40,6 +42,34 @@
                                                         {% for error in form.image.errors %}
                                                             <span class="text-danger">{{ error }}</span></br>
                                                         {% endfor %}
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group">
+                                                    {% if form.color.errors %}
+                                                        {{ form.color(class="form-control is-invalid") }}
+                                                        <div class="invalid-feedback">
+                                                            {% for error in form.color.errors %}
+                                                                <span>{{ error }}</span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        {{ form.color(class="form-control") }}
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group">
+                                                    {% if form.size.errors %}
+                                                        {{ form.size(class="form-control is-invalid") }}
+                                                        <div class="invalid-feedback">
+                                                            {% for error in form.size.errors %}
+                                                                <span>{{ error }}</span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        {{ form.size(class="form-control") }}
                                                     {% endif %}
                                                 </div>
                                             </td>

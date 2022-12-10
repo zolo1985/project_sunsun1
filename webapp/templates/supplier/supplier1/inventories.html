@@ -9,7 +9,7 @@
                         <p>Агуулах</p>
                         {{ current_date.strftime('%Y-%m') }} сарын {{ day_list | first }}-{{ day_list | last }}хооронд
                     {% else %}
-                        Агуулах
+                        <p>Агуулах</p>
                     {% endif %}
                 </h3>
                 <form id="form" method="POST" action="">
@@ -86,7 +86,7 @@
                                     </td>
                                     
                                     <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold" >{{ (data[3] * (data[4])) | sum)) | numberFormat }}</span>
+                                        <span class="fw-bold" >{{ ((data[3] * (data[4])) | sum ) | numberFormat }}</span>
                                     </td>
                                 </tr>
                                 <tr style="border-bottom: 2px solid black">

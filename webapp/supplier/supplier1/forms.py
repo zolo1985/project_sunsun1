@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, TextAreaField, DateField, IntegerField, HiddenField
-from wtforms.validators import ValidationError, DataRequired, Optional, NumberRange, InputRequired
+from wtforms import StringField, SubmitField, SelectField, TextAreaField, DateField, IntegerField, HiddenField, RadioField
+from wtforms.validators import ValidationError, Optional, NumberRange, InputRequired
 from flask_wtf.file import FileField, FileAllowed
 from webapp.database import Connection
-from webapp import models
 
 
 class FiltersForm(FlaskForm):
@@ -15,17 +14,16 @@ class FiltersForm(FlaskForm):
             raise ValidationError("Он сар өдөр сонгоно уу!")
 
 
-class OrderDetailLocalAddForm(FlaskForm):
-    phone = IntegerField('Утасны дугаар', validators=[DataRequired()])
+class OrderAddForm(FlaskForm):
+    order_type = RadioField('Хүргэлтийн чиглэл', choices=[(0,'Улаанбаатар'),(1,'Орон нутаг')], validators=[Optional()], default=0)
+    phone = IntegerField('Утасны дугаар', validators=[InputRequired()])
     phone_more = IntegerField('Нэмэлт утасны дугаар', validators=[Optional()])
-    district = SelectField('Дүүрэг', choices=[], validators=[DataRequired()])
-    khoroo = SelectField('Хороо', choices=[], validators=[DataRequired()])
+    district = SelectField('Дүүрэг', choices=[], validators=[Optional()])
+    khoroo = SelectField('Хороо', choices=[], validators=[Optional()])
     aimag = SelectField('Аймаг', choices=[], validators=[Optional()])
-    address = TextAreaField('Хаяг', validators=[DataRequired()])
-    products = SelectField('Бараа', choices=[], validators=[DataRequired()])
-    quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)])
-    total_amount = IntegerField('Нийт үнэ', validators=[InputRequired(), NumberRange(min=0)])
-    submit = SubmitField('Хүргэлт нэмэх')
+    address = TextAreaField('Хаяг', validators=[InputRequired()])
+    total_amount = IntegerField('Нийт үнэ', validators=[InputRequired(), NumberRange(min=0)], default=0)
+    submit = SubmitField('Үүсгэх')
 
     def validate_phone(self, phone):
         allowed_chars = set(("0123456789"))
@@ -35,46 +33,27 @@ class OrderDetailLocalAddForm(FlaskForm):
         else:
             raise ValidationError('Зөвхөн тоо ашиглана уу!')
 
-    def validate_district(self, district):
-        if district.data == "0" or district.data == "Дүүрэг сонгох":
-            raise ValidationError('Дүүрэг сонгоно уу!')
-        else:
-            pass
+    # def validate_district(self, district):
+    #     if district.data == "0" or district.data == "Дүүрэг сонгох":
+    #         raise ValidationError('Дүүрэг сонгоно уу!')
+    #     else:
+    #         pass
 
-    def validate_khoroo(self, khoroo):
-        if khoroo.data == "0" or khoroo.data == "Хороо сонгох":
-            raise ValidationError('Хорооны дугаар сонгоно уу!')
-        else:
-            pass
+    # def validate_khoroo(self, khoroo):
+    #     if khoroo.data == "0" or khoroo.data == "Хороо сонгох":
+    #         raise ValidationError('Хорооны дугаар сонгоно уу!')
+    #     else:
+    #         pass
 
-
-class OrderDetailLongDistanceAddForm(FlaskForm):
-    phone = IntegerField('Утасны дугаар', validators=[DataRequired()])
-    phone_more = IntegerField('Нэмэлт утасны дугаар', validators=[Optional()])
-    aimag = SelectField('Аймаг', choices=[],validators=[DataRequired()])
-    address = TextAreaField('Хаяг', validators=[DataRequired()])
-    products = SelectField('Бараа', choices=[], validators=[DataRequired()])
-    quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)], id='price')
-    total_amount = IntegerField('Нийт үнэ', validators=[InputRequired(), NumberRange(min=0)])
-    submit = SubmitField('Хүргэлт нэмэх')
-
-    def validate_phone(self, phone):
-        allowed_chars = set(("0123456789"))
-        validation = set((str(phone.data)))
-        if validation.issubset(allowed_chars):
-            pass
-        else:
-            raise ValidationError('Зөвхөн тоо ашиглана уу!')
-
-    def validate_aimag(self, aimag):
-        if aimag.data == "0" or aimag.data == "Аймаг сонгох":
-            raise ValidationError('Аймаг сонгоно уу!')
-        else:
-            pass
+    # def validate_aimag(self, aimag):
+    #     if aimag.data == "0" or aimag.data == "Аймаг сонгох":
+    #         raise ValidationError('Аймаг сонгоно уу!')
+    #     else:
+    #         pass
 
 
 class OrderDetailFileAddForm(FlaskForm):
-    excel_file = FileField('Excel файл оруулах', validators=[DataRequired(), FileAllowed(['xlsx', 'XLSX'], message='Зөвхөн Excel файл оруулна уу!')], id="inputGroupFile02")
+    excel_file = FileField('Excel файл оруулах', validators=[InputRequired(), FileAllowed(['xlsx', 'XLSX'], message='Зөвхөн Excel файл оруулна уу!')], id="inputGroupFile02")
     preview_orders = SubmitField('Захиалгууд харах')
     
 
@@ -83,12 +62,12 @@ class SubmitFileOrders(FlaskForm):
 
 
 class ProductAddForm(FlaskForm):
-    name = StringField('Нэр', validators=[DataRequired()])
-    color = SelectField('Өнгө', choices=[],validators=[DataRequired()])
-    size = SelectField('Хэмжээ', choices=[],validators=[DataRequired()])
+    name = StringField('Нэр', validators=[InputRequired()])
+    color = SelectField('Өнгө', choices=[],validators=[InputRequired()])
+    size = SelectField('Хэмжээ', choices=[],validators=[InputRequired()])
     description = TextAreaField('Бусад', validators=[Optional()])
     image = FileField('Зураг', validators=[Optional(), FileAllowed(['jpg', 'jpeg', 'png'], message='Зөвхөн jpg, jpeg, png өргөтгөлтэй зураг оруулна уу!')], id='image')
-    price = IntegerField('Үнэ', validators=[DataRequired(), NumberRange(min=1)], id='price')
+    price = IntegerField('Үнэ', validators=[InputRequired(), NumberRange(min=1)], id='price', default=0)
     usage_guide = TextAreaField('Хэрэглэх заавар', validators=[Optional()])
     submit = SubmitField('Бараа бүртгэлд нэмэх')
 
@@ -104,16 +83,18 @@ class ProductAddForm(FlaskForm):
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
         connection = Connection()
-        product_database = connection.execute('select count(*) from sunsundatabase1.product as product join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.name = :product_name and color.id = :color_id and size.id = :size_id',{'product_name': name.data, 'color_id': self.color, 'size_id': self.size}).scalar()
+        product_database = connection.execute('select count(*) from sunsundatabase1.product as product join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.name = :product_name and color.id = :color_id and size.id = :size_id',{'product_name': name.data, 'color_id': self.color.data, 'size_id': self.size.data}).scalar()
         if product_database>0:
-            raise ValidationError('Ийм нэртэй бараа байна!')
+            raise ValidationError('Бараа бүртгэлтэй байна!')
 
 
 class ProductEditForm(FlaskForm):
-    name = StringField('Нэр', validators=[DataRequired()])
+    name = StringField('Нэр', validators=[InputRequired()])
     description = TextAreaField('Бусад', validators=[Optional()])
+    color = SelectField('Өнгө', choices=[],validators=[InputRequired()])
+    size = SelectField('Хэмжээ', choices=[],validators=[InputRequired()])
     image = FileField('Зураг', validators=[Optional(), FileAllowed(['jpg', 'jpeg', 'png'], message='Зөвхөн jpg, jpeg, png өргөтгөлтэй зураг оруулна уу!')], id='image')
-    price = IntegerField('Үнэ', validators=[DataRequired(), NumberRange(min=1)], id='price')
+    price = IntegerField('Үнэ', validators=[InputRequired(), NumberRange(min=1)], id='price', default=0)
     usage_guide = TextAreaField('Хэрэглэх заавар', validators=[Optional()])
     submit = SubmitField('Өөрчлөх')
 
@@ -129,17 +110,17 @@ class ProductEditForm(FlaskForm):
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
         connection = Connection()
-        products = connection.query(models.Product).filter_by(name=name.data).all()
-        connection.close()
-        if len(products)>1:
-            raise ValidationError('Ийм нэртэй бараа байна!')
+        product_database = connection.execute('select count(*) from sunsundatabase1.product as product join sunsundatabase1.product_colors as colors on product.id = colors.product_id join sunsundatabase1.product_color as color on colors.product_color_id = color.id join sunsundatabase1.product_sizes as sizes on product.id = sizes.product_id join sunsundatabase1.product_size as size on sizes.product_size_id = size.id where product.name = :product_name and color.id = :color_id and size.id = :size_id',{'product_name': name.data, 'color_id': self.color.data, 'size_id': self.size.data}).scalar()
+        if product_database>0:
+            raise ValidationError('Бараа бүртгэлтэй байна!')
 
 
 class InventoryAddForm(FlaskForm):
-    quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)], id='quantity')
-    product = SelectField('Бараа', choices=[],validators=[DataRequired()])
-    choose_receiver = SelectField('Хүлээн авсан', choices=[],validators=[DataRequired()])
+    quantity = IntegerField('Тоо ширхэг', validators=[InputRequired(), NumberRange(min=1)], id='quantity', default=0)
+    product = SelectField('Бараа', choices=[],validators=[InputRequired()])
+    choose_receiver = SelectField('Хүлээн авсан', choices=[],validators=[InputRequired()])
     submit = SubmitField('Хүлээлгэж өгөх')
+
 
 class DriverPickupForm(FlaskForm):
     pickup_id = HiddenField()
@@ -147,14 +128,16 @@ class DriverPickupForm(FlaskForm):
 
 
 class InventoryPickupAddForm(FlaskForm):
-    quantity = IntegerField('Тоо ширхэг', validators=[DataRequired(), NumberRange(min=1)], id='quantity')
-    product = SelectField('Бараа', choices=[],validators=[DataRequired()])
+    quantity = IntegerField('Тоо ширхэг', validators=[InputRequired(), NumberRange(min=1)], id='quantity', default=0)
+    product = SelectField('Бараа', choices=[],validators=[InputRequired()])
     submit = SubmitField('Жолооч дуудах')
 
+
 class ChooseType(FlaskForm):
-    choose_type = SelectField('Төрөл сонгох', choices=[],validators=[DataRequired()])
+    choose_type = SelectField('Төрөл сонгох', choices=[],validators=[InputRequired()])
     submit = SubmitField('Сонгох')
 
+
 class SelectOption(FlaskForm):
-    select_option = SelectField('Хугацаа сонгох', choices=[],validators=[DataRequired()])
+    select_option = SelectField('Хугацаа сонгох', choices=[],validators=[InputRequired()])
     submit = SubmitField('Сонгох')

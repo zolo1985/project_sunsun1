@@ -6,12 +6,11 @@
             <div class="col-sm-12 mb-5">
                 <h3 class="custom-header mb-4">
                     {% if final_inventories|length > 0 %}
-                        <p>Агуулах</p>
+                        <p>Агуулахтай Харилцагч</p>
                         {{ current_date.strftime('%Y-%m') }} сарын {{ day_list | first }}-{{ day_list | last }}хооронд
                     {% else %}
-                        Агуулах
+                        <p>Агуулахтай Харилцагч</p>
                     {% endif %}
-                    
                 </h3>
                 <form id="form" method="POST" action="">
                     {{ form.csrf_token }}

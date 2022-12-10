@@ -254,31 +254,6 @@ class Region(Base):
         return '{}'.format(self.name)
 
 
-delivery_payment_types_table = Table('delivery_payment_types', Base.metadata,
-    Column('delivery_id', ForeignKey('delivery.id', ondelete="SET NULL")),
-    Column('payment_type_id', ForeignKey('payment_type.id', ondelete="SET NULL")))
-
-
-class PaymentType(Base):
-    __tablename__ = 'payment_type'
-
-    id = Column(Integer, primary_key=True)
-    public_id = Column(Unicode(50), nullable=False, unique=True, default=generate_uuid)
-
-    name                                = Column(Unicode(255))
-    amount                              = Column(Integer)
-    description                         = Column(Unicode(255), default='payment type description')
-
-    deliveries = relationship("Delivery", secondary=delivery_payment_types_table, back_populates="payment_types")
-
-    def __init__(self, name, amount):
-        self.name = name
-        self.amount = amount
-
-    def __repr__(self):
-        return '{}'.format(self.name)
-
-
 class District(Base):
     __tablename__ = 'district'
 
@@ -380,6 +355,8 @@ class Delivery(Base):
     is_driver_received                       = Column(Boolean, default=False)
     is_processed_by_accountant               = Column(Boolean, default=False)
     is_returned                              = Column(Boolean, default=False)
+    is_manager_created                       = Column(Boolean, default=False)
+    is_warehouse_pickup                      = Column(Boolean, default=False)
 
     assigned_driver_id                       = Column(Integer)
     assigned_driver_name                     = Column(Unicode(255))
@@ -395,15 +372,16 @@ class Delivery(Base):
     delivery_region                          = Column(Unicode(255))
     driver_comment                           = Column(Text)
     show_comment                             = Column(Boolean, default=False)
+    show_status                              = Column(Boolean, default=False)
     delivery_date                            = Column(DateTime)
     postphoned_date                          = Column(DateTime)
     created_date                             = Column(DateTime)
     modified_date                            = Column(DateTime)
     delivered_date                           = Column(DateTime)
+    last_updated_date                        = Column(DateTime)
     user_id                                  = Column(Integer, ForeignKey("user.id"))
 
     addresses = relationship("Address", back_populates="delivery", uselist=False)
-    payment_types = relationship("PaymentType", secondary=delivery_payment_types_table)
     user = relationship("User", back_populates="deliveries")
     delivery_details = relationship("DeliveryDetail", cascade="all, delete", passive_deletes=True)
     payment_details = relationship("PaymentDetail", back_populates="delivery", uselist=False)
@@ -438,6 +416,7 @@ class Inventory(Base):
 
     driver_id                               = Column(Integer, ForeignKey('user.id'))
     clerk_id                                = Column(Integer, ForeignKey('user.id'))
+    supplier_id                             = Column(Integer, ForeignKey('user.id'))
 
     product_id                              = Column(Integer, ForeignKey('product.id'))
     total_inventory_id                      = Column(Integer, ForeignKey("total_inventory.id"))
@@ -475,7 +454,6 @@ class DriverOrderHistory(Base):
 
     delivery_status                 = Column(Unicode(50))
     delivery_date                   = Column(DateTime)
-    payment_type                    = Column(Unicode(50))
     address                         = Column(Text)
     type                            = Column(Unicode(50))
     supplier_name                   = Column(Unicode(255))

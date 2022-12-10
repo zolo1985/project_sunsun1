@@ -10,7 +10,7 @@ import pytz
 
 manager_search_blueprint = Blueprint('manager_search', __name__)
 
-@manager_search_blueprint.route('/search', methods=["GET","POST"])
+@manager_search_blueprint.route('/manager/search', methods=["GET","POST"])
 @login_required
 @has_role('manager')
 def search():

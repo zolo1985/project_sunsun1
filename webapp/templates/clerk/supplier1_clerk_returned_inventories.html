@@ -1,0 +1,236 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- ORDERS -->
+    <section>
+        <div class="container min-vh-100">
+            <div class="row">
+                <div class="col-sm-12 mb-5">
+                    <h3 class="custom-header mb-4">
+                        <p>Харилцагчид бараа буцаах</p>
+                    </h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div id="productAddSection" class="container">
+                            <div class="row">
+                                <div class="col">
+                                    {% if form.select_supplier.errors %}
+                                        {{ form.select_supplier(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.select_supplier.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.select_supplier(class="form-control") }}
+                                    {% endif %}
+                                </div>
+                                <div class="col">
+                                    <span class="selector-container" style="position:relative;">
+                                        <select class="searchBar form-control" id="product" style="width: 100%;"></select>
+                                    </span>
+                                </div>
+                                <div class="col-md-auto">
+                                    <input autocomplete="off" step="0" class="form-control" name="quantityInput" id="quantityInput" placeholder="Тоо ширхэг" type="number" style="width: 200px;"></div>
+                                    <div class="col-md-auto">
+                                        <a id="add-product" class="btn btn-outline-info" onclick="addProduct();">Нэмэх</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="lines" style="display: none;">
+                                        <thead>
+                                            <tr>
+                                                <th class="bg-grad" style="font-size: 14px;">Харилцагч</th>
+                                                <th class="bg-grad" style="font-size: 14px;">Бараа</th>
+                                                <th class="bg-grad" style="font-size: 14px;">Тоо ширхэг</th>
+                                                <th class="bg-grad">Хасах</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container">
+                            {{ form.submit(class="btn btn-outline-success m-0") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END ORDERS -->
+    <script type="text/javascript">
+        var csrf_token = "{{ csrf_token() }}";
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                }
+            }
+        });
+    </script>
+    <script>
+        var parentElement = $(".selector-container");
+        var supplier_name = document.getElementById('select_supplier');
+
+        supplier_name.onchange = function () {
+            supplier = supplier_name.value;
+            $(".searchBar").select2({
+                dropdownParent: parentElement,
+                placeholder: 'Бараа хайх',
+                minimumInputLength: 2,
+                width: 'resolve',
+                ajax: {
+                    headers: {
+                        'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
+                    },
+                    url: "/clerk/supplier1/search/products/" + supplier,
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (term) {
+                        return {term: term.term};
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.name + ' ' + '(' + item.color + ',' + ' ' + item.size + ',' + ' ' + item.quantity + 'ш' + ',' + ' ' + item.price + '₮' + ')',
+                                }
+                            })
+                        };
+                    }
+                },
+            });
+        }
+    </script>
+    <script>
+        function addProduct() {
+            document.getElementById('lines').style.display = 'table';
+
+            var supplier_id = $('#select_supplier').find(":selected").val();
+            var supplier_name = $('#select_supplier').find(":selected").text();
+            var product_id = $('#product').find(":selected").val();
+            var product_name = $('#product').find(":selected").text();
+            var quantity = document.getElementById("quantityInput").value;
+            var total_amount = document.getElementById('total_amount');
+
+            if (supplier_name == 'Харилцагч сонгох') {
+                alert('Харилцагч сонгоно уу!')
+                return false;
+            }
+
+            if (quantity == null || quantity == "") {
+                alert('Барааны тоо ширхэг оруулна уу!')
+                return false;
+            }
+
+            if (parseInt((product_name.split(",")[2].slice(0, -1)))<=0 || parseInt((product_name.split(",")[2].slice(0, -1)))<parseInt(quantity)) {
+                alert('Агуулахын үлдэгдэл хүрэлцэхгүй байна!')
+                return false;
+            }
+
+            if (product_id == null) {
+                alert('Нэмэх бараа эхлээд сонгоно уу!')
+            } else {
+                $('#lines').find('tbody').append($('#tr-placeholder tr:first').clone());
+                $('#lines').find('tbody tr:last input[name="supplier"]').val(supplier_id);
+                $('#lines').find('tbody tr:last p[data-name="supplier_name"]').text(supplier_name);
+                $('#lines').find('tbody tr:last input[name="product"]').val(product_id);
+                $('#lines').find('tbody tr:last p[data-name="product_name"]').text(product_name);
+                $('#lines').find('tbody tr:last input[name="quantity"]').val(quantity);
+                $('#lines').find('tbody tr:last p[data-name="quantity_name"]').text(quantity);
+
+                total_amount.value = parseInt(total_amount.value) + parseInt((product_name.split(",")[3].slice(0, -2)) * quantity);
+            }
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: 'CSV файл татах',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                paging: false,
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+
+                }
+            });
+        });
+    </script>
+    <table style="display: none;">
+        <tbody id="tr-placeholder">
+            <tr>
+                <td>
+                    <input type="hidden" name="supplier" class="form-control" required>
+                    <p data-name="supplier_name" style="font-size: 15px;"></p>
+                </td>
+                <td>
+                    <input type="hidden" name="product" class="form-control" required>
+                    <p data-name="product_name" style="font-size: 15px;"></p>
+                </td>
+                <td>
+                    <input type="hidden" name="quantity" class="form-control" required>
+                    <p data-name="quantity_name" style="font-size: 15px;"></p>
+                </td>
+                <td>
+                    <button type="button" class="btn p-0 m-0" onclick="$(this).parent().parent().remove();"><i class="bi bi-x-circle"></i></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+{% endblock main %}

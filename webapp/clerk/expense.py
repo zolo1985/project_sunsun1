@@ -89,3 +89,13 @@ def clerk_driver_orders_expense(order_id):
             flash('Хүргэлт амжилттай хүлээлгэж өглөө!', 'success')
             connection.close()
             return redirect(request.url)
+
+
+
+@clerk_expense_blueprint.route('/clerk/manager/expenses', methods=['GET','POST'])
+@login_required
+@has_role('clerk')
+def clerk_manager_orders():
+    connection = Connection()
+    pickup_orders = connection.query(models.Delivery).filter(models.Delivery.is_manager_created==True).all()
+    return render_template('/clerk/manager_expenses.html', orders=pickup_orders)

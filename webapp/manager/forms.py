@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, HiddenField, SelectField, DateField, IntegerField, TextAreaField
-from wtforms.validators import Length, Email, EqualTo, ValidationError, DataRequired, Optional, NumberRange
+from wtforms import StringField, PasswordField, SubmitField, HiddenField, SelectField, DateField, IntegerField, TextAreaField, RadioField
+from wtforms.validators import Length, Email, EqualTo, ValidationError, InputRequired, Optional, NumberRange, InputRequired
 from webapp.database import Connection
 from webapp import models
 from datetime import datetime
@@ -12,6 +12,20 @@ class FiltersForm(FlaskForm):
     regions = SelectField('Бүсийн нэр', choices=[], validators=[Optional()])
     status = SelectField('Төлөв', choices=[], validators=[Optional()])
     submit = SubmitField('Шүүх', id="submit1", name="submit1")
+
+class DateFilterForm(FlaskForm):
+    date = DateField('Он сараар', validators=[Optional()])
+    submit = SubmitField('Шүүх')
+
+
+class SelectDriverForm(FlaskForm):
+    selected_driver = SelectField('Жолооч', choices=[], validators=[InputRequired()])
+    submit = SubmitField('Сонгох')
+
+class UnassignForm(FlaskForm):
+    order_id = HiddenField()
+    submit = SubmitField('Бүс, Жолоочгүй болгох')
+
 
 class AssignRegionAndDriverForm(FlaskForm):
     order_id = HiddenField()
@@ -27,14 +41,15 @@ class DriversSelect(FlaskForm):
 class DriversDateSelect(FlaskForm):
     task_id = HiddenField()
     select_day = SelectField('Өдөр', choices=[], validators=[Optional()])
-    select_drivers = SelectField('Жолооч', choices=[], validators=[DataRequired()])
+    select_drivers = SelectField('Жолооч', choices=[], validators=[InputRequired()])
     submit = SubmitField('Сонгох')
 
 class DriversHistoriesForm(FlaskForm):
     task_id = HiddenField()
-    date = DateField('Он сараар', validators=[DataRequired()])
-    select_drivers = SelectField('Жолооч', choices=[], validators=[DataRequired()])
+    date = DateField('Он сараар', validators=[InputRequired()])
+    select_drivers = SelectField('Жолооч', choices=[], validators=[InputRequired()])
     submit = SubmitField('Сонгох')
+
 
 class OrderEditForm(FlaskForm):
     select_regions = SelectField('Бүс өөрчлөх', choices=[],validators=[Optional()])
@@ -46,9 +61,10 @@ class OrderEditForm(FlaskForm):
         if date.data < datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date():
             raise ValidationError("Өнөөдрөөс өмнөх өдөр байх боломжгүй!")
 
+
 class FilterOrderByDistrict(FlaskForm):
     khoroo_names = SelectField('Хорооны дугаар', choices=[],validators=[Optional()])
-    district_names = SelectField('Дүүрэгийн нэр', choices=[],validators=[DataRequired()])
+    district_names = SelectField('Дүүрэгийн нэр', choices=[],validators=[InputRequired()])
     submit = SubmitField('Шүүж харах')
 
 
@@ -56,30 +72,35 @@ class FilterDateForm(FlaskForm):
     date = DateField('Он сараар', validators=[Optional()])
     submit = SubmitField('Шүүх')
 
-class MakeShowCommentForm(FlaskForm):
+
+class ShowCommentStatusForm(FlaskForm):
     order_id = HiddenField()
-    submit = SubmitField('Бүх Коммент Нээх')
+    submit = SubmitField('Бүх Төлөв, Коммент Нээх')
+
 
 class EditCommentForm(FlaskForm):
     comment = TextAreaField('Коммент', validators=[Optional()])
     submit = SubmitField('Коммент Өөрчлөх')
 
+
 class EditAddressForm(FlaskForm):
     address = TextAreaField('Хаяг', validators=[Optional()])
     submit = SubmitField('Хаяг Өөрчлөх')
+
 
 class EditTotalAmountForm(FlaskForm):
     total_amount = TextAreaField('Дүн', validators=[Optional()])
     submit = SubmitField('Дүн Өөрчлөх')
 
+
 class NewAccountForm(FlaskForm):
     company_name = StringField('Байгууллагын нэр', validators=[Optional(), Length(min=6, max=255, message='Хэт урт эсвэл богино байна!')])
-    firstname = StringField('Нэр', validators=[DataRequired()])
-    lastname = StringField('Овог', validators=[DataRequired()])
-    email = StringField('И-мэйл', validators=[DataRequired(), Email(message='И-мэйл хаяг оруулна уу!')])
-    phone = StringField('Утасны дугаар', validators=[DataRequired()])
-    password = PasswordField('Нууц үг', validators=[DataRequired(), Length(min=3, max=50)])
-    select_user_role = SelectField('Хэрэглэгчийн төрөл', choices=[], validators=[DataRequired()])
+    firstname = StringField('Нэр', validators=[InputRequired()])
+    lastname = StringField('Овог', validators=[InputRequired()])
+    email = StringField('И-мэйл', validators=[InputRequired(), Email(message='И-мэйл хаяг оруулна уу!')])
+    phone = StringField('Утасны дугаар', validators=[InputRequired()])
+    password = PasswordField('Нууц үг', validators=[InputRequired(), Length(min=3, max=50)])
+    select_user_role = SelectField('Хэрэглэгчийн төрөл', choices=[], validators=[InputRequired()])
     submit = SubmitField('Хэрэглэгч нэмэх')
 
     def validate_firstname(self, firstname):
@@ -139,9 +160,9 @@ class NewAccountForm(FlaskForm):
 
 
 class EditAccountForm(FlaskForm):
-    email = StringField('И-мэйл', validators=[DataRequired(), Email(message='И-мэйл хаяг оруулна уу!')])
-    phone = StringField('Утасны дугаар', validators=[DataRequired()])
-    fee = IntegerField('Хүргэлтийн төлбөр', validators=[DataRequired(), NumberRange(min=0)])
+    email = StringField('И-мэйл', validators=[InputRequired(), Email(message='И-мэйл хаяг оруулна уу!')])
+    phone = StringField('Утасны дугаар', validators=[InputRequired()])
+    fee = IntegerField('Хүргэлтийн төлбөр', validators=[InputRequired(), NumberRange(min=0)])
     submit = SubmitField('Өөрчлөх')
 
     def validate_firstname(self, firstname):
@@ -201,24 +222,75 @@ class EditAccountForm(FlaskForm):
 
 
 class SelectOption(FlaskForm):
-    select_option = SelectField('Хугацаа', choices=[],validators=[DataRequired()])
-    date = DateField('Он сар', validators=[DataRequired()])
+    select_option = SelectField('Хугацаа', choices=[],validators=[InputRequired()])
+    date = DateField('Он сар', validators=[InputRequired()])
     submit = SubmitField('Сонгох')
+
 
 class SelectDriverOption(FlaskForm):
-    select_option = SelectField('Хугацаа', choices=[],validators=[DataRequired()])
-    select_driver = SelectField('Жолооч', choices=[],validators=[DataRequired()])
-    date = DateField('Он сар', validators=[DataRequired()])
+    select_option = SelectField('Хугацаа', choices=[],validators=[InputRequired()])
+    select_driver = SelectField('Жолооч', choices=[],validators=[InputRequired()])
+    date = DateField('Он сар', validators=[InputRequired()])
     submit = SubmitField('Сонгох')
+
 
 class SelectSupplierOption(FlaskForm):
-    select_option = SelectField('Хугацаа', choices=[],validators=[DataRequired()])
-    select_supplier = SelectField('Харилцагч', choices=[],validators=[DataRequired()])
-    date = DateField('Он сар', validators=[DataRequired()])
+    select_option = SelectField('Хугацаа', choices=[],validators=[InputRequired()])
+    select_supplier = SelectField('Харилцагч', choices=[],validators=[InputRequired()])
+    date = DateField('Он сар', validators=[InputRequired()])
     submit = SubmitField('Сонгох')
 
+
 class SearchForm(FlaskForm):
-    search_text = StringField('Хайх', validators=[DataRequired(), Length(min=2, max=50, message='Нэр 2-50 урттай')])
+    search_text = StringField('Хайх', validators=[InputRequired(), Length(min=2, max=50, message='Нэр 2-50 урттай')])
     submit = SubmitField('Хайх')
+
+
+class SelectSupplierForm(FlaskForm):
+    suppliers = SelectField('Харилцагч', choices=[], validators=[InputRequired()])
+
+
+class OrderAddForm(FlaskForm):
+    delivery_type = RadioField('Төрөл', choices=[(0,'Хүргэлт'),(1,'Агуулахаас')], validators=[Optional()], default=0)
+    order_type = RadioField('Хүргэлтийн чиглэл', choices=[(0,'Улаанбаатар'),(1,'Орон нутаг')], validators=[Optional()], default=0)
+    suppliers = SelectField('Харилцагч', choices=[], validators=[InputRequired()])
+    phone = IntegerField('Утасны дугаар', validators=[InputRequired()])
+    phone_more = IntegerField('Нэмэлт утасны дугаар', validators=[Optional()])
+    district = SelectField('Дүүрэг', choices=[], validators=[Optional()])
+    khoroo = SelectField('Хороо', choices=[], validators=[Optional()])
+    aimag = SelectField('Аймаг', choices=[], validators=[Optional()])
+    address = TextAreaField('Хаяг', validators=[InputRequired()])
+    total_amount = IntegerField('Нийт үнэ', validators=[InputRequired(), NumberRange(min=0)], default=0)
+    submit = SubmitField('Үүсгэх')
+
+    def validate_phone(self, phone):
+        allowed_chars = set(("0123456789"))
+        validation = set((str(phone.data)))
+        if validation.issubset(allowed_chars):
+            pass
+        else:
+            raise ValidationError('Зөвхөн тоо ашиглана уу!')
+
+    # def validate_district(self, district):
+    #     if district.data == "0" or district.data == "Дүүрэг сонгох":
+    #         raise ValidationError('Дүүрэг сонгоно уу!')
+    #     else:
+    #         pass
+
+    # def validate_khoroo(self, khoroo):
+    #     if khoroo.data == "0" or khoroo.data == "Хороо сонгох":
+    #         raise ValidationError('Хорооны дугаар сонгоно уу!')
+    #     else:
+    #         pass
+
+    # def validate_aimag(self, aimag):
+    #     if aimag.data == "0" or aimag.data == "Аймаг сонгох":
+    #         raise ValidationError('Аймаг сонгоно уу!')
+    #     else:
+    #         pass
+
+
+class OrderDetailEditForm(FlaskForm):
+    submit = SubmitField('Өөрчлөх')
 
 

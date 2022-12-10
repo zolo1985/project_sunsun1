@@ -97,4 +97,63 @@
             </div>
         </div>
     </section>
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: 'Хэвлэх',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                paging: false,
+                sorting: false,
+                ordering: false,
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт:  {{ datas|length }}жолооч",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+
+                }
+            });
+        });
+    </script>
 {% endblock main %}

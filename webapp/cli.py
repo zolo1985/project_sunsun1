@@ -6,7 +6,7 @@ from faker import Faker
 
 from webapp import bcrypt
 from webapp.database import Connection
-from webapp.models import (Role, TotalInventory, User, ProductColor, Product, ProductSize, Region, District, Aimag, PaymentType)
+from webapp.models import (Role, TotalInventory, User, ProductColor, Product, ProductSize, Region, District, Aimag)
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +20,6 @@ initial_artworks = [('webapp/static/images/menu-bg.jpg')]
 
 initial_districts = ['Хан-Уул', 'Баянзүрх', 'Сүхбаатар', 'Налайх', 'Багануур', 'Багахангай', 'Баянгол', 'Сонгинохайрхан', 'Чингэлтэй']
 initial_aimags = ['Архангай','Баян-Өлгий','Баянхонгор','Булган','Говь-Алтай','Говьсүмбэр','Дархан-Уул','Дорноговь','Дорнод','Дундговь','Завхан','Орхон','Өвөрхангай','Өмнөговь','Сүхбаатар','Сэлэнгэ','Төв','Увс','Ховд','Хөвсгөл','Хэнтий']
-initial_payment_types = ['Үндсэн үнэ','Хүргэлт орсон', 'Төлбөр авахгүй']
 
 initial_delivery_status = ['started', 'completed', 'cancelled', 'postphoned', 'assigned', 'unassigned']
 
@@ -86,30 +85,6 @@ def generate_aimags():
             connection.rollback()
             connection.close()
     return aimags
-
-
-def generate_payment_types():
-    payment_types = list()
-    connection = Connection()
-    for paymenttypename in initial_payment_types:
-        paymenttype = connection.query(PaymentType).filter_by(name=paymenttypename).first()
-        if paymenttype:
-            payment_types.append(paymenttype)
-            continue
-        paymenttype = PaymentType(
-            name = paymenttypename,
-            amount = 0)
-        payment_types.append(paymenttype)
-        connection.add(paymenttype)
-        try:
-            connection.commit()
-            connection.close()
-        except Exception as e:
-            log.error("Erro inserting paymenttype: %s, %s" % (str(paymenttype), e))
-            connection.rollback()
-            connection.close()
-    return payment_types
-
 
 
 def generate_regions():
@@ -404,7 +379,6 @@ def register(app):
         generate_regions()
         generate_districts()
         generate_aimags()
-        generate_payment_types()
         generate_clerks(2)
         generate_accounts(10)
         generate_managers(2)
@@ -420,7 +394,6 @@ def register(app):
         generate_regions()
         generate_districts()
         generate_aimags()
-        generate_payment_types()
         generate_accounts(2)
         generate_supplier2(2)
 
