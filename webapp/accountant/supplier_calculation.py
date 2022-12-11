@@ -1,10 +1,13 @@
-from flask import (Blueprint, render_template, flash, request, redirect, url_for)
+from flask import (Blueprint, render_template, flash, request, redirect, url_for, jsonify)
 from webapp import accountant, has_role
 from flask_login import current_user, login_required
 from webapp.database import Connection
-from webapp.accountant.forms import FiltersForm, ReceivePaymentForm, DateSelect
+from webapp.accountant.forms import SupplierDateSelect
 from webapp import models
+from sqlalchemy import func, or_
 from datetime import datetime
+from dateutil.rrule import DAILY,rrule
+import calendar
 import pytz
 
 accountant_supplier_calculation_blueprint = Blueprint('accountant_supplier_calculation', __name__)
@@ -16,14 +19,40 @@ initial_delivery_status = ['started', 'completed', 'cancelled', 'postphoned', 'a
 @has_role('accountant')
 def accountant_supplier_calculations():
     connection = Connection()
-    daily_total = []
+    suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()
     suppliers_total = []
 
-    form = DateSelect()
-
+    form = SupplierDateSelect()
+    form.suppliers.choices = [(supplier.id, supplier.company_name) for supplier in suppliers]
+    form.suppliers.choices.insert(0, (0,'Харилцагч сонгох'))
+    
     if form.validate_on_submit():
-
-        suppliers_total = connection.execute('SELECT supplier.company_name as supplier_name, count(delivery.id) as total_delivery_count, sum(delivery.total_amount) as total_amount, supplier.is_invoiced as is_invoiced, supplier.fee as fee FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) = DATE(:date) and delivery.is_processed_by_accountant=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"date": form.select_date.data}).all()
+        suppliers_total = connection.execute('SELECT supplier.company_name as supplier_name, count(delivery.id) as total_delivery_count, sum(delivery.total_amount) as total_amount, supplier.is_invoiced as is_invoiced, supplier.fee as fee FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) = DATE(:date) and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id and delivery.is_manager_created=false group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"date": form.select_date.data, "supplier_id": form.suppliers.data}).all()
         return render_template('/accountant/supplier_calculation.html', form=form, suppliers_total=suppliers_total)
 
     return render_template('/accountant/supplier_calculation.html', form=form, suppliers_total=suppliers_total)
+
+
+@accountant_supplier_calculation_blueprint.route('/accountant/supplier/calculations/history', methods=['GET','POST'])
+@login_required
+@has_role('accountant')
+def accountant_supplier_calculations_history():
+    current_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
+    suppliers_datas = []
+    connection = Connection()
+    suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()
+
+    if current_date.day < 15:
+        for supplier in suppliers:
+            data_format = [supplier.company_name, supplier.id]
+            days_list = []
+            for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))):
+                day_format = (i.day)
+                days_list.append(day_format)
+
+            suppliers_datas.append(data_format)
+
+    print(suppliers_datas)
+    return jsonify(suppliers_datas)
+
+    

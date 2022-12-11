@@ -24,6 +24,11 @@ class DateSelect(FlaskForm):
     select_date = DateField('Хугацаа сонгох', validators=[Optional()])
     submit = SubmitField('Сонгох')
 
+class SupplierDateSelect(FlaskForm):
+    suppliers = SelectField('Харилцагч', choices=[], validators=[InputRequired()])
+    select_date = DateField('Хугацаа сонгох', validators=[InputRequired()])
+    submit = SubmitField('Сонгох')
+
 class SearchForm(FlaskForm):
     search_text = StringField('Хайх', validators=[DataRequired(), Length(min=2, max=50, message='Нэр 2-50 урттай')])
     submit = SubmitField('Хайх')

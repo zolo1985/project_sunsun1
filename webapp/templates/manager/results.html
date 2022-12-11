@@ -113,6 +113,9 @@
                                                 {{ order.driver_comment }}
                                             </p>
                                         {% endif %}
+                                        {% if order.is_manager_created %}
+                                            <p class="text-success fw-bold">*** СҮНСҮН агуулахаас үүсгэсэн ***</p>
+                                        {% endif%}
 
                                         {% if (diffdates(cur_date, order.modified_date) | round | int) <= 0 %}
                                             <p>0 минутын өмнө</p>
