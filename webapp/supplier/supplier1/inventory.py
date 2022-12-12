@@ -1,5 +1,5 @@
 from flask import (Blueprint, flash, redirect, render_template, request,
-                   url_for, jsonify, abort)
+                   url_for, abort)
 from webapp import has_role
 from flask_login import current_user, login_required
 from webapp import models
@@ -344,11 +344,6 @@ def supplier1_inventory_pickups():
                     else:
                         connection.close()
                         return redirect(url_for('supplier1_inventory.supplier1_inventory_pickups'))
-
-                #not warehoused
-                elif pickup.supplier_type == "supplier2":
-                    for i, pickup_detail in enumerate(pickup.pickup_details):
-                        print(pickup_detail.quantity)
             else:
                 continue
 

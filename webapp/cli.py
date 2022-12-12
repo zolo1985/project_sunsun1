@@ -1,16 +1,20 @@
 import logging
 from datetime import datetime
 import pytz
+import random
 
 from faker import Faker
 
 from webapp import bcrypt
 from webapp.database import Connection
 from webapp.models import (Role, TotalInventory, User, ProductColor, Product, ProductSize, Region, District, Aimag)
+from webapp import models
+from sqlalchemy import func, or_
 
 log = logging.getLogger(__name__)
 
 faker = Faker()
+
 
 initial_roles = ['supplier1', 'supplier2', 'manager', 'admin', 'driver', 'accountant', 'clerk']
 initial_colors = ['Цэнхэр', 'Улаан', 'Ногоон', 'Шар', 'Хар', 'Саарал', 'Ягаан', 'Улбар шар', 'Хөх', 'Бор', 'Чирнээлийн ягаан', 'Өнгөгүй']
@@ -110,6 +114,7 @@ def generate_regions():
 
 def generate_accounts(n):
     connection = Connection()
+
     for i in range(n):
         hashed_password = bcrypt.generate_password_hash('password')
         user = User(company_name='company%s'%(i), 
@@ -126,7 +131,24 @@ def generate_accounts(n):
         user.roles.append(user_role)
         connection.add(user)
         connection.commit()
-        connection.close()
+
+    for i in range(n):
+        hashed_password = bcrypt.generate_password_hash('password')
+        user = User(company_name='supplier2%s'%(i), 
+                    firstname='Галаа1%s'%(i),
+                    lastname='Галаа1%s'%(i), 
+                    email='supplier2%s@sunsun.com'%(i), 
+                    phone=faker.phone_number(),
+                    status='verified',
+                    created_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
+                    modified_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
+                    password=hashed_password)
+            
+        user_role = connection.query(Role).filter_by(name="supplier2").first()
+        user.roles.append(user_role)
+        connection.add(user)
+        connection.commit()
+
 
 def generate_managers(n):
     connection = Connection()
@@ -238,25 +260,6 @@ def generate_drivers(n):
         connection.commit()
         connection.close()
 
-def generate_supplier2(n):
-    connection = Connection()
-    for i in range(n):
-        hashed_password = bcrypt.generate_password_hash('password')
-        user = User(company_name='supplier2%s'%(i), 
-                    firstname='Галаа1%s'%(i),
-                    lastname='Галаа1%s'%(i), 
-                    email='supplier2%s@sunsun.com'%(i), 
-                    phone=faker.phone_number(),
-                    status='verified',
-                    created_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
-                    modified_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
-                    password=hashed_password)
-            
-        user_role = connection.query(Role).filter_by(name="supplier2").first()
-        user.roles.append(user_role)
-        connection.add(user)
-        connection.commit()
-        connection.close()
 
 def generate_colors():
     colors = list()
@@ -300,69 +303,105 @@ def generate_sizes():
     return sizes
 
 
-def generate_red_m_products(n):
+def generate_supplier1_products():
     connection = Connection()
-    fetch_account_type1 = connection.query(User).filter_by(company_name="company0").first()
+    suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()
     colors = connection.query(ProductColor).all()
     sizes = connection.query(ProductSize).all()
-    for i in range(n):
-        product = Product(
-            name = faker.word(),
-            price = 10000,
-            description = "Product description",
-            usage_guide = "Use it for testing",
-            created_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
-            modified_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
-            image = "9427aa5fd5c047aa9d7a6cc97ad0ca17"
-        )
-        product.sizes.append(sizes[i])
-        product.colors.append(colors[i])
-        fetch_account_type1.products.append(product)
-        connection.add(product)
-        connection.commit()
 
-        total_inventory = TotalInventory()
-        total_inventory.quantity = 0
-        total_inventory.product_id = product.id
-        total_inventory.user_id = fetch_account_type1.id
-        total_inventory.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-        total_inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-        connection.add(total_inventory)
-        connection.commit()
-        connection.close()
+    for i, supplier in enumerate(suppliers):
+        for i in range(50):
+            product = Product(
+                name = faker.word(),
+                price = random.randint(1000,10000),
+                description = "Product description",
+                usage_guide = "Use it for testing",
+                created_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
+                modified_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
+                image = "9427aa5fd5c047aa9d7a6cc97ad0ca17"
+            )
+            product.sizes.append(random.choice(sizes))
+            product.colors.append(random.choice(colors))
+            supplier.products.append(product)
+            connection.add(product)
+            connection.commit()
+            
+            total_inventory = TotalInventory()
+            total_inventory.quantity = 0
+            total_inventory.product_id = product.id
+            total_inventory.user_id = supplier.id
+            total_inventory.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            total_inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            connection.add(total_inventory)
+            connection.commit()
 
-def generate_blue_xl_products(n):
+
+
+def generate_supplier2_orders():
     connection = Connection()
-    fetch_account_type1 = connection.query(User).filter_by(company_name="company0").first()
-    colors = connection.query(ProductColor).all()
-    sizes = connection.query(ProductSize).all()
-    for i in range(n):
-        product = Product(
-            name = "product%s"%(i+5),
-            price = 10000,
-            description = "Product description",
-            usage_guide = "Use it for testing",
-            created_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
-            modified_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
-            image = "9427aa5fd5c047aa9d7a6cc97ad0ca17"
-        )
-        product.sizes.append(sizes[i])
-        product.colors.append(colors[i])
-        fetch_account_type1.products.append(product)
-        connection.add(product)
-        connection.commit()
-        
-        total_inventory = TotalInventory()
-        total_inventory.quantity = 0
-        total_inventory.product_id = product.id
-        total_inventory.user_id = fetch_account_type1.id
-        total_inventory.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-        total_inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-        connection.add(total_inventory)
-        connection.commit()
-        connection.close()
+    districts = connection.query(models.District).all()
+    suppliers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="supplier2")).all()
 
-        
+    for i, supplier in enumerate(suppliers):
+        pickup_task = models.PickupTask()
+        pickup_task.supplier_company = supplier.company_name
+        pickup_task.is_ready = True
+        pickup_task.status = "waiting"
+        pickup_task.supplier_type = "supplier2"
+        pickup_task.supplier_id = supplier.id
+        pickup_task.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+        pickup_task.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+        supplier.pickups.append(pickup_task)
+
+        for i in range(10):
+            pickup_task_detail = models.PickupTaskDetail()
+            pickup_task_detail.phone = faker.phone_number()
+            pickup_task_detail.phone_more = faker.phone_number()
+            pickup_task_detail.district = random.choice(districts)
+            pickup_task_detail.khoroo = random.randint(1,15)
+            pickup_task_detail.address = faker.address()
+            pickup_task_detail.total_amount = random.randint(10000,100000)
+            pickup_task_detail.destination_type = "local"
+            pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            pickup_task_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+            pickup_task.pickup_details.append(pickup_task_detail)
+
+    connection.commit()
+
+
+
+def generate_supplier1_inventories():
+    connection = Connection()
+    suppliers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="supplier1")).all()
+
+    for i, supplier in enumerate(suppliers):
+        pickup_task = models.PickupTask()
+        pickup_task.supplier_company = supplier.company_name
+        pickup_task.is_ready = True
+        pickup_task.status = "waiting"
+        pickup_task.supplier_type = "supplier1"
+        pickup_task.supplier_id = supplier.id
+        pickup_task.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+        pickup_task.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+        supplier.pickups.append(pickup_task)
+
+        supplier_products = connection.query(models.Product).filter(models.Product.supplier_id==supplier.id).all()
+
+        for i, supplier_product in enumerate(supplier_products):
+            pickup_task_detail = models.PickupTaskDetail()
+            pickup_task_detail.quantity = random.randint(100,500),
+            pickup_task_detail.product_id = int(supplier_product.id)
+            pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            pickup_task_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+            pickup_task.pickup_details.append(pickup_task_detail)
+
+    connection.commit()
+
+    
 
 def reset_database_data():
     connection = Connection()
@@ -384,9 +423,9 @@ def register(app):
         generate_managers(2)
         generate_drivers(10)
         generate_accountants(2)
-        generate_red_m_products(5)
-        generate_blue_xl_products(5)
-        generate_supplier2(2)
+        generate_supplier1_products()
+        generate_supplier2_orders()
+        generate_supplier1_inventories()
 
     @app.cli.command('initial-data')
     def initial_data():
@@ -395,7 +434,6 @@ def register(app):
         generate_districts()
         generate_aimags()
         generate_accounts(2)
-        generate_supplier2(2)
 
     @app.cli.command('reset-data')
     def reset_data():

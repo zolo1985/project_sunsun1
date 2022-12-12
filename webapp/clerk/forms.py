@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, HiddenField, SelectField, DateField, IntegerField, TextAreaField
-from wtforms.validators import Length, Email, EqualTo, ValidationError, InputRequired, Optional, NumberRange, InputRequired
+from wtforms import StringField, SubmitField, HiddenField, SelectField, DateField
+from wtforms.validators import Length, InputRequired, Optional, InputRequired
 
 class FiltersForm(FlaskForm):
     order_id = HiddenField()

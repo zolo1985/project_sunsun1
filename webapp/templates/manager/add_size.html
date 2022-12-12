@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block main %}
+    <!-- Products -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <h3 class="custom-header mb-4">Хэмжээ нэмэх</h3>
+
+                <div class="container">
+                    <div class="row">
+                        {% for size in sizes %}
+                            <div class="col ">
+                                <p class="fw-bold border rounded-3 p-3 border-2">{{ size.name }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <form id="form" method="POST" action="">
+                    {{ form.csrf_token }}
+                    <div class="row g-3">
+                        <div class="col-md-4 position-relative">
+                            {{ form.size_name.label(class="form-control-label") }}
+                            {% if form.size_name.errors %}
+                                {{ form.size_name(class="form-control is-invalid m-0") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.size_name.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.size_name(class="form-control") }}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center">
+                            {{ form.submit(class="btn btn-outline-success m-0") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <!-- END Products -->
+{% endblock main %}

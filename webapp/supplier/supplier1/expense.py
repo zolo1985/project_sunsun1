@@ -5,9 +5,7 @@ from webapp import models
 from webapp.database import Connection
 from flask_paginate import Pagination, get_page_parameter
 
-
 supplier1_expense_blueprint = Blueprint('supplier1_expense', __name__)
-
 
 @supplier1_expense_blueprint.route('/supplier1/expenses', methods=['GET','POST'])
 @login_required

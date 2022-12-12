@@ -3,7 +3,7 @@ from webapp import has_role
 from flask_login import login_required, current_user
 from webapp.database import Connection
 from webapp import models
-from sqlalchemy import and_, or_, func
+from sqlalchemy import or_
 from .forms import DeliveryStatusForm, DeliveryPostphonedForm, DeliveryCancelledForm
 from datetime import datetime
 import pytz
@@ -18,7 +18,6 @@ initial_delivery_status = ['started', 'completed', 'cancelled', 'postphoned']
 def driver_jobs():
     connection = Connection()
     jobs = connection.query(models.Delivery).filter(models.Delivery.assigned_driver_id==current_user.id).filter(or_(models.Delivery.status == "assigned", models.Delivery.status =="started")).order_by(models.Delivery.status.desc()).all()
-    # jobs = connection.query(models.Delivery).filter(or_(models.Delivery.status == "assigned", models.Delivery.status =="started")).filter(models.Delivery.assigned_driver_id==current_user.id).order_by(models.Delivery.status.desc()).all()
     return render_template('/driver/jobs.html', jobs=jobs)
 
 
@@ -86,8 +85,6 @@ def driver_job_detail(order_id):
             else:
                 connection.close()
                 return redirect(request.url)
-
-
     return render_template('/driver/job.html', job=job, form=form)
 
 

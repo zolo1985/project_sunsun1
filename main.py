@@ -27,7 +27,7 @@ def after_request(response):
 
 @app.teardown_appcontext
 def shutdown_session(exception):
-    print("******************************** CONNNECTION REMOVED ************************************************")
+    # print("******************************** CONNNECTION REMOVED ************************************************")
     if exception:
         connection = Connection()
         connection.rollback()
@@ -35,7 +35,7 @@ def shutdown_session(exception):
 
 @app.teardown_request
 def teardown_request(exception):
-    print("******************************** CONNNECTION REMOVED ************************************************")
+    # print("******************************** CONNNECTION REMOVED ************************************************")
     if exception:
         connection = Connection()
         connection.rollback()

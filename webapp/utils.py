@@ -12,8 +12,8 @@ import jinja2
 from datetime import datetime, time
 import pytz
 
-credentials = service_account.Credentials.from_service_account_file('webapp/keys.json')
-client = storage.Client(project='project-sunsun', credentials=credentials)
+credentials = service_account.Credentials.from_service_account_file('webapp/servicekey.json')
+client = storage.Client(project='sunsun-delivery', credentials=credentials)
 
 def generate_uuid():
     return str(uuid.uuid4())
@@ -62,8 +62,8 @@ def add_and_resize_image(image_file):
             thumbName = '%s_%s.jpg' % (uploadId, str('x'.join(tuple(map( str , size )))))
             image1 = image.resize((size), Image.ANTIALIAS)
             image1.save(fp=thumbName, format="PNG")
-            client = storage.Client(project='project-sunsun', credentials=credentials)
-            bucket = client.get_bucket('sunsun_bucket')
+            client = storage.Client(project='sunsun-delivery', credentials=credentials)
+            bucket = client.get_bucket('sunsun-general-bucket')
             blob = bucket.blob('{0}/'.format(uploadId) + '{0}'.format(thumbName))
             blob.upload_from_filename(thumbName, content_type='image/png')
             os.remove(thumbName)
@@ -82,8 +82,8 @@ def add_and_resize_image(image_file):
             with open(thumbName, 'wb') as file_output:
                 file_output.write(image_io.getvalue())
                 file_output.close()
-                client = storage.Client(project='project-sunsun', credentials=credentials)
-                bucket = client.get_bucket('sunsun_bucket')
+                client = storage.Client(project='sunsun-delivery', credentials=credentials)
+                bucket = client.get_bucket('sunsun-general-bucket')
                 blob = bucket.blob('{0}/'.format(uploadId) + '{0}'.format(thumbName))
                 blob.upload_from_filename(thumbName, content_type='image/jpg')
                 os.remove(thumbName)
@@ -96,8 +96,8 @@ def add_image(image_file):
     if ext == 'png':
         image = Image.open(image_file)
         image.save(fp=uploadId, format="PNG")
-        client = storage.Client(project='project-sunsun', credentials=credentials)
-        bucket = client.get_bucket('sunsun_bucket')
+        client = storage.Client(project='sunsun-delivery', credentials=credentials)
+        bucket = client.get_bucket('sunsun-general-bucket')
         blob = bucket.blob(uploadId)
         blob.upload_from_filename(uploadId, content_type='image/png')
         os.remove(uploadId)
@@ -109,8 +109,8 @@ def add_image(image_file):
         with open(uploadId, 'wb') as file_output:
             file_output.write(image_io.getvalue())
             file_output.close()
-            client = storage.Client(project='project-sunsun', credentials=credentials)
-            bucket = client.get_bucket('sunsun_bucket')
+            client = storage.Client(project='sunsun-delivery', credentials=credentials)
+            bucket = client.get_bucket('sunsun-general-bucket')
             blob = bucket.blob(uploadId)
             blob.upload_from_filename(uploadId, content_type='image/jpg')
             os.remove(uploadId)

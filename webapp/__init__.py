@@ -4,7 +4,6 @@ import os
 import redis
 from flask import Flask, abort, flash, redirect, url_for
 from flask_bcrypt import Bcrypt
-from flask_caching import Cache
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_login import AnonymousUserMixin, LoginManager, current_user
@@ -25,7 +24,6 @@ logging.getLogger('flask_cors').level = logging.DEBUG
 log = logging.getLogger(__name__)
 bcrypt = Bcrypt()
 login_manager = LoginManager()
-cache = Cache()
 jwt = JWTManager()
 csrf = CSRFProtect()
 cors = CORS()
@@ -44,7 +42,6 @@ def create_app(object_name):
     
     bcrypt.init_app(app)
     login_manager.init_app(app)
-    cache.init_app(app)
     jwt.init_app(app)
     csrf.init_app(app)
     cors.init_app(app)
@@ -74,12 +71,6 @@ def create_app(object_name):
     accountant_create_module(app)
     admin_create_module(app)
     driver_create_module(app)
-    
-
-    with app.app_context():
-        cache.clear()
-        redis_client = redis.Redis(host=os.environ.get('CACHE_REDIS_HOST'), port=int(os.environ.get('CACHE_REDIS_PORT')), db=int(os.environ.get('CACHE_REDIS_DB')), password=None, socket_timeout=float(os.environ.get('CACHE_DEFAULT_TIMEOUT')))
-        redis_client.flushall()
 
     return app
 

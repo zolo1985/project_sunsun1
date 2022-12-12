@@ -293,4 +293,26 @@ class OrderAddForm(FlaskForm):
 class OrderDetailEditForm(FlaskForm):
     submit = SubmitField('Өөрчлөх')
 
+class AddColorForm(FlaskForm):
+    color_name = StringField('Өнгө', validators=[InputRequired()])
+    submit = SubmitField('Нэмэх')
+
+    def validate_color_name(self, color_name):
+        connection = Connection()
+        color = connection.query(models.ProductColor).filter_by(name=color_name.data.strip()).all()
+        connection.close()
+        if len(color)>0:
+            raise ValidationError('Энэ өнгө бүртгэлтэй байна! Өөр нэр ашиглана уу!')
+
+class AddSizeForm(FlaskForm):
+    size_name = StringField('Хэмжээ', validators=[InputRequired()])
+    submit = SubmitField('Нэмэх')
+
+    def validate_size_name(self, size_name):
+        connection = Connection()
+        size = connection.query(models.ProductSize).filter_by(name=size_name.data.strip()).all()
+        connection.close()
+        if len(size)>0:
+            raise ValidationError('Энэ хэмжээ бүртгэлтэй байна! Өөр нэр ашиглана уу!')
+
 

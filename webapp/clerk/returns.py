@@ -5,7 +5,7 @@ from webapp.database import Connection
 from webapp.clerk.forms import FilterDateForm
 from webapp import models
 from datetime import datetime
-from sqlalchemy import func, or_
+from sqlalchemy import func
 import pytz
 
 

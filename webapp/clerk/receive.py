@@ -1,7 +1,6 @@
-from flask import (Blueprint, flash, redirect, render_template, url_for, request, g)
+from flask import (Blueprint, flash, redirect, render_template, url_for)
 from webapp import has_role
 from flask_login import current_user, login_required
-from flask_paginate import Pagination, get_page_parameter
 from webapp import models
 from webapp.database import Connection
 from datetime import datetime
@@ -61,9 +60,10 @@ def clerk_accept_dropoff_inventories(inventory_id):
         connection.close()
         return redirect(url_for('clerk_receive.clerk_receive_dropoff_inventories'))
     else:
-        inventory.status = True
-        inventory.clerk_accepted_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-        inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+        if inventory.is_returned_to_clerk == False:
+            inventory.status = True
+            inventory.clerk_accepted_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
         try:
             connection.commit()

@@ -35,8 +35,6 @@ def signin():
         base64_bytes = hashed_authorization.encode('ascii')
         message_bytes = base64.b64decode(base64_bytes)
         decrypted = message_bytes.decode('ascii')
-        print(message_bytes)
-        print(decrypted)
     except Exception:
         return jsonify({
             "msg": "Нэвтрэх боломжгүй байна!",

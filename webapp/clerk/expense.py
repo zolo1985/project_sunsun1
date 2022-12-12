@@ -5,7 +5,6 @@ from webapp.database import Connection
 from webapp import models
 from datetime import datetime
 from .forms import FiltersForm, DriverOrders
-from sqlalchemy import func
 import pytz
 
 clerk_expense_blueprint = Blueprint('clerk_expense', __name__)

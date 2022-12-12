@@ -57,7 +57,11 @@
                                                 {% if inventory.clerk_accepted_date is not none %}
                                                     <p>{{ inventory.clerk_name }}({{ inventory.clerk_accepted_date }})</p>
                                                 {% else %}
-                                                    <a class="btn btn-outline-success" href="{{ url_for('clerk_receive.clerk_accept_dropoff_inventories', inventory_id=inventory.id)}}">Хүлээж Авах</a>
+                                                    {% if inventory.is_returned_to_supplier %}
+                                                        <p class="fw-bold text-success">Харилцагч буцааж авсан</p>
+                                                    {% else %}
+                                                        <a class="btn btn-outline-success" href="{{ url_for('clerk_receive.clerk_accept_dropoff_inventories', inventory_id=inventory.id)}}">Хүлээж Авах</a>
+                                                    {% endif %}
                                                 {% endif %}
                                             </td>
                                         </tr>

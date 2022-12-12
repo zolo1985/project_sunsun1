@@ -4,7 +4,7 @@ from flask import Blueprint, send_file, send_from_directory
 from google.cloud import storage
 from google.oauth2 import service_account
 
-credentials = service_account.Credentials.from_service_account_file('webapp/keys.json')
+credentials = service_account.Credentials.from_service_account_file('webapp/servicekey.json')
 
 utils_api = Blueprint('utils_api', __name__)
 
@@ -12,8 +12,8 @@ utils_api = Blueprint('utils_api', __name__)
 def article_image(artwork):
     if artwork:
         client = storage.Client(
-            project='project-sunsun', credentials=credentials)
-        bucket = client.get_bucket('sunsun_bucket')
+            project='sunsun-delivery', credentials=credentials)
+        bucket = client.get_bucket('sunsun-general-bucket')
         blob = bucket.blob('{0}/'.format(artwork) + '{0}'.format(artwork) + '_300x300.jpg')
         if blob is not None:
             with tempfile.NamedTemporaryFile() as temp:

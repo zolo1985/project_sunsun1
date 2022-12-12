@@ -12,7 +12,8 @@ orders_api = Blueprint('orders_api', __name__)
 @jwt_required()
 def orders():
     connection = Connection()
-    orders = connection.query(models.Delivery).filter(or_(models.Delivery.status == "assigned", models.Delivery.status =="started")).filter(models.Delivery.assigned_driver_id==current_user.id).order_by(models.Delivery.status.desc()).all()
+    orders = connection.query(models.Delivery).filter(models.Delivery.status == "assigned", models.Delivery.assigned_driver_id==current_user.id).all()
+
     payload = []
     for order in orders:
         if order.order_type == "stored":

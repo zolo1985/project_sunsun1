@@ -276,7 +276,7 @@ def supplier1_order_add_excel():
 
                 for i, order in enumerate(orders):
                     if i == len(orders) - 1:
-                        print("end")
+                        continue
                     else:
                         if order["Утасны дугаар"] == orders[i+1]["Утасны дугаар"] and order["Хаяг"] == orders[i+1]["Хаяг"]:
                             order["Бараа"].append(orders[i+1]["Бараа"][0])

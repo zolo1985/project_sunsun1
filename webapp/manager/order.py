@@ -709,7 +709,6 @@ def manager_order_total_amount(order_id):
 @login_required
 @has_role('manager')
 def manager_order_add():
-    # cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
     connection = Connection()
     districts = connection.query(models.District).all()
     suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()

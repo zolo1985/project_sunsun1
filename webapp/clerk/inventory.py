@@ -2,7 +2,7 @@ from flask import (Blueprint, render_template, request, jsonify, flash, url_for,
 from webapp import has_role
 from flask_login import login_required
 from webapp.database import Connection
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func, or_
 from .forms import SupplierChooseForm, SuppliersOnlyForm
 from webapp import models
 from datetime import datetime

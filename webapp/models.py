@@ -9,8 +9,6 @@ from webapp import bcrypt, jwt
 from webapp.database import Base
 from webapp.utils import generate_uuid
 
-from . import cache
-
 
 roles_table = Table('role_users', Base.metadata,
     Column('user_id', ForeignKey('user.id')),
@@ -97,7 +95,6 @@ class User(Base, UserMixin):
     def get_id(self):
         return str(self.id)
 
-    @cache.memoize(60)
     def has_role(self, name):
         for role in self.roles:
             if role.name == name:

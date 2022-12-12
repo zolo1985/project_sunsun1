@@ -5,6 +5,7 @@ from webapp.database import Connection
 from webapp import models
 from webapp.clerk.forms import SearchForm
 from datetime import datetime
+from sqlalchemy import func, or_
 import pytz
 
 clerk_search_blueprint = Blueprint('clerk_search', __name__)
@@ -18,6 +19,6 @@ def search():
     orders = []
     if form.validate_on_submit():
         connection = Connection()
-        orders = connection.query(models.Delivery).filter(models.Delivery.addresses.has(models.Address.phone.like('%' + form.search_text.data + '%'))).all()
+        orders = connection.query(models.Delivery).filter(or_(models.Delivery.addresses.has(models.Address.phone.like('%' + form.search_text.data + '%')), models.Delivery.addresses.has(models.Address.address.like('%' + form.search_text.data + '%')), models.Delivery.addresses.has(models.Address.phone_more.like('%' + form.search_text.data + '%')))).all()
         return render_template('/clerk/results.html', orders=orders, form=form, cur_date=cur_date)
     return render_template('/clerk/results.html', orders=orders, form=form, cur_date=cur_date)

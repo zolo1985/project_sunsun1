@@ -4,7 +4,6 @@ from flask_login import current_user, login_required
 from webapp import models
 from webapp.database import Connection
 
-
 supplier2_stats_blueprint = Blueprint('supplier2_stats', __name__)
 
 @supplier2_stats_blueprint.route('/supplier2/stats', methods=['GET','POST'])

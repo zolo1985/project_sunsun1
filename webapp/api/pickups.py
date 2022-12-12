@@ -15,7 +15,6 @@ pickups_api = Blueprint('pickups_api', __name__)
 def pickups():
     connection = Connection()
     pickups = connection.query(models.PickupTask).filter(models.PickupTask.driver_id==current_user.id).filter(models.PickupTask.is_completed==False).all()
-    dropoffs = connection.query(models.DropoffTask).filter(models.DropoffTask.driver_id==current_user.id).filter(models.DropoffTask.is_completed==False).all()
 
     payload = []
     for pickup in pickups:
