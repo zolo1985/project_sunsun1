@@ -557,12 +557,13 @@ class AccountantPaymentHistory(Base):
     created_date                             = Column(DateTime)
     modified_date                            = Column(DateTime)
     received_date                            = Column(DateTime)
-    payment_of_date                          = Column(DateTime)
+    date_of_payment                          = Column(DateTime)
     driver_name                              = Column(Unicode(255))
     driver_id                                = Column(Integer)
     accountant_id                            = Column(Integer, ForeignKey('user.id'))
-
+    
     accountant = relationship("User", back_populates="payment_histories")
+    
 
 
 class DriverProductReturn(Base):

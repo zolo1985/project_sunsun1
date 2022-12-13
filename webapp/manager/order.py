@@ -732,64 +732,54 @@ def manager_order_add():
 
         if form.delivery_type.data == "0" and form.order_type.data == "0":
             # local delivery
-            for i, supplier_id in enumerate(line_suppliers):
-                supplier = connection.query(models.User).filter(models.User.id==supplier_id).first()
-                is_supplier_product = connection.query(models.Product).filter(models.Product.supplier_id==supplier.id, models.Product.id==int(line_products[i])).first()
+            supplier = connection.query(models.User).filter(models.User.id==line_suppliers[0]).first()
 
-                if is_supplier_product:
+            order = models.Delivery()
+            order.status = "unassigned"
+            order.destination_type = "local"
+            order.order_type = "stored"
+            order.is_ready = True
+            order.is_manager_created = True
+            order.delivery_attempts = 0
+            order.total_amount = form.total_amount.data
+            
+            order.supplier_company_name = supplier.company_name
+            order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    order = models.Delivery()
-                    order.status = "unassigned"
-                    order.destination_type = "local"
-                    order.order_type = "stored"
-                    order.is_ready = True
-                    order.is_manager_created = True
-                    order.delivery_attempts = 0
-                    
-                    order.supplier_company_name = supplier.company_name
-                    order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            supplier.deliveries.append(order)
+            connection.flush()
 
-                    supplier.deliveries.append(order)
-                    connection.flush()
+            address = models.Address()
+            address.phone = form.phone.data
+            address.phone_more = form.phone_more.data
+            address.district = form.district.data
+            address.khoroo = form.khoroo.data
+            address.address = form.address.data
+            address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    address = models.Address()
-                    address.phone = form.phone.data
-                    address.phone_more = form.phone_more.data
-                    address.district = form.district.data
-                    address.khoroo = form.khoroo.data
-                    address.address = form.address.data
-                    address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.addresses = address
 
-                    order.addresses = address
+            for i, product in enumerate(line_products):
+                order_detail = models.DeliveryDetail()
+                order_detail.quantity = int(line_quantities[i])
+                order_detail.product_id = int(line_products[i])
+                order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    order_detail = models.DeliveryDetail()
-                    order_detail.quantity = int(line_quantities[i])
-                    order_detail.product_id = int(line_products[i])
-                    order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(line_products[i])).first()
+                total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantities[i])
+                total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    product_price = connection.query(models.Product.price).filter(models.Product.id==int(line_products[i])).scalar()
+                is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(line_products[i])).first()
 
-                    order.total_amount = product_price * int(line_quantities[i])
-
-                    total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(line_products[i])).first()
-                    total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantities[i])
-                    total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-
-                    is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(line_products[i])).first()
-
-                    if is_detail:
-                        is_detail.quantity = is_detail.quantity + int(line_quantities[i])
-                    else:
-                        order.delivery_details.append(order_detail)
-                        connection.flush()
-
+                if is_detail:
+                    is_detail.quantity = is_detail.quantity + int(line_quantities[i])
                 else:
-                    flash('Зарим барааг буруу оруулсан байна!', 'danger')
-                    continue
+                    order.delivery_details.append(order_detail)
+                    connection.flush()
 
             try:
                 connection.commit()
@@ -803,62 +793,53 @@ def manager_order_add():
 
         elif form.delivery_type.data == "0" and form.order_type.data == "1":
             # long delivery
-            for i, supplier_id in enumerate(line_suppliers):
-                supplier = connection.query(models.User).filter(models.User.id==supplier_id).first()
-                is_supplier_product = connection.query(models.Product).filter(models.Product.supplier_id==supplier.id, models.Product.id==int(line_products[i])).first()
+            supplier = connection.query(models.User).filter(models.User.id==line_suppliers[0]).first()
 
-                if is_supplier_product:
-                    order = models.Delivery()
-                    order.status = "unassigned"
-                    order.destination_type = "long"
-                    order.order_type = "stored"
-                    order.is_ready = True
-                    order.is_manager_created = True
-                    order.delivery_attempts = 0
-                    
-                    order.supplier_company_name = supplier.company_name
-                    order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order = models.Delivery()
+            order.status = "unassigned"
+            order.destination_type = "long"
+            order.order_type = "stored"
+            order.is_ready = True
+            order.is_manager_created = True
+            order.delivery_attempts = 0
+            order.total_amount = form.total_amount.data
+            
+            order.supplier_company_name = supplier.company_name
+            order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    supplier.deliveries.append(order)
-                    connection.flush()
+            supplier.deliveries.append(order)
+            connection.flush()
 
-                    address = models.Address()
-                    address.phone = form.phone.data
-                    address.phone_more = form.phone_more.data
-                    address.aimag = form.aimag.data
-                    address.address = form.address.data
-                    address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            address = models.Address()
+            address.phone = form.phone.data
+            address.phone_more = form.phone_more.data
+            address.aimag = form.aimag.data
+            address.address = form.address.data
+            address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    order.addresses = address
+            order.addresses = address
 
-                    order_detail = models.DeliveryDetail()
-                    order_detail.quantity = int(line_quantities[i])
-                    order_detail.product_id = int(line_products[i])
-                    order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            for i, product in enumerate(line_products):
+                order_detail = models.DeliveryDetail()
+                order_detail.quantity = int(line_quantities[i])
+                order_detail.product_id = int(line_products[i])
+                order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    product_price = connection.query(models.Product.price).filter(models.Product.id==int(line_products[i])).scalar()
+                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(line_products[i])).first()
+                total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantities[i])
+                total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    order.total_amount = product_price * int(line_quantities[i])
+                is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(line_products[i])).first()
 
-                    total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(line_products[i])).first()
-                    total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantities[i])
-                    total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-
-                    is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(line_products[i])).first()
-
-                    if is_detail:
-                        is_detail.quantity = is_detail.quantity + int(line_quantities[i])
-                    else:
-                        order.delivery_details.append(order_detail)
-                        connection.flush()
-
+                if is_detail:
+                    is_detail.quantity = is_detail.quantity + int(line_quantities[i])
                 else:
-                    flash('Зарим барааг буруу оруулсан байна!', 'danger')
-                    continue
+                    order.delivery_details.append(order_detail)
+                    connection.flush()
 
             try:
                 connection.commit()
@@ -872,73 +853,73 @@ def manager_order_add():
 
         elif form.delivery_type.data == "1":
             # warehouse
-            for i, supplier_id in enumerate(line_suppliers):
-                supplier = connection.query(models.User).filter(models.User.id==supplier_id).first()
-                is_supplier_product = connection.query(models.Product).filter(models.Product.supplier_id==supplier.id, models.Product.id==int(line_products[i])).first()
+            supplier = connection.query(models.User).filter(models.User.id==line_suppliers[0]).first()
 
-                if is_supplier_product:
-                    order = models.Delivery()
-                    order.status = "completed"
-                    order.destination_type = "local"
-                    order.order_type = "stored"
-                    order.is_ready = True
-                    order.is_manager_created = True
-                    order.is_warehouse_pickup = True
-                    order.delivery_attempts = 0
-                    
-                    order.supplier_company_name = supplier.company_name
-                    order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order = models.Delivery()
+            order.status = "completed"
+            order.destination_type = "local"
+            order.order_type = "stored"
+            order.is_ready = False
+            order.is_manager_created = True
+            order.is_warehouse_pickup = True
+            order.delivery_attempts = 0
+            order.driver_comment = request.form.get("commentInput")
+            order.assigned_driver_id = current_user.id
+            order.assigned_driver_name = f'%s %s'%(current_user.lastname, current_user.firstname)
+            order.assigned_manager_id = current_user.id
+            order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivery_region = "Зүүн"
+            
+            order.supplier_company_name = supplier.company_name
+            order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            order.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    supplier.deliveries.append(order)
+            supplier.deliveries.append(order)
+            connection.flush()
+
+            address = models.Address()
+            address.phone = form.phone.data
+            address.phone_more = form.phone_more.data
+            address.district = form.district.data
+            address.khoroo = form.khoroo.data
+            address.address = form.address.data
+            address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+            order.addresses = address
+
+            for i, product in enumerate(line_products):
+                order_detail = models.DeliveryDetail()
+                order_detail.quantity = int(line_quantities[i])
+                order_detail.product_id = int(line_products[i])
+                order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                product_price = connection.query(models.Product.price).filter(models.Product.id==int(line_products[i])).scalar()
+
+                order.total_amount = order.total_amount + (product_price * int(line_quantities[i]))
+
+                total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(line_products[i])).first()
+                total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantities[i])
+                total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+                is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(line_products[i])).first()
+
+                if is_detail:
+                    is_detail.quantity = is_detail.quantity + int(line_quantities[i])
+                else:
+                    order.delivery_details.append(order_detail)
                     connection.flush()
 
-                    address = models.Address()
-                    address.phone = form.phone.data
-                    address.phone_more = form.phone_more.data
-                    address.district = form.district.data
-                    address.khoroo = form.khoroo.data
-                    address.address = form.address.data
-                    address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            payment_detail = models.PaymentDetail()
+            payment_detail.card_amount = int(request.form.get("cardInput"))
+            payment_detail.cash_amount = int(request.form.get("cashInput"))
+            payment_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            payment_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            payment_detail.delivery_id = order.id
 
-                    order.addresses = address
-
-                    order_detail = models.DeliveryDetail()
-                    order_detail.quantity = int(line_quantities[i])
-                    order_detail.product_id = int(line_products[i])
-                    order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-
-                    product_price = connection.query(models.Product.price).filter(models.Product.id==int(line_products[i])).scalar()
-
-                    order.total_amount = product_price * int(line_quantities[i])
-
-                    total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(line_products[i])).first()
-                    total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantities[i])
-                    total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-
-                    is_detail = connection.query(models.DeliveryDetail).filter(models.DeliveryDetail.delivery_id==order.id, models.DeliveryDetail.product_id==int(line_products[i])).first()
-
-                    if is_detail:
-                        is_detail.quantity = is_detail.quantity + int(line_quantities[i])
-                    else:
-                        order.delivery_details.append(order_detail)
-                        connection.flush()
-
-                    payment_detail = models.PaymentDetail()
-                    payment_detail.card_amount = int(request.form.get("cardInput"))
-                    payment_detail.cash_amount = int(request.form.get("cashInput"))
-                    payment_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    payment_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    payment_detail.delivery_id = order.id
-
-                    connection.add(payment_detail)
-
-                else:
-                    flash('Зарим барааг буруу оруулсан байна!', 'danger')
-                    continue
+            connection.add(payment_detail)
 
             try:
                 connection.commit()

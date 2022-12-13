@@ -19,6 +19,6 @@ def search():
     orders = []
     if form.validate_on_submit():
         connection = Connection()
-        orders = connection.query(models.Delivery).filter(or_(models.Delivery.addresses.has(models.Address.phone.like('%' + form.search_text.data + '%')), models.Delivery.addresses.has(models.Address.address.like('%' + form.search_text.data + '%')), models.Delivery.addresses.has(models.Address.phone_more.like('%' + form.search_text.data + '%')))).all()
+        orders = connection.query(models.Delivery).filter(or_(models.Delivery.addresses.has(models.Address.phone.like('%' + form.search_text.data + '%')), models.Delivery.addresses.has(models.Address.address.like('%' + form.search_text.data + '%')), models.Delivery.addresses.has(models.Address.phone_more.like('%' + form.search_text.data + '%')))).limit(20)
         return render_template('/manager/results.html', orders=orders, form=form, cur_date=cur_date)
     return render_template('/manager/results.html', orders=orders, form=form, cur_date=cur_date)

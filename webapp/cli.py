@@ -310,7 +310,7 @@ def generate_supplier1_products():
     sizes = connection.query(ProductSize).all()
 
     for i, supplier in enumerate(suppliers):
-        for i in range(50):
+        for i in range(20):
             product = Product(
                 name = faker.word(),
                 price = random.randint(1000,10000),
@@ -318,7 +318,7 @@ def generate_supplier1_products():
                 usage_guide = "Use it for testing",
                 created_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
                 modified_date=datetime.now(pytz.timezone("Asia/Ulaanbaatar")),
-                image = "9427aa5fd5c047aa9d7a6cc97ad0ca17"
+                image = "645e31ac9c60438c9224943d766fc41b"
             )
             product.sizes.append(random.choice(sizes))
             product.colors.append(random.choice(colors))

@@ -9,17 +9,17 @@ import pytz
 
 accountant_driver_payment_blueprint = Blueprint('accountant_driver_payment', __name__)
 
-initial_delivery_status = ['started', 'completed', 'cancelled', 'postphoned', 'assigned', 'unassigned']
-
 @accountant_driver_payment_blueprint.route('/accountant/driver-payments', methods=['GET','POST'])
 @login_required
 @has_role('accountant')
 def accountant_driver_payments():
     connection = Connection()
     drivers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).all()
+    managers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="manager")).all()
+    
 
     form = FiltersForm()
-    form.drivers.choices = [(driver.id, f'%s %s'%(driver.lastname, driver.firstname)) for driver in drivers]
+    form.drivers.choices = [(driver.id, f'%s %s'%(driver.lastname, driver.firstname)) for driver in drivers + managers]
     form.drivers.choices.insert(0,(0,'Жолооч сонгох'))
 
     orders = []
@@ -56,7 +56,7 @@ def accountant_driver_payments():
             accountant_order_history.cash_amount = form1.cash_amount.data
             accountant_order_history.card_amount = form1.card_amount.data
             accountant_order_history.remaining_amount = form1.remaining_amount.data
-            accountant_order_history.payment_of_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) - timedelta(hours=+24)
+            accountant_order_history.date_of_payment = datetime.now(pytz.timezone("Asia/Ulaanbaatar")) - timedelta(hours=+24)
             accountant_order_history.comment = form1.comment.data
             accountant_order_history.delivery_ids = str(line_order_id)
             accountant_order_history.accountant_id = current_user.id

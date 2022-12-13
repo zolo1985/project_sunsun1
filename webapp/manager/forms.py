@@ -260,6 +260,7 @@ class OrderAddForm(FlaskForm):
     khoroo = SelectField('Хороо', choices=[], validators=[Optional()])
     aimag = SelectField('Аймаг', choices=[], validators=[Optional()])
     address = TextAreaField('Хаяг', validators=[InputRequired()])
+    # comment = TextAreaField('Тэмдэглэгээ', validators=[Optional()])
     total_amount = IntegerField('Нийт үнэ', validators=[InputRequired(), NumberRange(min=0)], default=0)
     submit = SubmitField('Үүсгэх')
 

@@ -209,6 +209,10 @@
                                         <label for="cardInput">Дансаар</label><br>
                                         <input autocomplete="off" class="form-control" step="0" name="cardInput" id="cardInput" placeholder="Дансаар" value="0" type="number" style="width: 200px;">
                                     </div>
+                                    <div class="col">
+                                        <label for="commentInput">Тэмдэглэгээ</label><br>
+                                        <input autocomplete="off" class="form-control" name="commentInput" id="commentInput" placeholder="Тэмдэглэгээ" value="" type="text" style="width: 600px;">
+                                    </div>
                                     </div>
                                 </div>
                             </section>
@@ -266,6 +270,9 @@
                     }
                 },
             });
+            if (supplier_name!="Харилцагч сонгох") {
+                $("#suppliers").hide();
+            }
         }
     </script>
     <script>
@@ -277,6 +284,7 @@
             var product_id = $('#product').find(":selected").val();
             var product_name = $('#product').find(":selected").text();
             var quantity = document.getElementById("quantityInput").value;
+            var total_amount = document.getElementById('total_amount');
 
             if (supplier_name == 'Харилцагч сонгох') {
                 alert('Харилцагч сонгоно уу!')

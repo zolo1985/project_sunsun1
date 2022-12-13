@@ -44,10 +44,9 @@
                     </form>
                     <div class="table-responsive-sm">
                         <table id="example" class="table table-lg table-bordered display" style="display: block; overflow-y: hidden; overflow-x: auto;">
-
                             <thead>
                                 <tr>
-                                    <th scope="col" class="bg-grad">Жолооч/{{ day_list | first }}-{{ day_list | last }} хооронд</th>
+                                    <th scope="col" class="bg-grad">Харилцагч/{{ day_list | first }}-{{ day_list | last }} хооронд</th>
                                     <th scope="col" class="bg-grad"></th>
                                     {% for day in day_list %}
                                         <th scope="col" class="bg-grad">
@@ -55,29 +54,27 @@
                                         </th>
                                     {% endfor %}
                                     <th scope="col" class="bg-grad">Нийт</th>
-                                    <th scope="col" class="bg-grad">Төгрөг</th>
-                                    <th scope="col" class="bg-grad">Дутуу үлдэгдэл</th>
-                                    <th scope="col" class="bg-grad">Цалин</th>
+                                    <th scope="col" class="bg-grad">Шилжүүлэх дүн</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for data in datas %}
-                                    {% set orders_total_data = namespace (order_total = 0) %}
-                                    {% set pickups_total_data = namespace (pickup_total = 0) %}
-                                    {% set dropoffs_total_data = namespace (dropoff_total = 0) %}
-                                    {% set remaining_amount = namespace (remaining_amount = 0) %}
-                                    {% for dt in data[2] %}
-                                        {% set orders_total_data.order_total = orders_total_data.order_total + dt[1] %}
-                                        {% set pickups_total_data.pickup_total = pickups_total_data.pickup_total + dt[2] %}
-                                        {% set dropoffs_total_data.dropoff_total = dropoffs_total_data.dropoff_total + dt[3] %}
-                                        {% set remaining_amount.remaining_amount = remaining_amount.remaining_amount + dt[4] %}
+                                {% for data in suppliers_datas %}
+                                    {% set orders_total_data = namespace (total_data = 0) %}
+                                    {% set daily_total_amount = namespace (total_amount = 0) %}
+                                    {% set remaing_amount = namespace (remaining_amount = 0) %}
+                                    {% set unremaing_amount = namespace (unremaining_amount = 0) %}
+                                    {% for dt in data[4] %}
+                                        {% set orders_total_data.total_data = orders_total_data.total_data + dt[1] %}
+                                        {% set daily_total_amount.total_amount = daily_total_amount.total_amount + dt[2] %}
                                     {% endfor %}
                                     <tr>
-                                        <td class="text-center align-middle" rowspan="3" style="border-bottom: 2px solid black">
-                                            <span class="fw-bold">{{ data[0] }}</span>
+                                        <td class="text-center align-middle" rowspan="4" style="border-bottom: 2px solid black">
+                                            <span>
+                                                <strong>{{ data[0] }}</strong>
+                                            </span>
                                         </td>
-                                        <td class="text-center align-middle">Хүргэлт {{ data[3] }}₮</td>
-                                        {% for dt in data[2] %}
+                                        <td class="text-center align-middle">Хүргэлт тоо</td>
+                                        {% for dt in data[4] %}
                                             <td class="text-center align-middle">
                                                 {% if dt[1]>0 %}
                                                     <span class="fw-bold">{{ dt[1] }}</span>
@@ -87,16 +84,16 @@
                                             </td>
                                         {% endfor %}
                                         <td class="text-center align-middle">
-                                            <span class="fw-bold">{{ orders_total_data.order_total }}</span>
+                                            <span class="fw-bold">{{ orders_total_data.total_data }}</span>
                                         </td>
-                                        <td class="text-center align-middle">
-                                            <span>{{ (orders_total_data.order_total * (data[3]|int))  | numberFormat }}₮</span>
-                                        </td>
-                                        <td class="text-center align-middle" rowspan="3" style="border-bottom: 2px solid black">
-                                            <span>{{ remaining_amount.remaining_amount | numberFormat }}₮</span>
-                                        </td>
-                                        <td class="text-center align-middle" rowspan="3" style="border-bottom: 2px solid black">
-                                            <span class="fw-bold">{{ ((orders_total_data.order_total * (data[3]|int) + pickups_total_data.pickup_total * (data[3]|int) + dropoffs_total_data.dropoff_total * (data[3]|int)) - remaining_amount.remaining_amount)  | numberFormat }}₮</span>
+                                        <td class="text-center align-middle" rowspan="4" style="border-bottom: 2px solid black">
+                                            <span class="fw-bold">
+                                                {% if data[3] %}
+                                                    {{ daily_total_amount.total_amount }}
+                                                {% else %}
+                                                    {{ daily_total_amount.total_amount - (data[2]*orders_total_data.total_data) }}
+                                                {% endif%}
+                                            </span>
                                         </td>
                                     </tr>
 
@@ -104,50 +101,70 @@
                                         <td class="text-center align-middle" style="display:none">
                                             <span>{{ data[0] }}</span>
                                         </td>
-                                        <td class="text-center align-middle">Таталт {{ data[3] }}₮</td>
-                                        {% for dt in data[2] %}
+                                        <td class="text-center align-middle">Шилжүүлэх дүн</td>
+                                        {% for dt in data[4] %}
                                             <td class="text-center align-middle">
-                                                {% if dt[2]>0 %}
-                                                    <span class="fw-bold">{{ dt[2] }}</span>
+                                                {{ dt[2] }}
+                                            </td>
+                                        {% endfor %}
+                                        <td class="text-center align-middle">
+                                            <span class="fw-bold">{{ daily_total_amount.total_amount }}</span>
+                                        </td>
+                                        <td style="display: none;"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="text-center align-middle" style="display:none">
+                                            <span>{{ data[0] }}</span>
+                                        </td>
+                                        <td class="text-center align-middle">Бэлэн орлого</td>
+                                        {% for dt in data[4] %}
+                                            <td class="text-center align-middle">
+                                                {% if data[3] %}
+                                                    <span>0</span>
                                                 {% else %}
-                                                    {{ dt[2] }}
+                                                    <span>{{ data[2]*dt[1] }}</span>
                                                 {% endif %}
                                             </td>
                                         {% endfor %}
                                         <td class="text-center align-middle">
-                                            <span class="fw-bold">{{ pickups_total_data.pickup_total }}</span>
+                                            <span class="fw-bold">
+                                                {% if data[3] %}
+                                                    0
+                                                {% else %}
+                                                    {{ data[2]*orders_total_data.total_data }}
+                                                {% endif %}
+                                            </span>
                                         </td>
-                                        
-                                        <td class="text-center align-middle">
-                                            <span>{{ (pickups_total_data.pickup_total * (data[3]|int)) | numberFormat }}₮</span>
-                                        </td>
-                                        <td style="display:none"></td>
-                                        <td style="display:none"></td>
+                                        <td style="display: none;"></td>
                                     </tr>
 
                                     <tr style="border-bottom: 2px solid black">
                                         <td class="text-center align-middle" style="display:none">
                                             <span>{{ data[0] }}</span>
                                         </td>
-                                        <td class="text-center align-middle">Буцаалт {{ data[3] }}₮</td>
-                                        {% for dt in data[2] %}
+                                        <td class="text-center align-middle">Бэлэн бус</td>
+                                        {% for dt in data[4] %}
                                             <td class="text-center align-middle">
-                                                {% if dt[3]>0 %}
-                                                    <span class="fw-bold">{{ dt[3] }}</span>
+                                                {% if data[3] %}
+                                                    <span>{{ data[2]*dt[1] }}</span>
                                                 {% else %}
-                                                    {{ dt[3] }}
+                                                    <span>0</span>
                                                 {% endif %}
                                             </td>
                                         {% endfor %}
                                         <td class="text-center align-middle">
-                                            <span class="fw-bold">{{ dropoffs_total_data.dropoff_total }}</span>
+                                            <span class="fw-bold">
+                                                <span class="fw-bold">
+                                                    {% if data[3] %}
+                                                        {{ data[2]*orders_total_data.total_data }}
+                                                    {% else %}
+                                                        0
+                                                    {% endif %}
+                                                </span>
+                                            </span>
                                         </td>
-                                        
-                                        <td class="text-center align-middle">
-                                            <span>{{ (dropoffs_total_data.dropoff_total * (data[3]|int)) | numberFormat }}₮</span>
-                                        </td>
-                                        <td style="display:none"></td>
-                                        <td style="display:none"></td>
+                                        <td style="display: none;"></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
