@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block main %} 
+<div class="container pt-5 pb-5 pl-2 pr-2 min-vh-100">
+    <div class="d-flex align-items-center justify-content-center">
+        <div class="col-12 col-xl-4 col-lg-4  col-md-6 col-sm-8 col-xs-12">
+            <div class="content-section">
+                <form id="form" method="POST" action="">
+                    {{ form.csrf_token }}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Нууц үг өөрчлөх</legend>
+                        <div class="form-group">
+                            {{ form.email.label(class="form-control-label") }}
+                            {% if form.email.errors %}
+                                {{ form.email(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.email(class="form-control") }}
+                            {% endif %}
+                        </div>
+                    </fieldset>
+                    <br>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn-outline-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#form").submit(function () {
+        var loader = document.createElement("div");
+        $(loader).html('<div class="preloader"><img src="{{ url_for("static", filename="images/preloader.svg") }}" alt="Pre-loader"></div>');
+        $("body").append(loader);
+    });
+</script>
+{% endblock main %}

@@ -120,71 +120,71 @@ def clerk_inventories():
 
 
 
-@clerk_inventory_blueprint.route('/clerk/supplier1/inventories/return', methods=['GET', 'POST'])
-@login_required
-@has_role('clerk')
-def clerk_inventories_return():
-    current_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
-    connection = Connection()
-    suppliers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="supplier1")).filter(models.User.is_authorized==True).all()
+# @clerk_inventory_blueprint.route('/clerk/supplier1/inventories/return', methods=['GET', 'POST'])
+# @login_required
+# @has_role('clerk')
+# def clerk_inventories_return():
+#     current_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
+#     connection = Connection()
+#     suppliers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="supplier1")).filter(models.User.is_authorized==True).all()
 
-    form = SuppliersOnlyForm()
-    form.select_supplier.choices = [(supplier.id, f'%s'%(supplier.company_name)) for supplier in suppliers]
-    form.select_supplier.choices.insert(0,(0,'Харилцагч сонгох'))
-    inventories=[]
+#     form = SuppliersOnlyForm()
+#     form.select_supplier.choices = [(supplier.id, f'%s'%(supplier.company_name)) for supplier in suppliers]
+#     form.select_supplier.choices.insert(0,(0,'Харилцагч сонгох'))
+#     inventories=[]
 
-    if form.validate_on_submit():
-        line_suppliers = request.form.getlist("supplier")
-        line_products = request.form.getlist("product")
-        line_quantities = request.form.getlist("quantity")
+#     if form.validate_on_submit():
+#         line_suppliers = request.form.getlist("supplier")
+#         line_products = request.form.getlist("product")
+#         line_quantities = request.form.getlist("quantity")
 
-        for i, supplier_id in enumerate(line_suppliers):
+#         for i, supplier_id in enumerate(line_suppliers):
 
-            for i, supplier_id in enumerate(line_suppliers):
-                supplier = connection.query(models.User).filter(models.User.id==supplier_id).first()
-                is_supplier_product = connection.query(models.Product).filter(models.Product.supplier_id==supplier.id, models.Product.id==int(line_products[i])).first()
+#             for i, supplier_id in enumerate(line_suppliers):
+#                 supplier = connection.query(models.User).filter(models.User.id==supplier_id).first()
+#                 is_supplier_product = connection.query(models.Product).filter(models.Product.supplier_id==supplier.id, models.Product.id==int(line_products[i])).first()
 
-                warehouse_quantity = connection.execute('SELECT SUM(quantity) as quantity FROM sunsundatabase1.total_inventory inventory join sunsundatabase1.product product on product.id=inventory.product_id where product.supplier_id=:current_user and product.id=:product_id group by product_id;', {'current_user': supplier_id, 'product_id': int(line_products[i])}).scalar()
+#                 warehouse_quantity = connection.execute('SELECT SUM(quantity) as quantity FROM sunsundatabase1.total_inventory inventory join sunsundatabase1.product product on product.id=inventory.product_id where product.supplier_id=:current_user and product.id=:product_id group by product_id;', {'current_user': supplier_id, 'product_id': int(line_products[i])}).scalar()
                     
-                if int(warehouse_quantity) < int(line_quantities[i]):
-                    flash(f'Агуулахад байгаа барааны тоо хүрэхгүй байна', 'danger')
-                    return redirect(url_for('clerk_inventory.clerk_inventories_return'))
+#                 if int(warehouse_quantity) < int(line_quantities[i]):
+#                     flash(f'Агуулахад байгаа барааны тоо хүрэхгүй байна', 'danger')
+#                     return redirect(url_for('clerk_inventory.clerk_inventories_return'))
 
-                if is_supplier_product:
-                    total_product_inventory = connection.query(models.TotalInventory).filter_by(product_id=line_products[i]).first()
-                    inventory = models.Inventory()
-                    inventory.quantity = -abs(int(line_quantities[i]))
-                    inventory.inventory_type = "stored"
-                    inventory.status = True
-                    inventory.product_id = line_products[i]
-                    inventory.is_returned_to_supplier = True
-                    inventory.clerk_name = f'%s %s'%(current_user.lastname, current_user.firstname)
-                    inventory.clerk_id = current_user.id
-                    inventory.supplier_id = int(supplier_id)
-                    inventory.received_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+#                 if is_supplier_product:
+#                     total_product_inventory = connection.query(models.TotalInventory).filter_by(product_id=line_products[i]).first()
+#                     inventory = models.Inventory()
+#                     inventory.quantity = -abs(int(line_quantities[i]))
+#                     inventory.inventory_type = "stored"
+#                     inventory.status = True
+#                     inventory.product_id = line_products[i]
+#                     inventory.is_returned_to_supplier = True
+#                     inventory.clerk_name = f'%s %s'%(current_user.lastname, current_user.firstname)
+#                     inventory.clerk_id = current_user.id
+#                     inventory.supplier_id = int(supplier_id)
+#                     inventory.received_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+#                     inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    total_product_inventory.quantity = total_product_inventory.quantity-int(line_quantities[i])
-                    total_product_inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    total_product_inventory.total_inventories.append(inventory)
+#                     total_product_inventory.quantity = total_product_inventory.quantity-int(line_quantities[i])
+#                     total_product_inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+#                     total_product_inventory.total_inventories.append(inventory)
 
-                else:
-                    flash('Зарим барааг буруу оруулсан байна!', 'danger')
-                    continue
+#                 else:
+#                     flash('Зарим барааг буруу оруулсан байна!', 'danger')
+#                     continue
 
-            try:
-                connection.commit()
-            except:
-                flash('Алдаа гарлаа!', 'danger')
-                connection.rollback()
-                return redirect(url_for('clerk_inventory.clerk_inventories_return'))
-            else:
-                flash('Бараанууд агуулахаас хасагдлаа.', 'success')
-                return redirect(url_for('clerk_inventory.clerk_inventories_return'))
+#             try:
+#                 connection.commit()
+#             except:
+#                 flash('Алдаа гарлаа!', 'danger')
+#                 connection.rollback()
+#                 return redirect(url_for('clerk_inventory.clerk_inventories_return'))
+#             else:
+#                 flash('Бараанууд агуулахаас хасагдлаа.', 'success')
+#                 return redirect(url_for('clerk_inventory.clerk_inventories_return'))
 
-        return render_template('/clerk/supplier1_clerk_returned_inventories.html', form=form, inventories=inventories, current_date = current_date)
+#         return render_template('/clerk/supplier1_clerk_returned_inventories.html', form=form, inventories=inventories, current_date = current_date)
 
-    return render_template('/clerk/supplier1_clerk_returned_inventories.html', form=form, inventories=inventories, current_date = current_date)
+#     return render_template('/clerk/supplier1_clerk_returned_inventories.html', form=form, inventories=inventories, current_date = current_date)
 
 
 

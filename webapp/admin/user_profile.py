@@ -6,13 +6,13 @@ from webapp.database import Connection
 from flask_login import current_user
 from webapp import models
 
+admin_profile_blueprint = Blueprint('admin_profile', __name__)
 
-driver_profile_blueprint = Blueprint('driver_profile', __name__)
-
-@driver_profile_blueprint.route('/driver/profile', methods=['GET','POST'])
+@admin_profile_blueprint.route('/admin/profile', methods=['GET','POST'])
 @login_required
-@has_role('driver')
+@has_role('admin')
 def profile():
+
     form = PasswordChangeForm()
 
     if form.validate_on_submit():
@@ -27,12 +27,12 @@ def profile():
             except Exception as e:
                 flash('Алдаа гарлаа!', 'danger')
                 connection.rollback()
-                return redirect(url_for('driver_profile.profile'))
+                return redirect(url_for('admin_profile.profile'))
             else:
                 flash('Нууц үг амжилттай өөрчлөгдлөө', 'success')
-                return redirect(url_for('driver_profile.profile'))
+                return redirect(url_for('admin_profile.profile'))
         else:
             flash('Одоо ашиглаж байгаа нууц үг буруу байна', 'danger')
-            return redirect(url_for('driver_profile.profile'))
+            return redirect(url_for('admin_profile.profile'))
 
     return render_template('/shared/profile.html', form=form, current_user_id=current_user.id)

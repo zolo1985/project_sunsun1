@@ -58,16 +58,16 @@
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ form.password(class="form-control") }}
-                                                <button id="passwordshow" type="button" class="btn" style="font-size: 12px; font-weight: 100;" onclick="javascript: togglePassword1()">Нууц үг харах</button>
+                                                {{ form.password(class="form-control mb-0") }}
+                                                <button id="passwordshow" type="button" class="btn m-0 p-0" style="font-size: 12px; font-weight: 100;" onclick="javascript: togglePassword1()">Нууц үг харах</button>
                                             {% endif %}
                                         </div>
                                     </fieldset>
                                     <div class="row align-items-center g-0 m-0">
 										<div class="col-6 col-md-8">
-                                            <span class="text-muted">Дансгүй бол? <a href="sign-up.html">данстай болох</a></span>
+                                            <span class="text-muted">Нууц үг мартсан? <a href="{{ url_for('auth.reset_request')}}">сэргээх</a></span>
                                         </div>
-										<div class="col-6 col-md-4 text-end">
+										<div class="col-6 col-md-4 text-end mt-4">
                                             {{ form.submit(class="btn btn-success") }}
                                         </div>
 									</div>

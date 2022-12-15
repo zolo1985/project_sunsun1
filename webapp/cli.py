@@ -418,6 +418,7 @@ def register(app):
         generate_regions()
         generate_districts()
         generate_aimags()
+        generate_admin()
         generate_clerks(2)
         generate_accounts(10)
         generate_managers(2)

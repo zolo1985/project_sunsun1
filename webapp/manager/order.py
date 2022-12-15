@@ -4,9 +4,8 @@ from flask_login import current_user, login_required
 from webapp.database import Connection
 from webapp import models
 from webapp.manager.forms import FilterOrderByDistrict, FiltersForm, OrderEditForm, AssignRegionAndDriverForm, DriversSelect, DriversHistoriesForm, FilterDateForm, EditCommentForm, EditAddressForm, EditTotalAmountForm, ShowCommentStatusForm, OrderAddForm, OrderDetailEditForm, SelectDriverForm, UnassignForm
-from datetime import datetime, time, timedelta
+from datetime import datetime
 from sqlalchemy import func, or_
-from webapp.utils import is_time_between
 import pytz
 
 manager_order_blueprint = Blueprint('manager_order', __name__)
