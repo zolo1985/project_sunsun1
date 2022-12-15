@@ -48,7 +48,7 @@ def supplier1_inventories():
 
     else:
         for inventory in inventories:
-            data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize(), inventory.total_inventory_product.sizes), inventory.quantity]
+            data_format = [f"%s (%s, %s)"%(inventory.total_inventory_product.name.capitalize(), inventory.total_inventory_product.colors[0], inventory.total_inventory_product.sizes[0]), inventory.quantity]
             days_list = []
             days_data = []
             for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
@@ -71,7 +71,7 @@ def supplier1_inventories():
 
         if (form.date.data.day) <= 15:
             for inventory in inventories:
-                data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
+                data_format = [f"%s (%s, %s)"%(inventory.total_inventory_product.name.capitalize(), inventory.total_inventory_product.colors[0], inventory.total_inventory_product.sizes[0]), inventory.quantity]
                 days_list = []
                 days_data = []
                 for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, 15))):
@@ -88,7 +88,7 @@ def supplier1_inventories():
                 final_inventories.append(data_format)
         else:
             for inventory in inventories:
-                data_format = [f"%s"%(inventory.total_inventory_product.name.capitalize()), inventory.quantity]
+                data_format = [f"%s (%s, %s)"%(inventory.total_inventory_product.name.capitalize(), inventory.total_inventory_product.colors[0], inventory.total_inventory_product.sizes[0]), inventory.quantity]
                 days_list = []
                 days_data = []
                 for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, calendar.monthrange(form.date.data.year, form.date.data.month)[1]))):

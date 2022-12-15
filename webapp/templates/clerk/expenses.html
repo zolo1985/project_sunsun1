@@ -33,6 +33,7 @@
                                 <table id="example" class="table table-hover">
                                     <thead>
                                         <tr>
+                                            
                                             <th scope="col" class="bg-grad">ID</th>
                                             <th scope="col" class="bg-grad">Байгууллага</th>
                                             <th scope="col" class="bg-grad">Хаяг/Утас</th>
@@ -45,6 +46,7 @@
                                     <tbody>
                                         {% for order in orders %}
                                             <tr>
+                                                
                                                 <td class="fw-bold">{{ order.id }}{{ form.order_id(class="form-control", value=order.id) }}</td>
                                                 <td style="text-align: center;" class="fw-bold">{{ order.supplier_company_name }}</td>
                                                 <td>

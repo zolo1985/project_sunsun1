@@ -217,8 +217,8 @@ def generate_admin():
     connection = Connection()
     hashed_password = bcrypt.generate_password_hash('password')
     user = User(company_name='sunsun',
-                firstname='СүнСүн',
-                lastname='СүнСүн',
+                firstname='СҮН СҮН',
+                lastname='СҮН СҮН',
                 email='admin@sunsun.com',
                 phone=faker.phone_number(),
                 status='verified',

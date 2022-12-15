@@ -8,17 +8,7 @@
                 <form id="form" method="POST" action="">
                     {{ form.csrf_token }}
                     <div class="row">
-                        <div id="orderTypeSection" class="col" style="display: block;">
-                            <section class="py-4 border mb-5 rounded-3 border-2">
-                                <div class="container">
-                                    <p style="font-size: 18px; color:black; font-weight: 500;">{{ form.order_type.label(class="form-control-label") }}</p>
-                                    {% for subfield in form.order_type %}
-                                        <p class="ms-3" style="font-size: 15px; color: black; font-weight: 400;">{{ subfield(class="form-check-input", onclick="checkDestination()") }}
-                                            {{ subfield.label }}</p>
-                                    {% endfor %}
-                                </div>
-                            </section>
-                        </div>
+                        
 
                         <div id="deliveryAddSection">
                             <div class="col">
@@ -26,6 +16,7 @@
                                     <table class="table table-hover" id="Infos">
                                         <thead>
                                             <tr>
+                                                <th scope="col" class="bg-grad">Чиглэл</th>
                                                 <th scope="col" class="bg-grad">Хүргэлт</th>
                                                 <th scope="col" class="bg-grad"></th>
                                                 <th scope="col" class="bg-grad"></th>
@@ -34,6 +25,14 @@
                                         </thead>
                                         <tbody id="main">
                                             <tr>
+                                                <td>
+                                                    <div id="orderTypeSection" class="col" style="display: block;">
+                                                        {% for subfield in form.order_type %}
+                                                            <p class="ms-3" style="font-size: 15px; color: black; font-weight: 400;">{{ subfield(class="form-check-input", onclick="checkDestination()") }}
+                                                                {{ subfield.label }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                </td>
                                                 <td>
                                                     <div class="form-group">
                                                         {{ form.phone.label(class="form-control-label") }}

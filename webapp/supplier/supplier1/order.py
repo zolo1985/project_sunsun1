@@ -312,7 +312,7 @@ def supplier1_order_add_excel():
                         insufficient_product_ids.append(product_sum["product_id"])
 
                 if len(insufficient_product_ids) > 0:
-                    flash('Сүнсүн агуулахад байгаа барааг хүрэлцэхгүй байна!', 'danger')
+                    flash('СҮН СҮН агуулахад байгаа барааг хүрэлцэхгүй байна!', 'danger')
                     return render_template('/supplier/supplier1/order_add_excel.html', cur_date=cur_date, form2=form2, form3=form3, orders=orders, insufficient_product_ids=insufficient_product_ids, order_window=order_window)
                 else:
                     for i, order in enumerate(orders):
