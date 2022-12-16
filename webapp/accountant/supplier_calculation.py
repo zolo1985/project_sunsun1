@@ -27,7 +27,7 @@ def accountant_supplier_calculations():
     form.suppliers.choices.insert(0, (0,'Харилцагч сонгох'))
     
     if form.validate_on_submit():
-        suppliers_total = connection.execute('SELECT supplier.company_name as supplier_name, count(delivery.id) as total_delivery_count, sum(delivery.total_amount) as total_amount, supplier.is_invoiced as is_invoiced, supplier.fee as fee FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) = DATE(:date) and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"date": form.select_date.data, "supplier_id": form.suppliers.data}).all()
+        suppliers_total = connection.execute('SELECT supplier.company_name as supplier_name, count(delivery.id) as total_delivery_count, sum(delivery.total_amount) as total_amount, supplier.is_invoiced as is_invoiced, supplier.fee as fee FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) = DATE(:date) and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"date": form.select_date.data, "supplier_id": form.suppliers.data}).all()
 
         return render_template('/accountant/supplier_calculation.html', form=form, suppliers_total=suppliers_total)
 
@@ -43,14 +43,14 @@ def accountant_supplier_calculations_history():
     connection = Connection()
     suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()
 
-    if current_date.day < 15:
+    if current_date.day <= 15:
         for supplier in suppliers:
             supplier_format = [supplier.company_name, supplier.id, supplier.fee, supplier.is_invoiced]
             daily_data = []
             days_data = []
             for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))):
-                day_orders = connection.execute('SELECT count(delivery.id) as total_delivery_count FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
-                day_total_amount = connection.execute('SELECT sum(delivery.total_amount) as total_amount FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
+                day_orders = connection.execute('SELECT count(delivery.id) as total_delivery_count FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
+                day_total_amount = connection.execute('SELECT sum(delivery.total_amount) as total_amount FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
                 day_format = (i.day, int(day_orders) if day_orders is not None else 0, int(day_total_amount) if day_total_amount is not None else 0)
                 daily_data.append(day_format)
                 days_data.append(i.day)
@@ -63,8 +63,8 @@ def accountant_supplier_calculations_history():
             daily_data = []
             days_data = []
             for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
-                day_orders = connection.execute('SELECT count(delivery.id) as total_delivery_count FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
-                day_total_amount = connection.execute('SELECT sum(delivery.total_amount) as total_amount FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
+                day_orders = connection.execute('SELECT count(delivery.id) as total_delivery_count FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
+                day_total_amount = connection.execute('SELECT sum(delivery.total_amount) as total_amount FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
                 day_format = (i.day, int(day_orders) if day_orders is not None else 0, int(day_total_amount) if day_total_amount is not None else 0)
                 daily_data.append(day_format)
                 days_data.append(i.day)
@@ -72,7 +72,6 @@ def accountant_supplier_calculations_history():
             supplier_format.insert(4, (daily_data))
             suppliers_datas.append(supplier_format)
 
-    print(suppliers_datas)
 
     form = DateSelect()
 
@@ -84,8 +83,8 @@ def accountant_supplier_calculations_history():
                 daily_data = []
                 days_data = []
                 for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 15))):
-                    day_orders = connection.execute('SELECT count(delivery.id) as total_delivery_count FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
-                    day_total_amount = connection.execute('SELECT sum(delivery.total_amount) as total_amount FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
+                    day_orders = connection.execute('SELECT count(delivery.id) as total_delivery_count FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
+                    day_total_amount = connection.execute('SELECT sum(delivery.total_amount) as total_amount FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
                     day_format = (i.day, int(day_orders) if day_orders is not None else 0, int(day_total_amount) if day_total_amount is not None else 0)
                     daily_data.append(day_format)
                     days_data.append(i.day)
@@ -98,14 +97,15 @@ def accountant_supplier_calculations_history():
                 daily_data = []
                 days_data = []
                 for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1]))):
-                    day_orders = connection.execute('SELECT count(delivery.id) as total_delivery_count FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
-                    day_total_amount = connection.execute('SELECT sum(delivery.total_amount) as total_amount FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and delivery.is_processed_by_accountant=true and supplier.id=:supplier_id group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
+                    day_orders = connection.execute('SELECT count(delivery.id) as total_delivery_count FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
+                    day_total_amount = connection.execute('SELECT sum(delivery.total_amount) as total_amount FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) =:day and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"day": i.date(), "supplier_id": supplier.id}).scalar()
                     day_format = (i.day, int(day_orders) if day_orders is not None else 0, int(day_total_amount) if day_total_amount is not None else 0)
                     daily_data.append(day_format)
                     days_data.append(i.day)
 
                 supplier_format.insert(4, (daily_data))
                 suppliers_datas.append(supplier_format)
+
 
         return render_template('/accountant/supplier_calculations.html', suppliers_datas=suppliers_datas, current_date=current_date, day_list=days_data, form=form)
 

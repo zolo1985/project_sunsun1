@@ -28,7 +28,7 @@ def supplier1_inventories():
 
     inventories = connection.query(models.TotalInventory).filter_by(user_id=current_user.id)
 
-    if current_date.day < 15:
+    if current_date.day <= 15:
         for inventory in inventories:
             data_format = [f"%s (%s, %s)"%(inventory.total_inventory_product.name.capitalize(), inventory.total_inventory_product.colors[0], inventory.total_inventory_product.sizes[0]), inventory.quantity]
             days_list = []

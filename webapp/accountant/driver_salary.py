@@ -20,7 +20,7 @@ def accountant_driver_salary():
     connection = Connection()
     drivers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).all()
 
-    if current_date.day < 15:
+    if current_date.day <= 15:
         for driver in drivers:
             data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
             days_list = []

@@ -41,7 +41,7 @@ def accountant_payment_histories_two_week():
     drivers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).all()
     payment_datas = []
 
-    if current_date.day < 15:
+    if current_date.day <= 15:
         for driver in drivers:
             driver_format = [f'%s %s'%(driver.lastname, driver.firstname) , driver.id]
             daily_data = []

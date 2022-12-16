@@ -33,7 +33,7 @@ def clerk_inventories():
         supplier = connection.query(models.User).filter(models.User.id==form.select_supplier.data).first()
         inventories = supplier.total_inventories
 
-        if current_date.day < 15:
+        if current_date.day <= 15:
             for inventory in inventories:
                 data_format = [f"%s (%s, %s)"%(inventory.total_inventory_product.name.capitalize(), inventory.total_inventory_product.colors[0], inventory.total_inventory_product.sizes[0]), inventory.quantity]
                 days_list = []

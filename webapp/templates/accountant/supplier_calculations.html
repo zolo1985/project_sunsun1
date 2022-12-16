@@ -54,7 +54,6 @@
                                         </th>
                                     {% endfor %}
                                     <th scope="col" class="bg-grad">Нийт</th>
-                                    <th scope="col" class="bg-grad">Шилжүүлэх дүн</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -68,7 +67,7 @@
                                         {% set daily_total_amount.total_amount = daily_total_amount.total_amount + dt[2] %}
                                     {% endfor %}
                                     <tr>
-                                        <td class="text-center align-middle" rowspan="4" style="border-bottom: 2px solid black">
+                                        <td class="text-center align-middle" rowspan="5" style="border-bottom: 2px solid black">
                                             <span>
                                                 <strong>{{ data[0] }}</strong>
                                             </span>
@@ -77,7 +76,7 @@
                                         {% for dt in data[4] %}
                                             <td class="text-center align-middle">
                                                 {% if dt[1]>0 %}
-                                                    <span class="fw-bold">{{ dt[1] }}</span>
+                                                    <span>{{ dt[1] }}</span>
                                                 {% else %}
                                                     {{ dt[1] }}
                                                 {% endif %}
@@ -85,15 +84,6 @@
                                         {% endfor %}
                                         <td class="text-center align-middle">
                                             <span class="fw-bold">{{ orders_total_data.total_data }}</span>
-                                        </td>
-                                        <td class="text-center align-middle" rowspan="4" style="border-bottom: 2px solid black">
-                                            <span class="fw-bold">
-                                                {% if data[3] %}
-                                                    {{ daily_total_amount.total_amount }}
-                                                {% else %}
-                                                    {{ daily_total_amount.total_amount - (data[2]*orders_total_data.total_data) }}
-                                                {% endif%}
-                                            </span>
                                         </td>
                                     </tr>
 
@@ -110,7 +100,6 @@
                                         <td class="text-center align-middle">
                                             <span class="fw-bold">{{ daily_total_amount.total_amount }}</span>
                                         </td>
-                                        <td style="display: none;"></td>
                                     </tr>
 
                                     <tr>
@@ -136,10 +125,9 @@
                                                 {% endif %}
                                             </span>
                                         </td>
-                                        <td style="display: none;"></td>
                                     </tr>
 
-                                    <tr style="border-bottom: 2px solid black">
+                                    <tr>
                                         <td class="text-center align-middle" style="display:none">
                                             <span>{{ data[0] }}</span>
                                         </td>
@@ -155,16 +143,38 @@
                                         {% endfor %}
                                         <td class="text-center align-middle">
                                             <span class="fw-bold">
-                                                <span class="fw-bold">
-                                                    {% if data[3] %}
-                                                        {{ data[2]*orders_total_data.total_data }}
-                                                    {% else %}
-                                                        0
-                                                    {% endif %}
-                                                </span>
+                                                {% if data[3] %}
+                                                    {{ data[2]*orders_total_data.total_data }}
+                                                {% else %}
+                                                    0
+                                                {% endif %}
                                             </span>
                                         </td>
-                                        <td style="display: none;"></td>
+                                    </tr>
+
+                                    <tr style="border-bottom: 2px solid black">
+                                        <td class="text-center align-middle" style="display:none">
+                                            <span>{{ data[0] }}</span>
+                                        </td>
+                                        <td class="text-center align-middle fw-bold">Нийт</td>
+                                        {% for dt in data[4] %}
+                                            <td class="text-center align-middle">
+                                                {% if dt[1]>0 %}
+                                                    {{ daily_total_amount.total_amount - (data[2]*dt[1]) }}
+                                                {% else %}
+                                                    123123123
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                        <td class="text-center align-middle">
+                                            <span class="fw-bold">
+                                                {% if data[3] %}
+                                                    {{ daily_total_amount.total_amount }}
+                                                {% else %}
+                                                    {{ daily_total_amount.total_amount - (data[2]*orders_total_data.total_data) }}
+                                                {% endif%}
+                                            </span>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

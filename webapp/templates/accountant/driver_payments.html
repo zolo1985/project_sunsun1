@@ -141,7 +141,8 @@
                                                     {{ orders | length }}</th>
                                                 <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Бэлнээр: ₮{{ cash_total.value }}</th>
                                                 <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Дансаар: ₮{{ card_total.value }}</th>
-                                                <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Нийт дүн: ₮<span id="totalSum">{{ tot | numberFormat }}<input type="hidden" id="ordersTotal" name="ordersTotal" value=0></span></th>
+                                                <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Нийт дүн: ₮<span id="totalSum">{{ tot | numberFormat }}</span></th>
+                                                <input type="hidden" id="ordersTotal" name="ordersTotal" value="">
                                             </tr>
                                         </thead>
                                     </table>
@@ -300,10 +301,10 @@
                 }
             }
 
-            document.getElementById('totalSum').innerText = subTotal
-            tot = document.getElementById('ordersTotal').value = subTotal
-            console.log(subTotal)
-            console.log(tot)
+            document.getElementById('totalSum').innerText = subTotal;
+            document.getElementById('ordersTotal').value = subTotal;
+            
+            console.log(subTotal);
         }
 
     </script>
