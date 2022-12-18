@@ -574,7 +574,7 @@ def manager_commented_orders():
             return redirect(url_for('manager_order.manager_commented_orders'))
         else:
             connection.close()
-            flash('Комментууд нээгдлээ.', 'success')    
+            flash('Бүх хүргэлтйин төлөв, комментууд харилцагчид харагддаг боллоо.', 'success')    
             return redirect(url_for('manager_order.manager_commented_orders'))
 
     return render_template('/manager/orders_comments.html', form=form, orders=orders, cur_date=cur_date, form1=form1)

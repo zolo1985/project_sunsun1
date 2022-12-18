@@ -28,7 +28,7 @@
                                                 <td>
                                                     <div id="orderTypeSection" class="col" style="display: block;">
                                                         {% for subfield in form.order_type %}
-                                                            <p class="ms-3" style="font-size: 15px; color: black; font-weight: 400;">{{ subfield(class="form-check-input", onclick="checkDestination()") }}
+                                                            <p style="font-size: 15px; color: black; font-weight: 400;">{{ subfield(class="form-check-input m-0", onclick="checkDestination()") }}
                                                                 {{ subfield.label }}</p>
                                                         {% endfor %}
                                                     </div>

@@ -184,3 +184,8 @@ class PasswordChangeForm(FlaskForm):
     def validate_password_again(self, confirm_password, password):
         if password.data != confirm_password.data:
             raise ValidationError('Нууц үгнүүд таарахгүй байна!')
+
+
+class DateSelect(FlaskForm):
+    select_date = DateField('Хугацаа сонгох', validators=[Optional()])
+    submit = SubmitField('Сонгох')

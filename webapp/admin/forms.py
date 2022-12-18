@@ -176,3 +176,40 @@ class PasswordChangeForm(FlaskForm):
     def validate_password_again(self, confirm_password, password):
         if password.data != confirm_password.data:
             raise ValidationError('Нууц үгнүүд таарахгүй байна!')
+
+
+class FiltersForm(FlaskForm):
+    date = DateField('Он сараар', validators=[Optional()])
+    regions = SelectField('Бүсийн нэр', choices=[], validators=[Optional()])
+    status = SelectField('Төлөв', choices=[], validators=[Optional()])
+    submit = SubmitField('Шүүх', id="submit1", name="submit1")
+
+
+class SelectOption(FlaskForm):
+    select_option = SelectField('Хугацаа', choices=[],validators=[InputRequired()])
+    date = DateField('Он сар', validators=[InputRequired()])
+    submit = SubmitField('Сонгох')
+
+
+class SelectDriverOption(FlaskForm):
+    select_option = SelectField('Хугацаа', choices=[],validators=[InputRequired()])
+    select_driver = SelectField('Жолооч', choices=[],validators=[InputRequired()])
+    date = DateField('Он сар', validators=[InputRequired()])
+    submit = SubmitField('Сонгох')
+
+
+class SelectSupplierOption(FlaskForm):
+    select_option = SelectField('Хугацаа', choices=[],validators=[InputRequired()])
+    select_supplier = SelectField('Харилцагч', choices=[],validators=[InputRequired()])
+    date = DateField('Он сар', validators=[InputRequired()])
+    submit = SubmitField('Сонгох')
+
+
+class SupplierDateSelect(FlaskForm):
+    suppliers = SelectField('Харилцагч', choices=[], validators=[InputRequired()])
+    select_date = DateField('Хугацаа сонгох', validators=[InputRequired()])
+    submit = SubmitField('Сонгох')
+
+class DateSelect(FlaskForm):
+    select_date = DateField('Хугацаа сонгох', validators=[Optional()])
+    submit = SubmitField('Сонгох')

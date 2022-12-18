@@ -1,8 +1,8 @@
-from flask import (Blueprint, render_template, flash, request, redirect, url_for, jsonify)
-from webapp import accountant, has_role
-from flask_login import current_user, login_required
+from flask import (Blueprint, render_template)
+from webapp import has_role
+from flask_login import login_required
 from webapp.database import Connection
-from webapp.accountant.forms import SupplierDateSelect, DateSelect
+from webapp.admin.forms import DateSelect
 from webapp import models
 from sqlalchemy import func, or_
 from datetime import datetime
@@ -10,38 +10,21 @@ from dateutil.rrule import DAILY,rrule
 import calendar
 import pytz
 
-accountant_supplier_calculation_blueprint = Blueprint('accountant_supplier_calculation', __name__)
+admin_supplier_balance_blueprint = Blueprint('admin_supplier_balance', __name__)
 
-@accountant_supplier_calculation_blueprint.route('/accountant/supplier/calculations', methods=['GET','POST'])
+@admin_supplier_balance_blueprint.route('/admin/supplier-balance', methods=['GET','POST'])
 @login_required
-@has_role('accountant')
-def accountant_supplier_calculations():
-    connection = Connection()
-    suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()
-    suppliers_total = []
-
-    form = SupplierDateSelect()
-    form.suppliers.choices = [(supplier.id, supplier.company_name) for supplier in suppliers]
-    form.suppliers.choices.insert(0, (0,'Харилцагч сонгох'))
-    
-    if form.validate_on_submit():
-        suppliers_total = connection.execute('SELECT supplier.company_name as supplier_name, count(delivery.id) as total_delivery_count, sum(delivery.total_amount) as total_amount, supplier.is_invoiced as is_invoiced, supplier.fee as fee FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) = DATE(:date) and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"date": form.select_date.data, "supplier_id": form.suppliers.data}).all()
-
-        return render_template('/accountant/supplier_calculation.html', form=form, suppliers_total=suppliers_total)
-
-    return render_template('/accountant/supplier_calculation.html', form=form, suppliers_total=suppliers_total)
-
-
-@accountant_supplier_calculation_blueprint.route('/accountant/supplier/calculations/history', methods=['GET','POST'])
-@login_required
-@has_role('accountant')
-def accountant_supplier_calculations_history():
+@has_role('admin')
+def admin_supplier_balances():
     current_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
     suppliers_datas = []
+    revenue_data = []
     connection = Connection()
     suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()
 
     if current_date.day <= 15:
+        revenue = connection.execute("SELECT (count(delivery.id)*supplier.fee) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date)  BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))}).all()
+        revenue_data = revenue
         for supplier in suppliers:
             supplier_format = [supplier.company_name, supplier.id, supplier.fee, supplier.is_invoiced]
             daily_data = []
@@ -56,6 +39,8 @@ def accountant_supplier_calculations_history():
             supplier_format.insert(4, (daily_data))
             suppliers_datas.append(supplier_format)
     else:
+        revenue = connection.execute("SELECT (count(delivery.id)*supplier.fee) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date) BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1])),}).all()
+        revenue_data = revenue
         for supplier in suppliers:
             supplier_format = [supplier.company_name, supplier.id, supplier.fee, supplier.is_invoiced]
             daily_data = []
@@ -70,14 +55,13 @@ def accountant_supplier_calculations_history():
             supplier_format.insert(4, (daily_data))
             suppliers_datas.append(supplier_format)
 
-
     form = DateSelect()
-
-    print(suppliers_datas)
 
     if form.select_date.data is not None and form.validate_on_submit():
         suppliers_datas = []
         if (form.select_date.data.day) <= 15:
+            revenue = connection.execute("SELECT (count(delivery.id)*supplier.fee) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date)  BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, "01")), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 15))}).all()
+            revenue_data = revenue
             for supplier in suppliers:
                 supplier_format = [supplier.company_name, supplier.id, supplier.fee, supplier.is_invoiced]
                 daily_data = []
@@ -92,6 +76,8 @@ def accountant_supplier_calculations_history():
                 supplier_format.insert(4, (daily_data))
                 suppliers_datas.append(supplier_format)
         else:
+            revenue = connection.execute("SELECT (count(delivery.id)*supplier.fee) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date)  BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 16)), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1]))}).all()
+            revenue_data = revenue
             for supplier in suppliers:
                 supplier_format = [supplier.company_name, supplier.id, supplier.fee, supplier.is_invoiced]
                 daily_data = []
@@ -107,8 +93,6 @@ def accountant_supplier_calculations_history():
                 suppliers_datas.append(supplier_format)
 
 
-        return render_template('/accountant/supplier_calculations.html', suppliers_datas=suppliers_datas, current_date=current_date, day_list=days_data, form=form)
+        return render_template('/admin/supplier_calculations.html', suppliers_datas=suppliers_datas, current_date=current_date, day_list=days_data, form=form, revenue_data=revenue_data)
 
-    return render_template('/accountant/supplier_calculations.html', suppliers_datas=suppliers_datas, current_date=current_date, day_list=days_data, form=form)
-
-    
+    return render_template('/admin/supplier_calculations.html', suppliers_datas=suppliers_datas, current_date=current_date, day_list=days_data, form=form, revenue_data=revenue_data)

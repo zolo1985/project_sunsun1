@@ -34,7 +34,7 @@
                                         <td>{{ product.name }}</td>
                                         <td>{{ product.colors | first }}</td>
                                         <td>{{ product.sizes | first }}</td>
-                                        <td style="text-align: end;">₮{{ product.price  | round | int | numberFormat }}</td>
+                                        <td style="text-align: end;">{{ product.price  | round | int | numberFormat }}₮</td>
                                         <td>{{ product.description }}</td>
                                         <td>{{ product.usage_guide }}</td>
                                         <td><a href="{{ url_for('supplier1_product.supplier1_product_edit', product_id=product.id) }}">засах</a></td>

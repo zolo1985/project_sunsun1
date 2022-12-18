@@ -70,6 +70,7 @@ def supplier1_product_add():
 
         except Exception as ex:
             flash(f'%s'%(ex), 'danger')
+            flash('Алдаа гарлаа', 'danger')
             connection.rollback()
             connection.close()
             return redirect(request.url)

@@ -25,18 +25,18 @@ def accountant_driver_salary():
             data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
             days_list = []
             days_data = []
+            driver_remaing_balance = connection.execute("SELECT sum(sap.remaining_amount) FROM sunsundatabase1.accountant_payment_history as sap where (DATE(sap.date_of_payment) BETWEEN DATE(:start_date) AND DATE(:end_date)) and sap.driver_id=:driver_id group by sap.driver_id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15)), "driver_id": driver.id}).scalar()
             for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))):
                 day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
                 day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
-                day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()
-                driver_remaing_balance = connection.execute('SELECT sum(sap.remaining_amount) FROM sunsundatabase1.accountant_payment_history as sap where DATE(sap.date_of_payment)=:day and sap.driver_id=:driver_id;', {"day": i.date(), "driver_id": driver.id}).scalar()
-                
-                day_format = (i.day,day_orders,day_pickups, day_dropoffs, int(driver_remaing_balance) if driver_remaing_balance is not None else 0)
+                day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()                
+                day_format = (i.day,day_orders,day_pickups, day_dropoffs)
                 days_list.append(day_format)
                 days_data.append(i.day)
 
             data_format.insert(2, (days_list))
             data_format.insert(3, driver.fee)
+            data_format.insert(4, int(driver_remaing_balance) if driver_remaing_balance is not None else 0)
             drivers_datas.append(data_format)
 
     else:
@@ -44,17 +44,18 @@ def accountant_driver_salary():
             data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
             days_list = []
             days_data = []
+            driver_remaing_balance = connection.execute("SELECT sum(sap.remaining_amount) FROM sunsundatabase1.accountant_payment_history as sap where (DATE(sap.date_of_payment) BETWEEN DATE(:start_date) AND DATE(:end_date)) and sap.driver_id=:driver_id group by sap.driver_id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1])), "driver_id": driver.id}).scalar()
             for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
                 day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
                 day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
                 day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()
-                driver_remaing_balance = connection.execute('SELECT sum(sap.remaining_amount) FROM sunsundatabase1.accountant_payment_history as sap where DATE(sap.date_of_payment)=:day and sap.driver_id=:driver_id;', {"day": i.date(), "driver_id": driver.id}).scalar()
-                day_format = (i.day, day_orders, day_pickups, day_dropoffs, int(driver_remaing_balance) if driver_remaing_balance is not None else 0)
+                day_format = (i.day, day_orders, day_pickups, day_dropoffs)
                 days_list.append(day_format)
                 days_data.append(i.day)
 
             data_format.insert(2, (days_list))
             data_format.insert(3, driver.fee)
+            data_format.insert(4, int(driver_remaing_balance) if driver_remaing_balance is not None else 0)
             drivers_datas.append(data_format)
 
     form = DateSelect()
@@ -68,34 +69,36 @@ def accountant_driver_salary():
                 data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
                 days_list = []
                 days_data = []
+                driver_remaing_balance = connection.execute("SELECT sum(sap.remaining_amount) FROM sunsundatabase1.accountant_payment_history as sap where (DATE(sap.date_of_payment) BETWEEN DATE(:start_date) AND DATE(:end_date)) and sap.driver_id=:driver_id group by sap.driver_id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, "01")), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 15)), "driver_id": driver.id}).scalar()
                 for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 15))):
                     day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
                     day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
                     day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()
-                    driver_remaing_balance = connection.execute('SELECT sum(sap.remaining_amount) FROM sunsundatabase1.accountant_payment_history as sap where DATE(sap.date_of_payment)=:day and sap.driver_id=:driver_id;', {"day": i.date(), "driver_id": driver.id}).scalar()
-                    day_format = (i.day,day_orders,day_pickups, day_dropoffs,int(driver_remaing_balance) if driver_remaing_balance is not None else 0)
-                    days_list.append(day_format)
-                    days_data.append(i.day)
-
-                data_format.insert(2, (days_list))
-                data_format.insert(3, driver.fee)
-                drivers_datas.append(data_format)
-        else:
-            for driver in drivers:
-                data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
-                days_list = []
-                days_data = []
-                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1]))):
-                    day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
-                    day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
-                    day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()
-                    driver_remaing_balance = connection.execute('SELECT sum(sap.remaining_amount) FROM sunsundatabase1.accountant_payment_history as sap where DATE(sap.date_of_payment)=:day and sap.driver_id=:driver_id;', {"day": i.date(), "driver_id": driver.id}).scalar()
                     day_format = (i.day,day_orders,day_pickups, day_dropoffs, int(driver_remaing_balance) if driver_remaing_balance is not None else 0)
                     days_list.append(day_format)
                     days_data.append(i.day)
 
                 data_format.insert(2, (days_list))
                 data_format.insert(3, driver.fee)
+                data_format.insert(4, int(driver_remaing_balance) if driver_remaing_balance is not None else 0)
+                drivers_datas.append(data_format)
+        else:
+            for driver in drivers:
+                data_format = [f"%s.%s"%(driver.lastname[0].capitalize(), driver.firstname), driver.id]
+                days_list = []
+                days_data = []
+                driver_remaing_balance = connection.execute("SELECT sum(sap.remaining_amount) FROM sunsundatabase1.accountant_payment_history as sap where (DATE(sap.date_of_payment) BETWEEN DATE(:start_date) AND DATE(:end_date)) and sap.driver_id=:driver_id group by sap.driver_id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 16)), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1])), "driver_id": driver.id}).scalar()
+                for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1]))):
+                    day_orders = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="delivery";', {"day": i.date(), "driver_id": driver.id}).scalar()
+                    day_pickups = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="pickup";', {"day": i.date(), "driver_id": driver.id}).scalar()
+                    day_dropoffs = connection.execute('SELECT COUNT(*) as total FROM sunsundatabase1.driver_order_history AS doh WHERE DATE(doh.delivery_date)=:day and doh.driver_id=:driver_id and doh.delivery_status="completed" and doh.type="dropoff";', {"day": i.date(), "driver_id": driver.id}).scalar()
+                    day_format = (i.day,day_orders,day_pickups, day_dropoffs, int(driver_remaing_balance) if driver_remaing_balance is not None else 0)
+                    days_list.append(day_format)
+                    days_data.append(i.day)
+
+                data_format.insert(2, (days_list))
+                data_format.insert(3, driver.fee)
+                data_format.insert(4, int(driver_remaing_balance) if driver_remaing_balance is not None else 0)
                 drivers_datas.append(data_format)
 
         return render_template('/accountant/driver_salary.html', current_date=form.select_date.data, datas = drivers_datas, day_list=days_data, form=form)

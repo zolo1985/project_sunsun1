@@ -61,50 +61,50 @@
                                     {% set added_total.added_total = added_total.added_total + dt[1] %}
                                     {% set expense_total.expense_total = expense_total.expense_total + dt[2] %}
                                 {% endfor %}
-                                <tr style="border-bottom: 2px solid black">
-                                    <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold">{{ data[0] }}</span>
+                                <tr>
+                                    <td class="text-center align-middle" rowspan="2" style="border-bottom: 2px solid black">
+                                        <span>{{ data[0] }}</span>
                                     </td>
                                     <td class="text-center align-middle">Орлого</td>
                                     {% for dt in data[2] %}
                                         <td class="text-center align-middle">
                                             {% if dt[1]>0 %}
-                                                <span class="fw-bold">{{ dt[1] }}</span>
+                                                <span>{{ dt[1] }}</span>
                                             {% else %}
                                                 {{ dt[1] }}
                                             {% endif %}
                                         </td>
                                     {% endfor %}
                                     <td class="text-center align-middle">
-                                        <span class="fw-bold">{{ (added_total.added_total)  | numberFormat }}</span>
+                                        <span>{{ (added_total.added_total)  | numberFormat }}</span>
                                     </td>
-                                    <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold" >{{ data[4] | sum | numberFormat }}</span>
+                                    <td class="text-center align-middle" rowspan="2" style="border-bottom: 2px solid black">
+                                        <span >{{ data[4] | sum | numberFormat }}</span>
                                     </td>
-                                    <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold" >{{ data[3] | numberFormat }}</span>
+                                    <td class="text-center align-middle" rowspan="2" style="border-bottom: 2px solid black">
+                                        <span >{{ data[3] | numberFormat }}₮</span>
                                     </td>
                                     
-                                    <td class="text-center align-middle" rowspan="2">
-                                        <span class="fw-bold" >{{ ((data[3] * (data[4])) | sum ) | numberFormat }}</span>
+                                    <td class="text-center align-middle" rowspan="2" style="border-bottom: 2px solid black">
+                                        <span class="fw-bold">{{ ((data[3] * (data[4])) | sum ) | numberFormat }}₮</span>
                                     </td>
                                 </tr>
                                 <tr style="border-bottom: 2px solid black">
                                     <td style="display:none">
-                                        <span class="fw-bold">{{ data[0] }}</span>
+                                        <span>{{ data[0] }}</span>
                                     </td>
                                     <td class="text-center align-middle">Зарлага</td>
                                     {% for dt in data[2] %}
                                         <td class="text-center align-middle">
                                             {% if dt[2]>0 %}
-                                                <span class="fw-bold">{{ dt[2] }}</span>
+                                                <span>{{ dt[2] }}</span>
                                             {% else %}
                                                 {{ dt[2] }}
                                             {% endif %}
                                         </td>
                                     {% endfor %}
                                     <td class="text-center align-middle">
-                                        <span class="fw-bold">{{ (expense_total.expense_total) | numberFormat }}</span>
+                                        <span>{{ (expense_total.expense_total) | numberFormat }}</span>
                                     </td>
                                     <td class="text-center align-middle" style="display:none">
                                     </td>

@@ -12,7 +12,6 @@ from flask_wtf.csrf import CSRFProtect
 
 from webapp.database import init_db
 
-
 class WebAnonymous(AnonymousUserMixin):
     def __init__(self):
         self.username = 'Guest'

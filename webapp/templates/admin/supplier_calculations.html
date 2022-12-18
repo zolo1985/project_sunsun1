@@ -42,8 +42,16 @@
                             </div>
                         </div>
                     </form>
+
+                    {% set total_revenue = namespace (total_revenue = 0) %}
+                    {% for data in revenue_data %}
+                        
+                        {% set total_revenue.total_revenue = total_revenue.total_revenue + data[0] %}
+
+                    {% endfor %}
+
                     <div class="table-responsive-sm">
-                        <table id="example" class="table table-lg table-bordered display" style="display: block; overflow-y: hidden; overflow-x: auto;">
+                        <table id="example" class="table table-lg table-bordered" style="display:block; overflow-y: hidden; overflow-x:auto;">
                             <thead>
                                 <tr>
                                     <th scope="col" class="bg-grad">Харилцагч/{{ day_list | first }}-{{ day_list | last }} хооронд</th>
@@ -53,7 +61,7 @@
                                             {{ day }}
                                         </th>
                                     {% endfor %}
-                                    <th scope="col" class="bg-grad">Нийт</th>
+                                    <th scope="col" class="bg-grad text-center">Нийт</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -132,15 +140,15 @@
                                             <span>{{ data[0] }}</span>
                                         </td>
                                         <td class="text-center align-middle">Бэлэн бус</td>
-                                            {% for dt in data[4] %}
-                                                <td class="text-center align-middle">
-                                                    {% if data[3] %}
-                                                        <span>{{ data[2]*dt[1] }}</span>
-                                                    {% else %}
-                                                        <span>0</span>
-                                                    {% endif %}
-                                                </td>
-                                            {% endfor %}
+                                        {% for dt in data[4] %}
+                                            <td class="text-center align-middle">
+                                                {% if data[3] %}
+                                                    <span>{{ data[2]*dt[1] }}</span>
+                                                {% else %}
+                                                    <span>0</span>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
                                         <td class="text-center align-middle">
                                             <span class="fw-bold">
                                                 {% if data[3] %}
@@ -157,31 +165,59 @@
                                             <span>{{ data[0] }}</span>
                                         </td>
                                         <td class="text-center align-middle fw-bold">Нийт</td>
-                                            {% for dt in data[4] %}
-                                                <td class="text-center align-middle">
-                                                    {% if data[3] %}
-                                                        {{ dt[2] }}
-                                                    {% else %}
-                                                        {{ dt[2] - (data[2]*dt[1]) }}
-                                                    {% endif %}
-                                                </td>
-                                            {% endfor %}
+                                        {% for dt in data[4] %}
+                                            <td class="text-center align-middle">
+                                                {% if dt[1]>0 %}
+                                                    {{ daily_total_amount.total_amount - (data[2]*dt[1]) }}
+                                                {% else %}
+                                                    {{ dt[1] }}
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
                                         <td class="text-center align-middle">
                                             <span class="fw-bold">
-                                            {% set total_sum = namespace (total_sum = 0) %}
-                                            {% for dt in data[4] %}
                                                 {% if data[3] %}
-                                                    {% set total_sum.total_sum = total_sum.total_sum + dt[2] %}
+                                                    {{ daily_total_amount.total_amount }}
                                                 {% else %}
-                                                    {% set total_sum.total_sum = total_sum.total_sum + (dt[2] - (data[2]*dt[1])) %}
-                                                {% endif %}
-                                            {% endfor %}
-                                            {{ total_sum.total_sum }}
+                                                    {{ daily_total_amount.total_amount - (data[2]*orders_total_data.total_data) }}
+                                                {% endif%}
                                             </span>
                                         </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="custom-header mb-4 mt-5">
+                        Орлого
+                    </h3>
+                    <div class="table-responsive-sm">
+                        <table id="revenue" class="table table-lg table-bordered display">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="bg-grad">Харилцагч</th>
+                                    <th scope="col" class="bg-grad">Нийт</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in revenue_data %}
+                                    <tr>
+                                        <td>
+                                            <span>
+                                                <strong>{{ data[1] }}</strong>
+                                            </span>
+                                        </td>
+                                        <td>{{ data[0] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td class="bg-grad"><strong>Нийт Орлого: </strong></td>
+                                    <td class="bg-grad"><strong>{{ total_revenue.total_revenue }}₮</strong></td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
