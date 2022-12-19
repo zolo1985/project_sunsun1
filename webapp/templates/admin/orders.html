@@ -3,7 +3,7 @@
     <div class="container-fluid mt-5 min-vh-100" style="width: 80%;">
         <div class="row">
             <div class="col-sm-12 mb-5">
-                <h3 class="custom-header mb-4">Өнөөдрийн Нийт Хүргэлт</h3>
+                <h3 class="custom-header mb-4">123Өнөөдрийн Нийт Хүргэлт</h3>
 
                 <section class="py-4 border mb-5 rounded-3 border-2">
                     <div class="container">
@@ -182,7 +182,7 @@
                             {% for order in orders %}
                                 <tr>
                                     <td scope="row">
-                                        <a class="fw-bold" style="color: black;" href="{{ url_for('manager_order.manager_order_detail', order_id=order.id) }}">{{ order.id }}</a>
+                                        {{ order.id }}
                                     </td>
                                     <td class="fw-bold">
                                         <p>

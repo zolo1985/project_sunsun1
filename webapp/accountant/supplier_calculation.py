@@ -73,8 +73,6 @@ def accountant_supplier_calculations_history():
 
     form = DateSelect()
 
-    print(suppliers_datas)
-
     if form.select_date.data is not None and form.validate_on_submit():
         suppliers_datas = []
         if (form.select_date.data.day) <= 15:

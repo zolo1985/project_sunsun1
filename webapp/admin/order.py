@@ -1,4 +1,4 @@
-from flask import (Blueprint, render_template, flash, request, redirect, url_for, jsonify)
+from flask import (Blueprint, render_template, redirect, url_for)
 from webapp import has_role
 from flask_login import current_user, login_required
 from webapp.database import Connection
@@ -11,7 +11,6 @@ import pytz
 admin_order_blueprint = Blueprint('admin_order', __name__)
 
 initial_delivery_status = ['Хувиарласан', 'Одоо хүргэгдэж байгаа', 'Хүргэсэн', 'Цуцалсан', 'Хойшилсон', 'Хувиарлагдаагүй']
-order_edit_order_status = ['Хувиарласан', 'Хувиарлагдаагүй']
 
 def switch_status(status):
     if status == "Хувиарласан":
