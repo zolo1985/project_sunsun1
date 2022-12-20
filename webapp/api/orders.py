@@ -210,7 +210,10 @@ def order_completed():
         job_history = models.DriverOrderHistory()
         job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
         job_history.delivery_status = "completed"
-        job_history.address = f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
+        if order.destination_type == "local":
+            job_history.address = job_history.address = f'%s, %s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address, order.addresses.phone)
+        elif order.destination_type == "long":
+            job_history.address = job_history.address = f'%s, %s, %s'%(order.addresses.aimag, order.addresses.address, order.addresses.phone)
         job_history.delivery_id = order.id
         job_history.type = "delivery"
         job_history.driver_id = current_user.id
@@ -273,7 +276,10 @@ def order_cancelled():
         job_history = models.DriverOrderHistory()
         job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
         job_history.delivery_status = "cancelled"
-        job_history.address = f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
+        if order.destination_type == "local":
+            job_history.address = job_history.address = f'%s, %s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address, order.addresses.phone)
+        elif order.destination_type == "long":
+            job_history.address = job_history.address = f'%s, %s, %s'%(order.addresses.aimag, order.addresses.address, order.addresses.phone)
         job_history.driver_id = current_user.id
         job_history.type = "delivery"
         job_history.delivery_id = order.id
@@ -360,7 +366,10 @@ def order_postphoned():
         job_history = models.DriverOrderHistory()
         job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
         job_history.delivery_status = "postphoned"
-        job_history.address = f'%s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address) if order.destination_type == "local" else f'%s, %s'%(order.addresses.aimag, order.addresses.address),
+        if order.destination_type == "local":
+            job_history.address = job_history.address = f'%s, %s, %s, %s'%(order.addresses.district, order.addresses.khoroo, order.addresses.address, order.addresses.phone)
+        elif order.destination_type == "long":
+            job_history.address = job_history.address = f'%s, %s, %s'%(order.addresses.aimag, order.addresses.address, order.addresses.phone)
         job_history.driver_id = current_user.id
         job_history.type = "delivery"
         job_history.delivery_id = order.id

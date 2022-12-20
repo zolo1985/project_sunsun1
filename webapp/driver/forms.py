@@ -3,6 +3,10 @@ from wtforms import StringField, PasswordField, SubmitField, HiddenField, Select
 from wtforms.validators import Length, Email, EqualTo, ValidationError, InputRequired, Optional, NumberRange, InputRequired
 import re
 
+class DateSelect(FlaskForm):
+    select_date = DateField('Хугацаа сонгох', validators=[Optional()])
+    submit = SubmitField('Сонгох')
+
 class DeliveryStatusForm(FlaskForm):
     current_status = SelectField('Төлөв өөрчлөх', choices=[], validators=[Optional()])
     submit = SubmitField('Төлөв өөрчлөх')

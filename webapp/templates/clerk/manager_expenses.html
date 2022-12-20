@@ -5,6 +5,27 @@
             <div class="row">
                 <div class="col-sm-12 mb-5">
                     <h3 class="custom-header mb-4">Өнөөдрийн бараа хүлээлгэж өгөх</h3>
+                    <form id="form" method="POST" action="">
+                        {{ form.csrf_token }}
+                        <div class="row g-2 m-2">
+                            <div class="col-md-3">
+                                {{ form.date.label(class="form-control-label") }}
+                                {% if form.date.errors %}
+                                    {{ form.date(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.date(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 align-self-center">
+                                {{ form.submit(class="btn btn-outline-success m-0") }}
+                            </div>
+                        </div>
+                    </form>
                     {% if orders|length > 0 %}
                         <div class="table-responsive-sm">
                             <table id="example" class="table table-hover">
@@ -72,18 +93,25 @@
                                                 {{ order.assigned_driver_name }}
                                             </td>
                                             <td>
-                                                {% if order.is_received_from_clerk %}
-                                                    <p class="text-success fw-bold">Жолооч хүлээж авах дарсан</p>
-                                                    {% if order.is_driver_received %}
+                                                {% if order.is_warehouse_pickup %}
+                                                    {% if order.is_received_from_clerk %}
                                                         <p class="text-secondary fw-bold" >Нягтлан хүлээлгэж өгсөн({{ order.received_from_clerk_date }})</p>
                                                     {% else %}
-                                                        <p class="text-danger fw-bold">Нягтлан хүлээлгэж өгөөгүй</p>
+                                                        <a class="btn btn-outline-success" href="{{ url_for('clerk_expense.clerk_warehouse_expense', order_id=order.id) }}">Хүлээлгэж өгөх</a>
                                                     {% endif %}
-                                                    <p></p>
                                                 {% else %}
-                                                    <p class="text-danger fw-bold">Нягтлан хүлээлгэж өгөөгүй</p>
-                                                    {% if not order.is_driver_received %}
-                                                        <p class="text-secondary fw-bold" >Жолооч хүлээж авах товчийг дараагүй байна!</p>
+                                                    {% if order.is_received_from_clerk %}
+                                                        <p class="text-success fw-bold">Жолооч хүлээж авах дарсан</p>
+                                                        {% if order.is_driver_received %}
+                                                            <p class="text-secondary fw-bold" >Нягтлан хүлээлгэж өгсөн({{ order.received_from_clerk_date }})</p>
+                                                        {% else %}
+                                                            <p class="text-danger fw-bold">Нягтлан хүлээлгэж өгөөгүй</p>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <p class="text-danger fw-bold">Нягтлан хүлээлгэж өгөөгүй</p>
+                                                        {% if not order.is_driver_received %}
+                                                            <p class="text-secondary fw-bold" >Жолооч хүлээж авах товчийг дараагүй байна!</p>
+                                                        {% endif %}
                                                     {% endif %}
                                                 {% endif %}
                                             </td>

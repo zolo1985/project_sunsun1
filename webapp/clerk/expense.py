@@ -4,7 +4,8 @@ from flask_login import login_required, current_user
 from webapp.database import Connection
 from webapp import models
 from datetime import datetime
-from .forms import FiltersForm, DriverOrders
+from sqlalchemy import func, or_
+from .forms import FiltersForm, DriverOrders, FilterDateForm
 import pytz
 
 clerk_expense_blueprint = Blueprint('clerk_expense', __name__)
@@ -91,10 +92,41 @@ def clerk_driver_orders_expense(order_id):
 
 
 
+@clerk_expense_blueprint.route('/clerk/warehouse/expenses/<int:order_id>')
+@login_required
+@has_role('clerk')
+def clerk_warehouse_expense(order_id):
+    connection = Connection()
+    order_to_expense = connection.query(models.Delivery).filter(models.Delivery.id==order_id).first()
+
+    try:
+        order_to_expense.is_received_from_clerk = True
+        order_to_expense.received_from_clerk_name = f'%s %s'%(current_user.lastname, current_user.firstname)
+        order_to_expense.received_from_clerk_id = current_user.id
+        order_to_expense.received_from_clerk_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+        connection.commit()
+    except Exception():
+        flash('Алдаа гарлаа!', 'danger')
+        connection.rollback()
+        connection.close()
+        return redirect(url_for('clerk_expense.clerk_manager_orders'))
+    else:
+        flash('Хүргэлт амжилттай хүлээлгэж өглөө!', 'success')
+        connection.close()
+        return redirect(url_for('clerk_expense.clerk_manager_orders'))
+
+
+
 @clerk_expense_blueprint.route('/clerk/manager/expenses', methods=['GET','POST'])
 @login_required
 @has_role('clerk')
 def clerk_manager_orders():
     connection = Connection()
-    pickup_orders = connection.query(models.Delivery).filter(models.Delivery.is_manager_created==True).all()
-    return render_template('/clerk/manager_expenses.html', orders=pickup_orders)
+    cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+    pickup_orders = connection.query(models.Delivery).filter(func.date(models.Delivery.created_date) == cur_date.date(), models.Delivery.is_manager_created==True).all()
+    form = FilterDateForm()
+
+    if form.validate_on_submit():
+        pickup_orders = connection.query(models.Delivery).filter(func.date(models.Delivery.created_date) == form.date.data, models.Delivery.is_manager_created==True).all()
+        return render_template('/clerk/manager_expenses.html', orders=pickup_orders, form=form)
+    return render_template('/clerk/manager_expenses.html', orders=pickup_orders, form=form)

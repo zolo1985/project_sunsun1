@@ -430,11 +430,11 @@ def register(app):
 
     @app.cli.command('initial-data')
     def initial_data():
+        generate_admin()
         generate_roles()
         generate_regions()
         generate_districts()
         generate_aimags()
-        generate_accounts(2)
 
     @app.cli.command('reset-data')
     def reset_data():

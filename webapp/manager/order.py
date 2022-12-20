@@ -856,6 +856,7 @@ def manager_order_add():
 
             order = models.Delivery()
             order.status = "completed"
+            order.is_delivered = True
             order.destination_type = "local"
             order.order_type = "stored"
             order.is_ready = False

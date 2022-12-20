@@ -223,7 +223,10 @@
                             </li>
                         {% elif current_user.has_role('driver')%}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('driver_job.driver_jobs')}}">Ажлууд</a>
+                                <a class="nav-link" href="{{ url_for('driver_job.driver_jobs')}}">Хүргэлтүүд</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('driver_job.driver_jobs_history')}}">Хүргэлтийн түүх</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('driver_profile.profile') }}">Данс</a>
