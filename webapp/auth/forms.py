@@ -17,15 +17,6 @@ class SignInForm(FlaskForm):
         if email.data is None:
             raise ValidationError('Имэйл хаяг оруулна уу!!!')
 
-        if email.data != email.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна!")
-
-        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        if(re.fullmatch(regex, email.data)):
-            pass
-        else:
-            raise ValidationError('Имэйл хаяг алдаатай байна!')
-
 
 class SignUpForm(FlaskForm):
     company_name = StringField('Байгууллагын нэр', validators=[DataRequired()])
@@ -72,17 +63,8 @@ class SignUpForm(FlaskForm):
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
     def validate_email(self, email):
-        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        if(re.fullmatch(regex, email.data)):
-            pass
-        else:
-            raise ValidationError('Имэйл хаяг алдаатай байна!')
-
-        if email.data != email.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна!")
-
         connection = Connection()
-        account = connection.query(models.User).filter_by(email=email.data).first()
+        account = connection.query(models.User).filter_by(email=email.data.strip()).first()
         connection.close()
         if account:
             raise ValidationError('Энэ имэйл хаяг өөр данс нь дээр бүртгэлтэй байна! Өөр имэйл хаяг ашиглана уу!')
@@ -145,17 +127,8 @@ class RequestResetForm(FlaskForm):
     submit = SubmitField('Илгээх')
 
     def validate_email(self, email):
-        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        if(re.fullmatch(regex, email.data)):
-            pass
-        else:
-            raise ValidationError('Имэйл хаяг алдаатай байна!')
-
-        if email.data != email.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
-
         connection = Connection()
-        account = connection.query(models.User).filter_by(email=email.data).first()
+        account = connection.query(models.User).filter_by(email=email.data.strip()).first()
         connection.close()
         if account is None:
             raise ValidationError('Хэрэглэгч олдсонгүй!')

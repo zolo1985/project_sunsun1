@@ -424,9 +424,9 @@ def register(app):
         generate_managers(2)
         generate_drivers(10)
         generate_accountants(2)
-        generate_supplier1_products()
-        generate_supplier2_orders()
-        generate_supplier1_inventories()
+        # generate_supplier1_products()
+        # generate_supplier2_orders()
+        # generate_supplier1_inventories()
 
     @app.cli.command('initial-data')
     def initial_data():

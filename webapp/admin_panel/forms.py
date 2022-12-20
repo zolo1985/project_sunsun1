@@ -27,9 +27,6 @@
 #         if email.data is None:
 #             raise ValidationError('Имэйл хаяг оруулна уу!!!')
 
-#         if email.data != email.data.strip():
-#             raise ValidationError("Урд хойно хоосон зай ашигласан байна!")
-
 #         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 #         if(re.fullmatch(regex, email.data)):
 #             pass
