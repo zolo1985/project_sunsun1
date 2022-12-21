@@ -93,7 +93,7 @@
                                                         {{ order_detail.quantity }}
                                                         ширхэг,
                                                         {% set odpt.order_payment_type = order_detail.payment_type %}
-                                                        ₮{{ (order_detail.products.price)  | round | int | numberFormat }}
+                                                        {{ (order_detail.products.price)  | round | int | numberFormat }}₮
                                                     </p>
                                                 {% endfor %}
                                             {% else %}

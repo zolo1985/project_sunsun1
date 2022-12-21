@@ -63,7 +63,7 @@ def supplier1_order_add():
 
     form.district.choices = [(district) for district in districts]
     form.district.choices.insert(0,'Дүүрэг сонгох')
-    form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
+    form.khoroo.choices = [(f'%s'%(khoroo+1)) for khoroo in range(50)]
     form.khoroo.choices.insert(0,'Хороо сонгох')
     form.aimag.choices = [(aimag) for aimag in aimags]
     form.aimag.choices.insert(0,'Аймаг сонгох')

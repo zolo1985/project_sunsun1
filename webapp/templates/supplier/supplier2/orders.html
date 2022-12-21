@@ -411,7 +411,7 @@
                                         <p>{{ order.addresses.phone }},
                                             {{ order.addresses.phone_more }}</p>
                                     </td>
-                                    <td style=" text-align: end;">₮{{ order.total_amount  | round | int | numberFormat }}</td>
+                                    <td style=" text-align: end;">{{ order.total_amount  | round | int | numberFormat }}₮</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

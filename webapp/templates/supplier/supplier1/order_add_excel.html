@@ -73,14 +73,14 @@
                                                                 {{ product.split(".")[1] }}
                                                                 {{ product.split(".")[2] }}
                                                                 {{ product.split(".")[3] }}</p>
-                                                            <p class="fw-bold text-danger">Үнэ: ₮{{ product.split("₮")[-1].split(",")[0] }}, Тоо ширхэг:
+                                                            <p class="fw-bold text-danger">Үнэ: {{ product.split("₮")[-1].split(",")[0] }}₮, Тоо ширхэг:
                                                                 {{ product.split(",")[1] }}</p>
                                                         {% else %}
                                                             <p>Бараа:
                                                                 {{ product.split(".")[1] }}
                                                                 {{ product.split(".")[2] }}
                                                                 {{ product.split(".")[3] }}</p>
-                                                            <p>Үнэ: ₮{{ product.split("₮")[-1].split(",")[0] }}, Тоо ширхэг:
+                                                            <p>Үнэ: {{ product.split("₮")[-1].split(",")[0] }}₮, Тоо ширхэг:
                                                                 {{ product.split(",")[1] }}</p>
                                                         {% endif %}
                                                     {% endfor %}
@@ -89,7 +89,7 @@
                                                     {% for product in order["Бараа"] %}
                                                         {% set ns.foo = ns.foo + (product.split(",")[-1] | int) * (product.split("₮")[-1].split(",")[0] | int) %}
                                                     {% endfor %}
-                                                    <p>₮{{ ns.foo }}</p>
+                                                    <p>{{ ns.foo }}₮</p>
                                                 </td>
                                                 <td>{{ order["Төлбөр"] }}</td>
                                             </tr>

@@ -360,7 +360,7 @@ def manager_order_assign_region():
     form1 = FilterOrderByDistrict()
     form1.district_names.choices = [(district) for district in districts]
     form1.district_names.choices.insert(0,'Дүүрэг сонгох')
-    form1.khoroo_names.choices = [(f'%s'%(district+1)) for district in range(32)]
+    form1.khoroo_names.choices = [(f'%s'%(district+1)) for district in range(50)]
     form1.khoroo_names.choices.insert(0,'Хороо сонгох')
 
     if form1.validate():
@@ -719,7 +719,7 @@ def manager_order_add():
     form.suppliers.choices.insert(0, (0,'Харилцагч сонгох'))
     form.district.choices = [(district) for district in districts]
     form.district.choices.insert(0,'Дүүрэг сонгох')
-    form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
+    form.khoroo.choices = [(f'%s'%(district+1)) for district in range(50)]
     form.khoroo.choices.insert(0,'Хороо сонгох')
     form.aimag.choices = [(aimag) for aimag in aimags]
     form.aimag.choices.insert(0,'Аймаг сонгох')

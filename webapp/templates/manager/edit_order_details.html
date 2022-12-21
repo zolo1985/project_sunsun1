@@ -72,7 +72,7 @@
                                                         {{ order_detail.quantity }}
                                                         ширхэг,
                                                         {% set odpt.order_payment_type = order_detail.payment_type %}
-                                                        ₮{{ (order_detail.products.price)  | round | int | numberFormat }}
+                                                        {{ (order_detail.products.price)  | round | int | numberFormat }}₮
                                                         {% if order.order_type == "stored" %}
                                                             {% if (order.status == "assigned" and order.is_driver_received == false and order.is_received_from_clerk == false) or (order.status == "unassigned") %}
                                                                 <a href="{{ url_for('manager_order.manager_orders_remove_detail', order_detail_id=order_detail.id) }}" style="color: rgb(185, 9, 0);">Хасах</a>
@@ -85,7 +85,7 @@
                                             {% endif %}
                                         </td>
                                         <td style=" text-align: end;">
-                                            ₮{{ order.total_amount  | round | int | numberFormat }}
+                                            {{ order.total_amount  | round | int | numberFormat }}₮
                                         </td>
                                     </tr>
                                 </tbody>

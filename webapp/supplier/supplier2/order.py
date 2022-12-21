@@ -55,7 +55,7 @@ def supplier2_order_add():
     form = OrderAddForm()
     form.district.choices = [(district) for district in districts]
     form.district.choices.insert(0,'Дүүрэг сонгох')
-    form.khoroo.choices = [(f'%s'%(khoroo_num+1)) for khoroo_num in range(32)]
+    form.khoroo.choices = [(f'%s'%(khoroo_num+1)) for khoroo_num in range(50)]
     form.khoroo.choices.insert(0,'Хороо сонгох')
     form.aimag.choices = [(aimag) for aimag in aimags]
     form.aimag.choices.insert(0,'Аймаг сонгох')
@@ -229,7 +229,7 @@ def supplier2_order_edit(pickup_task_id, pickup_task_detail_id):
     districts = connection.query(models.District).all()
     aimags = connection.query(models.Aimag).all()
     form.district.choices = [(district) for district in districts]
-    form.khoroo.choices = [(f'%s'%(district+1)) for district in range(32)]
+    form.khoroo.choices = [(f'%s'%(district+1)) for district in range(50)]
     form.aimag.choices = [(district) for district in aimags]
 
     if form.validate_on_submit():

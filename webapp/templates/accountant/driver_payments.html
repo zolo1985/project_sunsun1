@@ -100,7 +100,7 @@
                                                                 {{ order_detail.quantity }}
                                                                 ширхэг,
                                                                 {% set odpt.order_payment_type = order_detail.payment_type %}
-                                                                ₮{{ (order_detail.products.price*order_detail.quantity)  | round | int | numberFormat }}
+                                                                {{ (order_detail.products.price*order_detail.quantity)  | round | int | numberFormat }}₮
                                                             </p>
                                                         {% endfor %}
                                                     {% else %}
@@ -139,9 +139,9 @@
                                             <tr>
                                                 <th style="font-size: 20px;">Нийт захилга:
                                                     {{ orders | length }}</th>
-                                                <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Бэлнээр: ₮{{ cash_total.value }}</th>
-                                                <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Дансаар: ₮{{ card_total.value }}</th>
-                                                <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Нийт дүн: ₮<span id="totalSum">{{ tot | numberFormat }}</span></th>
+                                                <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Бэлнээр: {{ cash_total.value }}₮</th>
+                                                <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Дансаар: {{ card_total.value }}₮</th>
+                                                <th style="text-align: right; font-size: 20px; padding-right: 1rem;">Нийт дүн: <span id="totalSum">{{ tot | numberFormat }}₮</span></th>
                                                 <input type="hidden" id="ordersTotal" name="ordersTotal" value="">
                                             </tr>
                                         </thead>

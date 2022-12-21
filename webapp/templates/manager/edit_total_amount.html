@@ -92,7 +92,7 @@
                                                         {{ order_detail.quantity }}
                                                         ширхэг,
                                                         {% set odpt.order_payment_type = order_detail.payment_type %}
-                                                        ₮{{ (order_detail.products.price)  | round | int | numberFormat }}
+                                                        {{ (order_detail.products.price)  | round | int | numberFormat }}₮
                                                     </p>
                                                 {% endfor %}
                                             {% else %}
@@ -114,7 +114,7 @@
                                             {% endif %}
                                         </td>
                                         <td style=" text-align: end;">
-                                            ₮{{ order.total_amount  | round | int | numberFormat }}
+                                            {{ order.total_amount  | round | int | numberFormat }}₮
 
                                             {% if form.total_amount.errors %}
                                                 {{ form.total_amount(class="form-control is-invalid") }}

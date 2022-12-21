@@ -40,6 +40,7 @@ def accountant_supplier_calculations_history():
     suppliers_datas = []
     connection = Connection()
     suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()
+    days_data = []
 
     if current_date.day <= 15:
         for supplier in suppliers:

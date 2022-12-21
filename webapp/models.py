@@ -56,7 +56,7 @@ class User(Base, UserMixin):
     current_orders_list                          = Column(MutableList.as_mutable(PickleType), default=[])
     avatar_id                                    = Column(Unicode(255))
     fee                                          = Column(Integer, nullable=False, default = 3000)
-    # per_job                                      = Column(Integer, nullable=False, default = 3000)
+    per_job                                      = Column(Integer, nullable=False, default = 3000)
     created_date                                 = Column(DateTime)
     modified_date                                = Column(DateTime)
     last_login_date                              = Column(DateTime)

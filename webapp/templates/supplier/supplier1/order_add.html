@@ -229,7 +229,7 @@
                                                                 {{ order_detail.products.name }},
                                                                 {{ order_detail.quantity }}
                                                                 ширхэг,
-                                                                ₮{{ (order_detail.products.price)  | round | int | numberFormat }}
+                                                                {{ (order_detail.products.price)  | round | int | numberFormat }}₮
                                                             </p>
                                                         {% endfor %}
                                                     {% else %}
