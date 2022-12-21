@@ -16,9 +16,9 @@ class WebAnonymous(AnonymousUserMixin):
     def __init__(self):
         self.username = 'Guest'
 
-logging.basicConfig(format='%(asctime)s:%(levelname)s:%(name)s:%(message)s')
-logging.getLogger().setLevel(logging.DEBUG)
-logging.getLogger('flask_cors').level = logging.DEBUG
+# logging.basicConfig(format='%(asctime)s:%(levelname)s:%(name)s:%(message)s')
+# logging.getLogger().setLevel(logging.DEBUG)
+# logging.getLogger('flask_cors').level = logging.DEBUG
 
 log = logging.getLogger(__name__)
 bcrypt = Bcrypt()

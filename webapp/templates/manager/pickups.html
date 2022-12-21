@@ -9,7 +9,7 @@
                     <div class="col-sm-12 mb-5">
                         <h3 class="custom-header mb-4">Бараа таталт</h3>
                         <div class="table-responsive-sm">
-                            <table class="table table-hover">
+                            <table id="example" class="table table-hover">
                                 <thead>
                                     <tr>
                                         <th scope="col" class="bg-grad">#</th>
@@ -22,87 +22,86 @@
                                         <th scope="col" class="bg-grad"></th>
                                     </tr>
                                 </thead>
-                                {% for pickup in pickups %}
+                                <tbody>
+                                    {% for pickup in pickups %}
                                     {% if (pickup.status != "completed") and (pickup.status != "pickedup") %}
                                         {{ form.task_id(class="form-control", value=pickup.id) }}
                                     {% endif %}
-                                
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row"><p class="fw-bold">{{ loop.index }}.</p></th>
-                                            <td><p class="fw-bold">{{ pickup.supplier_company }}</p></td>
-                                            <td style="text-align: end;">
-                                                {% if pickup.status == "completed" %}
-                                                    <p class="text-success fw-bold">Хүргэгдсэн</p>
-                                                {% elif pickup.status == "enroute" %}
-                                                    <p class="text-info fw-bold">Жолоочид хувиарлагдсан. Жолооч аваагүй байна.</p>
-                                                {% elif pickup.status == "pickedup" %}
-                                                    <p class="text-success fw-bold">Бараа жолоочид байна.</p>
-                                                {% elif pickup.status == "waiting" %}
-                                                    <p class="text-danger fw-bold">Ажил хувиарлагдахыг хүлээж байна.</p>
-                                                {% endif %}
-                                            </td>
-                                            <td style="text-align: start;">
-                                                {% if pickup.supplier_type == "supplier1" %}
-                                                    {% for pickup_detail in pickup.pickup_details %}
-                                                        <p>{{ pickup_detail.product.name }}, {{ pickup_detail.product.colors | first }}, {{ pickup_detail.product.sizes | first }} - {{ pickup_detail.quantity }} ширхэг,</p>
-                                                    {% endfor %}
-                                                {% elif pickup.supplier_type == "supplier2" %}
-                                                    {% for pickup_detail in pickup.pickup_details %}
-                                                        <p>{{ pickup_detail.phone }}</p>
-                                                    {% endfor %}
-                                                {% endif %}
-                                            </td>
-                                            <td style="text-align: center;">
-                                                <p>{{ pickup.created_date }}</p>
-                                            </td>
-                                            <td style="text-align: center;" class="text-nowrap">
-                                                {% if  pickup.pickup_date is not none %}
-                                                    <p>{{ pickup.pickup_date.strftime('%Y-%m-%d') }}</p>
-                                                {% else %}
-                                                    <p></p>
-                                                {% endif %}
-                                            </td>
-                                            <td style="text-align: center;">
-                                                {% if pickup.driver_name %}
-                                                    <p class="fw-bold">{{ pickup.driver_name }}</p>
-                                                {% else %}
-                                                   <p class="fw-bold text-danger">Жолооч хувиарлагдаагүй байна.</p> 
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if (pickup.status != "completed") and (pickup.status != "pickedup") %}
-                                                    <div class="form-group">
-                                                        {{ form.select_day.label(class="form-control-label") }}
-                                                        {% if form.select_day.errors %}
-                                                            {{ form.select_day(class="form-control is-invalid") }}
-                                                            <div class="invalid-feedback">
-                                                                {% for error in form.select_day.errors %}
-                                                                    <span>{{ error }}</span>
-                                                                {% endfor %}
-                                                            </div>
-                                                        {% else %}
-                                                            {{ form.select_day(class="form-control") }}
-                                                        {% endif %}
-                                                    </div>
-                                                    <div class="form-group">
-                                                        {{ form.select_drivers.label(class="form-control-label") }}
-                                                        {% if form.select_drivers.errors %}
-                                                            {{ form.select_drivers(class="form-control is-invalid") }}
-                                                            <div class="invalid-feedback">
-                                                                {% for error in form.select_drivers.errors %}
-                                                                    <span>{{ error }}</span>
-                                                                {% endfor %}
-                                                            </div>
-                                                        {% else %}
-                                                            {{ form.select_drivers(class="form-control") }}
-                                                        {% endif %}
-                                                    </div>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                {% endfor %}
+                                    <tr>
+                                        <th scope="row"><p class="fw-bold">{{ loop.index }}.</p></th>
+                                        <td><p class="fw-bold">{{ pickup.supplier_company }}</p></td>
+                                        <td style="text-align: end;">
+                                            {% if pickup.status == "completed" %}
+                                                <p class="text-success fw-bold">Хүргэгдсэн</p>
+                                            {% elif pickup.status == "enroute" %}
+                                                <p class="text-info fw-bold">Жолоочид хувиарлагдсан. Жолооч аваагүй байна.</p>
+                                            {% elif pickup.status == "pickedup" %}
+                                                <p class="text-success fw-bold">Бараа жолоочид байна.</p>
+                                            {% elif pickup.status == "waiting" %}
+                                                <p class="text-danger fw-bold">Ажил хувиарлагдахыг хүлээж байна.</p>
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: start;">
+                                            {% if pickup.supplier_type == "supplier1" %}
+                                                {% for pickup_detail in pickup.pickup_details %}
+                                                    <p>{{ pickup_detail.product.name }}, {{ pickup_detail.product.colors | first }}, {{ pickup_detail.product.sizes | first }} - {{ pickup_detail.quantity }} ширхэг,</p>
+                                                {% endfor %}
+                                            {% elif pickup.supplier_type == "supplier2" %}
+                                                {% for pickup_detail in pickup.pickup_details %}
+                                                    <p>{{ pickup_detail.phone }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <p>{{ pickup.created_date }}</p>
+                                        </td>
+                                        <td style="text-align: center;" class="text-nowrap">
+                                            {% if  pickup.pickup_date is not none %}
+                                                <p>{{ pickup.pickup_date.strftime('%Y-%m-%d') }}</p>
+                                            {% else %}
+                                                <p></p>
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            {% if pickup.driver_name %}
+                                                <p class="fw-bold">{{ pickup.driver_name }}</p>
+                                            {% else %}
+                                                <p class="fw-bold text-danger">Жолооч хувиарлагдаагүй байна.</p> 
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if (pickup.status != "completed") and (pickup.status != "pickedup") %}
+                                                <div class="form-group">
+                                                    {{ form.select_day.label(class="form-control-label") }}
+                                                    {% if form.select_day.errors %}
+                                                        {{ form.select_day(class="form-control is-invalid") }}
+                                                        <div class="invalid-feedback">
+                                                            {% for error in form.select_day.errors %}
+                                                                <span>{{ error }}</span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        {{ form.select_day(class="form-control") }}
+                                                    {% endif %}
+                                                </div>
+                                                <div class="form-group">
+                                                    {{ form.select_drivers.label(class="form-control-label") }}
+                                                    {% if form.select_drivers.errors %}
+                                                        {{ form.select_drivers(class="form-control is-invalid") }}
+                                                        <div class="invalid-feedback">
+                                                            {% for error in form.select_drivers.errors %}
+                                                                <span>{{ error }}</span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        {{ form.select_drivers(class="form-control") }}
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
                             </table>
                             {% if pickups | length > 0 %}
                                 <div class="form-group float-end">
@@ -116,4 +115,63 @@
         </div>
     </section>
     <!-- END Products -->
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock main %}

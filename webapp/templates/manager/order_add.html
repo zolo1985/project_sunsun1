@@ -13,7 +13,7 @@
                                 <div class="container">
                                     <p style="font-size: 18px; color:black; font-weight: 500;">{{ form.delivery_type.label(class="form-control-label") }}</p>
                                     {% for subfield in form.delivery_type %}
-                                        <p class="ms-3" style="font-size: 15px; color: black; font-weight: 400;">{{ subfield(class="form-check-input", onclick="checkType()") }}
+                                        <p class="ms-3" style="font-size: 15px; color: black; font-weight: 400;">{{ subfield(class="form-check-input m-0", onclick="checkType()") }}
                                             {{ subfield.label }}</p>
                                     {% endfor %}
                                 </div>
@@ -24,12 +24,14 @@
                                 <div class="container">
                                     <p style="font-size: 18px; color:black; font-weight: 500;">{{ form.order_type.label(class="form-control-label") }}</p>
                                     {% for subfield in form.order_type %}
-                                        <p class="ms-3" style="font-size: 15px; color: black; font-weight: 400;">{{ subfield(class="form-check-input", onclick="checkDestination()") }}
+                                        <p class="ms-3" style="font-size: 15px; color: black; font-weight: 400;">{{ subfield(class="form-check-input m-0", onclick="checkDestination()") }}
                                             {{ subfield.label }}</p>
                                     {% endfor %}
                                 </div>
                             </section>
                         </div>
+
+                        
 
                         <div id="deliveryAddSection">
                             <div class="col">
@@ -153,72 +155,82 @@
                             </div>
                         </div>
 
-                        <div id="productAddSection">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-group">
-                                        {% if form.suppliers.errors %}
-                                            {{ form.suppliers(class="form-control is-invalid") }}
-                                            <div class="invalid-feedback">
-                                                {% for error in form.suppliers.errors %}
-                                                    <span>{{ error }}</span>
-                                                {% endfor %}
-                                            </div>
-                                        {% else %}
-                                            {{ form.suppliers(class="form-control") }}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <span class="selector-container" style="position:relative;">
-                                        <select class="searchBar form-control" id="product" style="width: 100%;"></select>
-                                    </span>
-                                </div>
-                                <div class="col-md-auto">
-                                    <input autocomplete="off" step="0" class="form-control" name="quantityInput" id="quantityInput" placeholder="Тоо ширхэг" type="number" style="width: 200px;"></div>
-                                    <div class="col-md-auto">
-                                        <a id="add-product" class="btn btn-outline-info" onclick="addProduct();">Нэмэх</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="lines" style="display: none;">
-                                    <thead>
-                                        <tr>
-                                            <th class="bg-grad" style="font-size: 14px;">Харилцагч</th>
-                                            <th class="bg-grad" style="font-size: 14px;">Бараа</th>
-                                            <th class="bg-grad" style="font-size: 14px;">Тоо ширхэг</th>
-                                            <th class="bg-grad">Хасах</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <div id="paymentSection" class="mt-3" style="display: none;">
-                            <section class="py-4 border mb-5 rounded-3 border-2">
-                                <div class="container">
-                                    <p style="font-size: 18px; color:black; font-weight: 500;">Тооцоо</p>
+                        <div class="container">
+                            <section class="py-4 border mb-5 rounded-3 border-2 p-3">
+                                <h5 class="custom-header mb-4">Бараа нэмэх хэсэг</h5>
+                                <div id="productAddSection">
                                     <div class="row">
-                                    <div class="col">
-                                        <label for="cashInput">Бэлнээр</label><br>
-                                        <input autocomplete="off" class="form-control" step="0" name="cashInput" id="cashInput" placeholder="Бэлнээр" value="0" type="number" style="width: 200px;">
+                                        <div id="suppliersSelect" class="col" style="display:block">
+                                            <div class="form-group">
+                                                {% if form.suppliers.errors %}
+                                                    {{ form.suppliers(class="form-control is-invalid") }}
+                                                    <div class="invalid-feedback">
+                                                        {% for error in form.suppliers.errors %}
+                                                            <span>{{ error }}</span>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% else %}
+                                                    {{ form.suppliers(class="form-control") }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <span class="selector-container" style="position:relative;">
+                                                <select class="searchBar form-control" id="product" style="width: 100%;"></select>
+                                            </span>
+                                        </div>
+                                        <div class="col-md-auto">
+                                            <input autocomplete="off" step="0" class="form-control" name="quantityInput" id="quantityInput" placeholder="Тоо ширхэг" type="number" max="1000000" style="width: 200px;"></div>
+                                            
+                                            <div class="col-md-auto">
+                                                <a id="add-product" class="btn btn-outline-info" onclick="addProduct();">Нэмэх</a>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col">
-                                        <label for="cardInput">Дансаар</label><br>
-                                        <input autocomplete="off" class="form-control" step="0" name="cardInput" id="cardInput" placeholder="Дансаар" value="0" type="number" style="width: 200px;">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="lines" style="display: none;">
+                                            <thead>
+                                                <tr>
+                                                    <th class="bg-grad" style="font-size: 14px;">Харилцагч</th>
+                                                    <th class="bg-grad" style="font-size: 14px;">Бараа</th>
+                                                    <th class="bg-grad" style="font-size: 14px;">Тоо ширхэг</th>
+                                                    <th class="bg-grad" style="font-size: 14px;">Нийт</th>
+                                                    <th class="bg-grad">Хасах</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
                                     </div>
-                                    <div class="col">
-                                        <label for="commentInput">Тэмдэглэгээ</label><br>
-                                        <input autocomplete="off" class="form-control" name="commentInput" id="commentInput" placeholder="Тэмдэглэгээ" value="" type="text" style="width: 600px;">
+                                    <div class="mt-3">
+                                        <label for="selectedProdcutsTotal">Барааны нийлбэр дүн</label><br>
+                                        <input id="calculateTotal" type="number" name="calculateTotal" class="form-control text-success fw-bold" value=0 readonly>
                                     </div>
-                                    </div>
+                                </div>
+                                <div id="paymentSection" class="mt-3" style="display: none;">
+                                    <section class="py-4 border mb-5 rounded-3 border-2">
+                                        <div class="container">
+                                            <p style="font-size: 18px; color:black; font-weight: 500;">Тооцоо</p>
+                                            <div class="row">
+                                            <div class="col">
+                                                <label for="cashInput">Бэлнээр</label><br>
+                                                <input autocomplete="off" class="form-control" step="0" name="cashInput" id="cashInput" placeholder="Бэлнээр" value="0" type="number" style="width: 200px;">
+                                            </div>
+                                            <div class="col">
+                                                <label for="cardInput">Дансаар</label><br>
+                                                <input autocomplete="off" class="form-control" step="0" name="cardInput" id="cardInput" placeholder="Дансаар" value="0" type="number" style="width: 200px;">
+                                            </div>
+                                            <div class="col">
+                                                <label for="commentInput">Тэмдэглэгээ</label><br>
+                                                <input autocomplete="off" class="form-control" name="commentInput" id="commentInput" placeholder="Тэмдэглэгээ" value="" type="text" style="width: 600px;">
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                                <div id="submitButton" class="form-group">
+                                    {{ form.submit(class="btn btn-outline-success") }}
                                 </div>
                             </section>
-                        </div>
-                        <div id="submitButton" class="form-group pt-5 pb-5">
-                            {{ form.submit(class="btn btn-outline-success") }}
                         </div>
                     </div>
                 </form>
@@ -271,7 +283,7 @@
                 },
             });
             if (supplier_name!="Харилцагч сонгох") {
-                $("#suppliers").hide();
+                $("#suppliersSelect").hide();
             }
         }
     </script>
@@ -311,6 +323,9 @@
                 $('#lines').find('tbody tr:last p[data-name="product_name"]').text(product_name);
                 $('#lines').find('tbody tr:last input[name="quantity"]').val(quantity);
                 $('#lines').find('tbody tr:last p[data-name="quantity_name"]').text(quantity);
+                $('#lines').find('tbody tr:last input[name="rowTotal"]').val(quantity*parseInt((product_name.split(",")[3].slice(0, -1))));
+                $('#lines').find('tbody tr:last p[data-name="row_total"]').text(quantity*parseInt((product_name.split(",")[3].slice(0, -1))));
+                document.getElementById('calculateTotal').value = parseInt(document.getElementById('calculateTotal').value) + (quantity*parseInt((product_name.split(",")[3].slice(0, -1))));
             }
         }
     </script>
@@ -396,11 +411,21 @@
                 if (districtValue == "Дүүрэг сонгох" || khorooValue == "Хороо сонгох") {
                     alert("Дүүрэг, хороо сонгоогүй байна! Сонголтоо хийгээд үргэлжлүүлнэ үү!")
                     return false;
+                } else if (cashInput == null || cashInput == "" || cardInput == null || cardInput == "") {
+                    alert("Тооцооны дүн алдаатай байна!")
+                    return false;
                 } else {
                     return true;
                 }
             }
         });
+    </script>
+    <script>
+        function findRow(data) {
+            var thisrow = data.parent().parent().find('#rowTotal').val();
+            data.parent().parent().remove();
+            document.getElementById('calculateTotal').value = parseInt(document.getElementById('calculateTotal').value) - thisrow;
+        }
     </script>
     <table style="display: none;">
         <tbody id="tr-placeholder">
@@ -418,7 +443,11 @@
                     <p data-name="quantity_name" style="font-size: 15px;"></p>
                 </td>
                 <td>
-                    <button type="button" class="btn p-0 m-0" onclick="$(this).parent().parent().remove();"><i class="bi bi-x-circle"></i></button>
+                    <input type="hidden" id="rowTotal" name="rowTotal" class="form-control" required>
+                    <p data-name="row_total" style="font-size: 15px;"></p>
+                </td>
+                <td>
+                    <button type="button" class="btn p-0 m-0" onclick="findRow($(this));"><i class="bi bi-x-circle"></i></button>
                 </td>
             </tr>
         </tbody>

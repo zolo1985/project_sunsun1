@@ -16,14 +16,14 @@ def manager_product_add_color():
     colors = connection.query(models.ProductColor).all()
 
     if form.validate_on_submit():
-        is_color = connection.query(models.ProductColor).filter(models.ProductColor.name==form.color_name.data).first()
+        is_color = connection.query(models.ProductColor).filter(models.ProductColor.name==form.color_name.data.strip()).first()
 
         if is_color:
             flash('Өнгө бүртгэлтэй байна.', 'info')
             connection.close()
             return render_template('/manager/add_color.html', colors=colors, form=form)
         else:
-            color = models.ProductColor(name=form.color_name.data)
+            color = models.ProductColor(name=form.color_name.data.strip())
             
             try:
                 connection.add(color)
@@ -48,14 +48,14 @@ def manager_product_add_size():
     sizes = connection.query(models.ProductSize).all()
 
     if form.validate_on_submit():
-        is_size = connection.query(models.ProductSize).filter(models.ProductSize.name==form.size_name.data).first()
+        is_size = connection.query(models.ProductSize).filter(models.ProductSize.name==form.size_name.data.strip()).first()
 
         if is_size:
             flash('Хэмжээ бүртгэлтэй байна.', 'info')
             connection.close()
             return render_template('/manager/add_size.html', sizes=sizes, form=form)
         else:
-            size = models.ProductSize(name=form.size_name.data)
+            size = models.ProductSize(name=form.size_name.data.strip())
             
             try:
                 connection.add(size)

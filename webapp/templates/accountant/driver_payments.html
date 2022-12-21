@@ -281,6 +281,30 @@
             });
         });
     </script>
+    <script>
+        $('#submitButton').click(function () {
+            var cashAmount = document.getElementById("cash_amount").value
+            var cardAmount = document.getElementById("card_amount").value
+            var remainingAmount = document.getElementById("remaining_amount").value
+            var totalSumAmount = document.getElementById("totalSum").innerText
+
+            if (cashAmount == null || cashAmount == "" || cardAmount == null || cardAmount == "" || remainingAmount == null || remainingAmount == "") {
+                alert("Тооцооны хэсэг алдаатай байна!")
+                return false;
+            } else if ((parseInt(cashAmount) + parseInt(cardAmount) + parseInt(remainingAmount)) != parseInt(totalSumAmount.replace(/,/g, ''))) {
+                console.log(cashAmount)
+                console.log(cardAmount)
+                console.log(remainingAmount)
+                console.log(totalSumAmount)
+                console.log(parseInt(totalSumAmount.replace(/,/g, '')))
+
+                alert("Нийлбэр дүн таарахгүй байна!")
+                return false;
+            } else {
+                return true;
+            }
+        });
+    </script>
     <script language="JavaScript">
         function toggle(source) {
             checkboxes = document.getElementsByName('orderIdValue');
@@ -303,8 +327,6 @@
 
             document.getElementById('totalSum').innerText = subTotal;
             document.getElementById('ordersTotal').value = subTotal;
-            
-            console.log(subTotal);
         }
 
     </script>

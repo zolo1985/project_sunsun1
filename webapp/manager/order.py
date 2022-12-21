@@ -896,10 +896,6 @@ def manager_order_add():
                 order_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                 order_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                product_price = connection.query(models.Product.price).filter(models.Product.id==int(line_products[i])).scalar()
-
-                order.total_amount = order.total_amount + (product_price * int(line_quantities[i]))
-
                 total_inventory_product = connection.query(models.TotalInventory).filter_by(product_id=int(line_products[i])).first()
                 total_inventory_product.quantity = total_inventory_product.quantity-int(line_quantities[i])
                 total_inventory_product.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -918,6 +914,8 @@ def manager_order_add():
             payment_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             payment_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             payment_detail.delivery_id = order.id
+            order.driver_comment = "СҮН СҮН агуулах"
+            order.total_amount = int(request.form.get("cashInput")) + int(request.form.get("cardInput"))
 
             connection.add(payment_detail)
 

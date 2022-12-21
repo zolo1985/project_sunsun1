@@ -428,7 +428,7 @@
                                         {% endif %}
                                     </td>
                                     <td style=" text-align: end;">
-                                        <span class="m-2">₮{{ order.total_amount  | round | int | numberFormat }}</span>
+                                        <p class="m-2">₮{{ order.total_amount  | round | int | numberFormat }}</p>
                                         {% if order.status == "unassigned" %}
                                             {% if order.is_postphoned %}
                                                 {% else %}

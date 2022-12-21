@@ -9,7 +9,6 @@ import re
 class SignInForm(FlaskForm):
     email = StringField('Имэйл', validators=[DataRequired(), Email("Имэйл хаяг оруулна уу!"), Length(min=6, max=255, message='Хэт урт эсвэл богино байна!')])
     password = PasswordField('Нууц үг', validators=[DataRequired(), Length(min=6, max=255, message='Хэт богино байна!')])
-    remember = BooleanField("Remember Me")
     # recaptcha = RecaptchaField()
     submit = SubmitField('Нэвтрэх')
 

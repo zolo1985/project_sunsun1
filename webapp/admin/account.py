@@ -42,7 +42,7 @@ def account(account_id):
         account_to_update = connection.query(models.User).get(account_id)
         account_to_update.email = form.email.data.strip()
         account_to_update.phone = form.phone.data.strip()
-        account_to_update.fee = form.fee.data.strip()
+        account_to_update.fee = form.fee.data
 
         try:
             connection.commit()
@@ -58,7 +58,7 @@ def account(account_id):
     elif request.method == 'GET':
         form.email.data = account.email.strip()
         form.phone.data = account.phone.strip()
-        form.fee.data = account.fee.strip()
+        form.fee.data = account.fee
         return render_template('/admin/account.html', form=form, account=account)
     return render_template('/admin/account.html', form=form, account=account)
 

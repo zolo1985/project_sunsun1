@@ -11,11 +11,11 @@ class FiltersForm(FlaskForm):
 class ReceivePaymentForm(FlaskForm):
     order_id = HiddenField()
     net_amount = HiddenField()
-    cash_amount = IntegerField('Бэлнээр', validators=[Optional(), NumberRange(min=0)], id='price')
-    card_amount = IntegerField('Дансаар', validators=[Optional(), NumberRange(min=0)], id='price')
-    remaining_amount = IntegerField('Үлдэгдэл', validators=[Optional(), NumberRange(min=0)], id='price')
+    cash_amount = IntegerField('Бэлнээр', validators=[Optional(), NumberRange(min=0)])
+    card_amount = IntegerField('Дансаар', validators=[Optional(), NumberRange(min=0)])
+    remaining_amount = IntegerField('Үлдэгдэл', validators=[Optional(), NumberRange(min=0)])
     comment = TextAreaField('Тэмдэглэгээ', validators=[Optional()])
-    submit = SubmitField('Тооцоо хийх')
+    submit = SubmitField('Тооцоо хийх', id="submitButton")
 
 class PaymentReceived(FlaskForm):
     submit = SubmitField('Тооцоогүй болгох')

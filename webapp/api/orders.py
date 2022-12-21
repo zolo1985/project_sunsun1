@@ -201,11 +201,10 @@ def order_completed():
             order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
         payment_detail = models.PaymentDetail()
-        payment_detail.card_amount = body["card"]
-        payment_detail.cash_amount = body["cash"]
+        payment_detail.card_amount = int(body["card"])
+        payment_detail.cash_amount = int(body["cash"])
         payment_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
         payment_detail.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-        payment_detail.delivery_id = order.id
 
         job_history = models.DriverOrderHistory()
         job_history.delivery_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -219,7 +218,7 @@ def order_completed():
         job_history.driver_id = current_user.id
         job_history.supplier_name = order.supplier_company_name
 
-        connection.add(payment_detail)
+        order.payment_details = payment_detail
         connection.add(job_history)
 
         try:

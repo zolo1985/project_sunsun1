@@ -4,7 +4,7 @@ from flask_login import login_required
 from webapp.database import Connection
 from webapp.accountant.forms import DateSelect
 from webapp import models
-from sqlalchemy import func
+from sqlalchemy import func, and_
 from datetime import datetime
 import calendar
 from dateutil.rrule import DAILY,rrule
@@ -37,7 +37,9 @@ def accountant_payment_histories():
 def accountant_payment_histories_two_week():
     current_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
     connection = Connection()
-    drivers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).all()
+    drivers1 = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="driver")).all()
+    managers = connection.query(models.User).filter(models.User.roles.any(models.Role.name=="manager")).all()
+    drivers=drivers1+managers
     payment_datas = []
 
     if current_date.day <= 15:
