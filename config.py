@@ -11,14 +11,13 @@ load_dotenv(dotenv_path=env_path)
 class Config(object):
 
     SERVER_NAME = os.environ.get("SERVER_NAME")
+    SECRET_KEY=os.environ.get("SECRET_KEY")
     
     CACHE_TYPE = os.environ.get("CACHE_TYPE")
     CACHE_REDIS_HOST = os.environ.get("CACHE_REDIS_HOST")
     CACHE_REDIS_PORT = os.environ.get("CACHE_REDIS_PORT")
     CACHE_REDIS_DB = os.environ.get("CACHE_REDIS_DB")
     REDIS_URL = os.environ.get("REDIS_URL")
-
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
 
     SESSION_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_DOMAIN = False
@@ -37,7 +36,9 @@ class Config(object):
     MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
 
 class ProductionConfig(Config):
-    SECRET_KEY=os.environ.get("SECRET_KEY")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    
     DEBUG=False
     # SESSION_COOKIE_SECURE = True
     JWT_TOKEN_LOCATION = json.loads(os.environ["JWT_TOKEN_LOCATION"])
@@ -49,8 +50,9 @@ class ProductionConfig(Config):
     JWT_BLACKLIST_TOKEN_CHECKS = json.loads(os.environ["JWT_BLACKLIST_TOKEN_CHECKS"])
 
 class DevelopmentConfig(Config):
-    SECRET_KEY=os.environ.get("SECRET_KEY")
-
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    
     DEBUG=True
     DEBUG_TB_INTERCEPT_REDIRECTS = False
 
