@@ -18,6 +18,8 @@ class Config(object):
     CACHE_REDIS_DB = os.environ.get("CACHE_REDIS_DB")
     REDIS_URL = os.environ.get("REDIS_URL")
 
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+
     SESSION_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_DOMAIN = False
     # USE BELOW CONFIG WITH HTTPS 

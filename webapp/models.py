@@ -634,21 +634,21 @@ class DropoffTaskDetail(Base):
     product = relationship("Product", back_populates="product_dropoffs")
 
 
-# class Expense(Base):
-#     __tablename__ = 'expense'
+class Expense(Base):
+    __tablename__ = 'expense'
 
-#     id = Column(Integer, primary_key=True)
-#     public_id = Column(Unicode(50), nullable=False, unique=True, default=generate_uuid)
+    id = Column(Integer, primary_key=True)
+    public_id = Column(Unicode(50), nullable=False, unique=True, default=generate_uuid)
 
-#     total_amount                             = Column(Integer, nullable=False, default=0)
-#     expense_type                             = Column(Unicode(255))
-#     comment                                  = Column(Text)
+    total_amount                             = Column(Integer, nullable=False, default=0)
+    expense_type                             = Column(Unicode(255))
+    comment                                  = Column(Text)
 
-#     created_date                             = Column(DateTime)
-#     modified_date                            = Column(DateTime)
+    created_date                             = Column(DateTime)
+    modified_date                            = Column(DateTime)
 
-#     approved_manager_id                      = Column(Integer)
-#     accountant_id                            = Column(Integer, ForeignKey('user.id'))
+    approved_manager_id                      = Column(Integer)
+    accountant_id                            = Column(Integer, ForeignKey('user.id'))
 
 
 # class Revenue(Base):
