@@ -2,9 +2,7 @@ import logging
 from datetime import datetime
 import pytz
 import random
-
 from faker import Faker
-
 from webapp import bcrypt
 from webapp.database import Connection
 from webapp.models import (Role, TotalInventory, User, ProductColor, Product, ProductSize, Region, District, Aimag)
@@ -15,16 +13,12 @@ log = logging.getLogger(__name__)
 
 faker = Faker()
 
-
 initial_roles = ['supplier1', 'supplier2', 'manager', 'admin', 'driver', 'accountant', 'clerk']
 initial_colors = ['Цэнхэр', 'Улаан', 'Ногоон', 'Шар', 'Хар', 'Саарал', 'Ягаан', 'Улбар шар', 'Хөх', 'Бор', 'Чирнээлийн ягаан', 'Өнгөгүй']
 initial_sizes = ['XXL', 'XL', 'L', 'M', 'S', 'XS', 'XXS', 'Тодорхойгүй']
 initial_delivery_regions = ['Хойд', 'Урд', 'Зүүн', 'Баруун', 'Баруун Хойд', 'Зүүн Хойд', 'Баруун Урд', 'Зүүн Урд']
-initial_artworks = [('webapp/static/images/menu-bg.jpg')]
-
 initial_districts = ['Хан-Уул', 'Баянзүрх', 'Сүхбаатар', 'Налайх', 'Багануур', 'Багахангай', 'Баянгол', 'Сонгинохайрхан', 'Чингэлтэй']
 initial_aimags = ['Архангай','Баян-Өлгий','Баянхонгор','Булган','Говь-Алтай','Говьсүмбэр','Дархан-Уул','Дорноговь','Дорнод','Дундговь','Завхан','Орхон','Өвөрхангай','Өмнөговь','Сүхбаатар','Сэлэнгэ','Төв','Увс','Ховд','Хөвсгөл','Хэнтий']
-
 initial_delivery_status = ['started', 'completed', 'cancelled', 'postphoned', 'assigned', 'unassigned']
 
 def generate_roles():
@@ -423,10 +417,6 @@ def register(app):
         generate_managers(2)
         generate_drivers(10)
         generate_accountants(2)
-        # generate_accounts(10)
-        # generate_supplier1_products()
-        # generate_supplier2_orders()
-        # generate_supplier1_inventories()
 
     @app.cli.command('initial-data')
     def initial_data():
@@ -435,6 +425,13 @@ def register(app):
         generate_regions()
         generate_districts()
         generate_aimags()
+
+    @app.cli.command('test-suppliers')
+    def test_suppliers():
+        generate_accounts(10)
+        generate_supplier1_products()
+        generate_supplier2_orders()
+        generate_supplier1_inventories()
 
     @app.cli.command('reset-data')
     def reset_data():

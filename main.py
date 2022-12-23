@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta, time
+from datetime import timedelta
 
 from flask import session
 
@@ -19,10 +19,10 @@ def before_request():
 @app.after_request
 def after_request(response):
     Connection.close()
-    # response.headers['X-Content-Type-Options'] = 'nosniff'
-    # response.headers["Cache-Control"] = "must-revalidate=86400, max-age=60"
-    # response.headers["Strict-Transport-Security"] = "max-age=31536000 ; includeSubDomains"
-    # response.headers["X-Frame-Options"] = "deny"
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers["Cache-Control"] = "must-revalidate=86400, max-age=60"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000 ; includeSubDomains"
+    response.headers["X-Frame-Options"] = "deny"
     return response
 
 @app.teardown_appcontext
