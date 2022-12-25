@@ -19,6 +19,7 @@ def admin_supplier_balances():
     current_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
     suppliers_datas = []
     revenue_data = []
+    days_data = []
     connection = Connection()
     suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()
 

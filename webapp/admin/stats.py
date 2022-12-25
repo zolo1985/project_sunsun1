@@ -565,13 +565,13 @@ def admin_revenue():
     day_list = []
 
     if current_date.day <= 15:
-        revenue = connection.execute("SELECT (count(delivery.id)*supplier.fee) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date)  BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))}).all()
+        revenue = connection.execute("SELECT (count(delivery.id)*supplier.per_job) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date)  BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))}).all()
         revenue_data = revenue
         for n in range(16):
             day_list.append(n)
         
     else:
-        revenue = connection.execute("SELECT (count(delivery.id)*supplier.fee) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date) BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1])),}).all()
+        revenue = connection.execute("SELECT (count(delivery.id)*supplier.per_job) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date) BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1])),}).all()
         revenue_data = revenue
         for n in range(16, calendar.monthrange(current_date.year, current_date.month)[1] + 1):
             day_list.append(n)
@@ -580,13 +580,13 @@ def admin_revenue():
 
     if form.select_date.data is not None and form.validate_on_submit():
         if (form.select_date.data.day) <= 15:
-            revenue = connection.execute("SELECT (count(delivery.id)*supplier.fee) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date)  BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, "01")), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 15))}).all()
+            revenue = connection.execute("SELECT (count(delivery.id)*supplier.per_job) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date)  BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, "01")), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 15))}).all()
             revenue_data = revenue
             for n in range(16):
                 day_list.append(n)
 
         else:
-            revenue = connection.execute("SELECT (count(delivery.id)*supplier.fee) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date)  BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 16)), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1]))}).all()
+            revenue = connection.execute("SELECT (count(delivery.id)*supplier.per_job) as revenue, supplier.company_name as revenue_from FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where (DATE(delivery.delivered_date)  BETWEEN DATE(:start_date) AND DATE(:end_date)) and delivery.is_delivered=true group by supplier.id;", {"start_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, 16)), "end_date": datetime.fromisoformat(f'%s-%02d-%s'%(form.select_date.data.year, form.select_date.data.month, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1]))}).all()
             revenue_data = revenue
             for n in range(16, calendar.monthrange(form.select_date.data.year, form.select_date.data.month)[1] + 1):
                 day_list.append(n)
