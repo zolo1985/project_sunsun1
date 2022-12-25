@@ -64,5 +64,11 @@ class DevelopmentConfig(Config):
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = json.loads(os.environ["JWT_BLACKLIST_TOKEN_CHECKS"])
 
-class TestingConfig(Config):
-    TESTING = True
+class TestConfig(Config):
+    DEBUG = True
+    DEBUG_TB_ENABLED = False
+
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:swainers1@localhost/testdatabase?charset=utf8mb4'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    CACHE_TYPE = 'simple'
+    WTF_CSRF_ENABLED = False

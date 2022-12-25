@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 import pytz
 import random
+import click
 from faker import Faker
 from webapp import bcrypt
 from webapp.database import Connection
@@ -440,3 +441,57 @@ def register(app):
     @app.cli.command('gen-admin')
     def gen_admin():
         generate_admin()
+
+    @app.cli.command('create-user')
+    @click.argument('username')
+    @click.argument('password')
+    def create_user(username, password):
+        user = User()
+        user.username = username
+        user.set_password(password)
+        connection = Connection()
+        try:
+            connection.add(user)
+            connection.commit()
+            click.echo('User {0} Added.'.format(username))
+        except Exception as e:
+            log.error("Fail to add new user: %s Error: %s" % (username, e))
+            connection.rollback()
+
+    @app.cli.command('create-admin')
+    @click.argument('company_name')
+    @click.argument('firstname')
+    @click.argument('lastname')
+    @click.argument('password')
+    def create_admin(company_name, firstname, lastname, password):
+        connection = Connection()
+        admin_role = connection.query(models.Role).filter(models.Role.name=="admin").first()
+        user = User()
+        user.company_name = company_name
+        user.firstname = firstname
+        user.lastname = lastname
+        user.set_password(password)
+        user.roles.append(admin_role)
+        try:
+            connection.add(user)
+            connection.commit()
+            click.echo('User {0} Added.'.format(firstname))
+        except Exception as e:
+            log.error("Fail to add new user: %s Error: %s" % (firstname, e))
+            connection.rollback()
+
+    @app.cli.command('list-users')
+    def list_users():
+        try:
+            connection = Connection()
+            users = connection.query(models.User).all()
+            for user in users:
+                click.echo('{0}'.format(user.firstname))
+        except Exception as e:
+            log.error("Fail to list users Error: %s" % e)
+            connection.rollback()
+
+    @app.cli.command('list-routes')
+    def list_routes():
+        for url in app.url_map.iter_rules():
+            click.echo("%s %s %s" % (url.rule, url.methods, url.endpoint))

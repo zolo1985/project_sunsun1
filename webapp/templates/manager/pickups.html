@@ -24,11 +24,8 @@
                                 </thead>
                                 <tbody>
                                     {% for pickup in pickups %}
-                                    {% if (pickup.status != "completed") and (pickup.status != "pickedup") %}
-                                        {{ form.task_id(class="form-control", value=pickup.id) }}
-                                    {% endif %}
                                     <tr>
-                                        <th scope="row"><p class="fw-bold">{{ loop.index }}.</p></th>
+                                        <th scope="row"><p class="fw-bold">{{ loop.index }}. {{ form.task_id(class="form-control", value=pickup.id) }}</p></th>
                                         <td><p class="fw-bold">{{ pickup.supplier_company }}</p></td>
                                         <td style="text-align: end;">
                                             {% if pickup.status == "completed" %}
@@ -104,7 +101,7 @@
                                 </tbody>
                             </table>
                             {% if pickups | length > 0 %}
-                                <div class="form-group float-end">
+                                <div class="form-group float-end mt-5">
                                     {{ form.submit(class="btn btn-outline-success") }}
                                 </div>
                             {% endif %}

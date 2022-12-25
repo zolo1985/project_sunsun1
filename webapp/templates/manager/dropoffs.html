@@ -9,7 +9,7 @@
                     <div class="col-sm-12 mb-5">
                         <h3 class="custom-header mb-4">Бараа буцаалт</h3>
                         <div class="table-responsive-sm">
-                            <table class="table table-hover">
+                            <table id="example" class="table table-hover">
                                 <thead>
                                     <tr>
                                         <th scope="col" class="bg-grad">#</th>
@@ -23,12 +23,9 @@
                                     </tr>
                                 </thead>
                                 {% for dropoff in dropoffs %}
-                                    {% if (dropoff.status != "completed") %}
-                                        {{ form.task_id(class="form-control", value=dropoff.id) }}
-                                    {% endif %}
                                     <tbody>
                                         <tr>
-                                            <th scope="row"><p class="fw-bold">{{ loop.index }}.</p></th>
+                                            <th scope="row"><p class="fw-bold">{{ loop.index }}. {{ form.task_id(class="form-control", value=dropoff.id) }}</p></th>
                                             <td><p class="fw-bold">{{ dropoff.supplier_company }}</p></td>
                                             <td style="text-align: end;">
                                                 {% if dropoff.status == "waiting" %}
@@ -95,4 +92,63 @@
         </div>
     </section>
     <!-- END Products -->
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csvHtml5',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">CSV файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    }, {
+                        extend: 'print',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">Хэвлэх</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        text: '<a class="btn btn-outline-secondary m-2" style="float: left;">XLS файл татах</a>',
+                        tag: 'span',
+                        exportOptions: {
+                            modifier: {
+                                search: 'none'
+                            }
+                        }
+                    },
+                ],
+                "columnDefs": [
+                    {
+                        "orderData": [0, 1]
+                    },
+                ],
+                pageLength: 50,
+                lengthMenu: [
+                    50, 100, 200, 500
+                ],
+                "language": {
+                    "lengthMenu": "_MENU_ эгнээ харах",
+                    "zeroRecords": "Дата алга",
+                    "info": "_PAGES_ хуудаснаас _PAGE_-р хуудас. Нийт: _TOTAL_ хүргэлт",
+                    "infoEmpty": "",
+                    "sSearch": "Хайх",
+                    "paginate": {
+                        "previous": "өмнөх",
+                        "next": "дараа"
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock main %}

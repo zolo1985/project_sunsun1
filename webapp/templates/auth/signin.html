@@ -31,7 +31,7 @@
 					<div class="row h-100">
 						<div class="col-12 col-md-10 col-lg-5 text-start mx-auto d-flex align-items-center">
 							<div class="w-100">
-                                <form id="form" method="POST" action="">
+                                <form id="form" method="POST" action="{{ url_for('auth.signin')}}">
                                     {{ form.csrf_token }}
                                     <fieldset class="form-group">
                                         <h2 class="mb-5">Нэвтрэх</h2>
