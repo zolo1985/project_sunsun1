@@ -27,7 +27,7 @@ def manager_dropoffs():
         line_select_drivers_id = request.form.getlist("select_drivers")
 
         for i, task in enumerate(line_task_id):
-            if line_select_drivers_id[i] == "0" or line_select_drivers_id[i] is None:
+            if line_select_drivers_id[i] == "0":
                 continue
 
             driver_name = connection.query(models.User).get(int(line_select_drivers_id[i]))
@@ -47,17 +47,17 @@ def manager_dropoffs():
             dropoff_history.type = "dropoff"
             dropoff_history.dropoff_id = task.id
             dropoff_history.supplier_name = task.supplier_company
+            connection.add(dropoff_history)
             
-            try:
-                connection.add(dropoff_history)
-                connection.commit()
-            except Exception:
-                connection.rollback()
-                connection.close()
-            else:
-                connection.close()
-
-        return redirect(url_for('manager_dropoff.manager_dropoffs'))
+        try:
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            flash('Алдаа гарлаа.', 'danger')
+            return redirect(url_for('manager_dropoff.manager_dropoffs'))
+        else:
+            flash('Жолооч сонгодлоо', 'success')
+            return redirect(url_for('manager_dropoff.manager_dropoffs'))
 
     return render_template('/manager/dropoffs.html', dropoffs=dropoffs, form=form)
 

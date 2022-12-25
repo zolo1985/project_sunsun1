@@ -12,7 +12,7 @@
                             <table id="example" class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th scope="col" class="bg-grad">#</th>
+                                        <th scope="col" class="bg-grad">ID</th>
                                         <th scope="col" class="bg-grad">Харилцагч</th>
                                         <th scope="col" class="bg-grad">Төлөв</th>
                                         <th scope="col" class="bg-grad">Дэлгэрэнгүй</th>
@@ -25,7 +25,7 @@
                                 <tbody>
                                     {% for pickup in pickups %}
                                     <tr>
-                                        <th scope="row"><p class="fw-bold">{{ loop.index }}. {{ form.task_id(class="form-control", value=pickup.id) }}</p></th>
+                                        <th scope="row"><p class="fw-bold">{{ pickup.id }}{{ form.task_id(class="form-control", value=pickup.id) }}</p></th>
                                         <td><p class="fw-bold">{{ pickup.supplier_company }}</p></td>
                                         <td style="text-align: end;">
                                             {% if pickup.status == "completed" %}

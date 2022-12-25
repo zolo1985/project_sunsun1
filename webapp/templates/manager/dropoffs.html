@@ -12,7 +12,7 @@
                             <table id="example" class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th scope="col" class="bg-grad">#</th>
+                                        <th scope="col" class="bg-grad">ID</th>
                                         <th scope="col" class="bg-grad">Харилцагч</th>
                                         <th scope="col" class="bg-grad">Төлөв</th>
                                         <th scope="col" class="bg-grad">Дэлгэрэнгүй</th>
@@ -25,7 +25,7 @@
                                 {% for dropoff in dropoffs %}
                                     <tbody>
                                         <tr>
-                                            <th scope="row"><p class="fw-bold">{{ loop.index }}. {{ form.task_id(class="form-control", value=dropoff.id) }}</p></th>
+                                            <th><p class="fw-bold">{{ dropoff.id }}{{ form.task_id(class="form-control", value=dropoff.id) }}</p></th>
                                             <td><p class="fw-bold">{{ dropoff.supplier_company }}</p></td>
                                             <td style="text-align: end;">
                                                 {% if dropoff.status == "waiting" %}

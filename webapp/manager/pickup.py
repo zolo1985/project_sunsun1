@@ -31,8 +31,12 @@ def manager_pickups():
         line_select_drivers_id = request.form.getlist("select_drivers")
         line_select_day = request.form.getlist("select_day")
 
+        print(line_task_id)
+        print(line_select_drivers_id)
+        print(line_select_day)
+
         for i, task in enumerate(line_task_id):
-            if line_select_drivers_id[i] == "0" or line_select_drivers_id[i] is None:
+            if line_select_drivers_id[i] == "0":
                 continue
 
             driver_name = connection.query(models.User).get(int(line_select_drivers_id[i]))
@@ -45,15 +49,16 @@ def manager_pickups():
             task.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             task.assigned_manager_name = current_user.firstname
             
-            try:
-                connection.commit()
-            except Exception:
-                connection.rollback()
-                connection.close()
-            else:
-                connection.close()
+        try:
+            connection.commit()
+        except Exception:
+            flash('Алдаа гарлаа.', 'danger')
+            connection.rollback()
+            return redirect(url_for('manager_pickup.manager_pickups'))
+        else:
+            flash('Жолооч сонгодлоо', 'success')
+            return redirect(url_for('manager_pickup.manager_pickups'))
 
-        return redirect(url_for('manager_pickup.manager_pickups'))
     return render_template('/manager/pickups.html', pickups=pickups, form=form)
 
 
