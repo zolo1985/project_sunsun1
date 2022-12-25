@@ -9,11 +9,11 @@ source venv/bin/activate
 pip install -r requirements.txt 
 
 export FLASK_APP=main.py
-if [ ! -d "migrations" ]; then
+if [ ! -d "alembic" ]; then
     echo --------------------
-    echo INIT THE migrations folder
+    echo INIT THE alembic folder
     echo --------------------
-    alembic init migrations
+    alembic init alembic
     export FLASK_APP=main.py;
 fi
 echo --------------------
