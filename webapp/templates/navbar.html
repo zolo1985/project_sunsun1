@@ -282,6 +282,7 @@
                                         <ul class="list-unstyled w-100 w-sm-50 pe-0 pe-lg-5">
                                             <a class="dropdown-item" href="{{ url_for('clerk_expense.clerk_driver_orders')}}">Бараа хүлээлгэж өгөх</a>
                                             <a class="dropdown-item" href="{{ url_for('clerk_expense.clerk_manager_orders')}}">Агуулахаас хүлээлгэж өгөх</a>
+                                            <a class="dropdown-item" href="{{ url_for('clerk_expense.clerk_driver_orders_history')}}">Түүх</a>
                                         </ul>
                                     </div>
                                 </div>
@@ -374,7 +375,7 @@
                             <a class="nav-link" href="#">Үйл ажиллагаа</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.signin') }}"><i class="fa-regular fa-right-to-bracket"></i> Нэвтрэх</a>
+                            <a class="nav-link" href="{{ url_for('auth.signin') }}"><i class="fa-solid fa-right-to-bracket"></i> Нэвтрэх</a>
                         </li>
                     {% endif %}
                 </ul>

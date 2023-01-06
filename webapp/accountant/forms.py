@@ -25,7 +25,6 @@ class DateSelect(FlaskForm):
     submit = SubmitField('Сонгох')
 
 class SupplierDateSelect(FlaskForm):
-    suppliers = SelectField('Харилцагч', choices=[], validators=[InputRequired()])
     select_date = DateField('Хугацаа сонгох', validators=[InputRequired()])
     submit = SubmitField('Сонгох')
 

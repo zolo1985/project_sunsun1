@@ -63,6 +63,23 @@ def clerk_driver_orders():
 
     return render_template('/clerk/expenses.html', form=form, orders=orders, form1=form1, unassigned_orders=unassigned_orders)
 
+
+@clerk_expense_blueprint.route('/clerk/expenses/history', methods=['GET','POST'])
+@login_required
+@has_role('clerk')
+def clerk_driver_orders_history():
+    connection = Connection()
+    
+    orders = []
+    form = FilterDateForm()
+
+    if form.validate_on_submit():
+        orders = connection.query(models.Delivery).filter(func.date(models.Delivery.received_from_clerk_date)==form.date.data).all()
+        return render_template('/clerk/expenses_history.html', form=form, orders=orders)
+
+    return render_template('/clerk/expenses_history.html', form=form, orders=orders)
+
+
 @clerk_expense_blueprint.route('/clerk/expenses/<int:order_id>')
 @login_required
 @has_role('clerk')

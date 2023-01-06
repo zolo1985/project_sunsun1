@@ -140,7 +140,7 @@ class ChooseType(FlaskForm):
 
 
 class SelectOption(FlaskForm):
-    select_option = SelectField('Хугацаа сонгох', choices=[],validators=[InputRequired()])
+    select_option = DateField('Хугацаа сонгох', validators=[Optional()])
     submit = SubmitField('Сонгох')
 
 class PasswordChangeForm(FlaskForm):

@@ -8,8 +8,6 @@
                 <form id="form" method="POST" action="">
                     {{ form.csrf_token }}
                     <div class="row">
-                        
-
                         <div id="deliveryAddSection">
                             <div class="col">
                                 <div class="table-responsive">
@@ -179,85 +177,82 @@
                                 <div id="submitButton" class="form-group">
                                     {{ form.submit(class="btn btn-outline-success") }}
                                 </div>
+                                {% if last_five_orders.count() > 0 %}
+                                <div class="container mt-5">
+                                    <div class="col-sm-12 mb-5">
+                                        <h5 class="custom-header mb-4">Сүүлд нэмсэн 5 хүргэлт</h5>
+                                        <div class="table-responsive-sm">
+                                            <table id="example" class="table table-hover">
+                                                <tbody>
+                                                    {% for order in last_five_orders|sort(attribute='id', reverse=True) %}
+                                                        <tr>
+                                                            <td style="max-width: 300px; word-wrap: break-word;">
+                                                                {% if order.is_manager_created %}
+                                                                    <p class="fw-bold text-success">*** СҮН СҮН агуулахаас ***</p>
+                                                                {% endif %}
+                                                                <p>
+                                                                    {% if order.addresses.city is not none %}
+                                                                        {{ order.addresses.city }},
+                                                                    {% endif %}
+                        
+                                                                    {% if order.addresses.district is not none %}
+                                                                        {{ order.addresses.district }},
+                                                                    {% endif %}
+                        
+                                                                    {% if order.addresses.khoroo is not none %}
+                                                                        {{ order.addresses.khoroo }}-р хороо,
+                                                                    {% endif %}
+                        
+                                                                    {% if order.addresses.aimag is not none %}
+                                                                        {{ order.addresses.aimag }},
+                                                                    {% endif %}
+                        
+                                                                    {{ order.addresses.address }}</p>
+                                                                <p>{{ order.addresses.phone }}
+                                                                    {% if order.addresses.phone_more is not none %},
+                                                                        {{ order.addresses.phone_more }}
+                                                                    {% endif %}
+                                                                </p>
+                                                            </td>
+                                                            <td>
+                                                                {% if order.order_type == "stored" %}
+                                                                    {% for order_detail in order.delivery_details %}
+                                                                        <p>
+                                                                            {{ order_detail.products.name }},
+                                                                            {{ order_detail.quantity }}
+                                                                            ширхэг,
+                                                                            {{ (order_detail.products.price)  | round | int | numberFormat }}₮
+                                                                        </p>
+                                                                    {% endfor %}
+                                                                {% else %}
+                                                                    {{ order.total_amount }}
+                                                                {% endif %}
+                                                            </td>
+                                                            <td style=" text-align: end;">
+                                                                <span class="m-2">₮{{ order.total_amount  | round | int | numberFormat }}</span>
+                                                                {% if order.status == "unassigned" %}
+                                                                    {% if order.is_postphoned %}
+                                                                        {% else %}
+                                                                            {% if order.is_manager_created %}
+                                                                                
+                                                                            {% else %}
+                                                                                <a class="btn btn-outline-danger" href="{{ url_for('supplier1_order.supplier1_order_delete', order_id=order.id) }}">Устгах</a>
+                                                                            {% endif %}
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             </section>
                         </div>
                     </div>
                 </form>
-                {% if last_five_orders.count() > 0 %}
-                <hr>
-                <section>
-                    <div class="container min-vh-100">
-                        <div class="col-sm-12 mb-5">
-                            <h3 class="custom-header mb-4">Сүүлд нэмсэн 5 хүргэлт</h3>
-                            <div class="table-responsive-sm">
-                                <table id="example" class="table table-hover">
-                                    <tbody>
-                                        {% for order in last_five_orders|sort(attribute='id', reverse=True) %}
-                                            <tr>
-                                                <td style="max-width: 300px; word-wrap: break-word;">
-                                                    {% if order.is_manager_created %}
-                                                        <p class="fw-bold text-success">*** СҮН СҮН агуулахаас ***</p>
-                                                    {% endif %}
-                                                    <p>
-                                                        {% if order.addresses.city is not none %}
-                                                            {{ order.addresses.city }},
-                                                        {% endif %}
-            
-                                                        {% if order.addresses.district is not none %}
-                                                            {{ order.addresses.district }},
-                                                        {% endif %}
-            
-                                                        {% if order.addresses.khoroo is not none %}
-                                                            {{ order.addresses.khoroo }}-р хороо,
-                                                        {% endif %}
-            
-                                                        {% if order.addresses.aimag is not none %}
-                                                            {{ order.addresses.aimag }},
-                                                        {% endif %}
-            
-                                                        {{ order.addresses.address }}</p>
-                                                    <p>{{ order.addresses.phone }}
-                                                        {% if order.addresses.phone_more is not none %},
-                                                            {{ order.addresses.phone_more }}
-                                                        {% endif %}
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    {% if order.order_type == "stored" %}
-                                                        {% for order_detail in order.delivery_details %}
-                                                            <p>
-                                                                {{ order_detail.products.name }},
-                                                                {{ order_detail.quantity }}
-                                                                ширхэг,
-                                                                {{ (order_detail.products.price)  | round | int | numberFormat }}₮
-                                                            </p>
-                                                        {% endfor %}
-                                                    {% else %}
-                                                        {{ order.total_amount }}
-                                                    {% endif %}
-                                                </td>
-                                                <td style=" text-align: end;">
-                                                    <span class="m-2">₮{{ order.total_amount  | round | int | numberFormat }}</span>
-                                                    {% if order.status == "unassigned" %}
-                                                        {% if order.is_postphoned %}
-                                                            {% else %}
-                                                                {% if order.is_manager_created %}
-                                                                    
-                                                                {% else %}
-                                                                    <a class="btn btn-outline-danger" href="{{ url_for('supplier1_order.supplier1_order_delete', order_id=order.id) }}">Устгах</a>
-                                                                {% endif %}
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                {% endif %}
             </div>
         </div>
     </section>

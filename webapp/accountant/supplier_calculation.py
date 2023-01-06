@@ -17,15 +17,12 @@ accountant_supplier_calculation_blueprint = Blueprint('accountant_supplier_calcu
 @has_role('accountant')
 def accountant_supplier_calculations():
     connection = Connection()
-    suppliers = connection.query(models.User).filter(or_(models.User.roles.any(models.Role.name=="supplier1"), models.User.roles.any(models.Role.name=="supplier2"))).all()
     suppliers_total = []
 
     form = SupplierDateSelect()
-    form.suppliers.choices = [(supplier.id, supplier.company_name) for supplier in suppliers]
-    form.suppliers.choices.insert(0, (0,'Харилцагч сонгох'))
     
     if form.validate_on_submit():
-        suppliers_total = connection.execute('SELECT supplier.company_name as supplier_name, count(delivery.id) as total_delivery_count, sum(delivery.total_amount) as total_amount, supplier.is_invoiced as is_invoiced, supplier.fee as fee FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) = DATE(:date) and supplier.id=:supplier_id and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"date": form.select_date.data, "supplier_id": form.suppliers.data}).all()
+        suppliers_total = connection.execute('SELECT supplier.company_name as supplier_name, count(delivery.id) as total_delivery_count, sum(delivery.total_amount) as total_amount, supplier.is_invoiced as is_invoiced, supplier.fee as fee FROM sunsundatabase1.user as supplier join sunsundatabase1.delivery as delivery on supplier.id=delivery.user_id where DATE(delivery.delivered_date) = DATE(:date) and delivery.is_delivered=true group by supplier.company_name, supplier.is_invoiced, supplier.fee;', {"date": form.select_date.data}).all()
 
         return render_template('/accountant/supplier_calculation.html', form=form, suppliers_total=suppliers_total)
 

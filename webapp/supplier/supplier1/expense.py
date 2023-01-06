@@ -16,11 +16,15 @@ supplier1_expense_blueprint = Blueprint('supplier1_expense', __name__)
 def supplier1_expenses():
     cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
     connection = Connection()
-    orders = connection.query(models.Delivery).filter(models.Delivery.is_delivered==True, models.Delivery.user_id==current_user.id, func.date(models.Delivery.created_date)==cur_date.date()).all()
+    orders = []
+    # orders = connection.query(models.Delivery).filter(models.Delivery.is_delivered==True, models.Delivery.user_id==current_user.id, func.date(models.Delivery.created_date)==cur_date.date()).all()
     form = SelectOption()
 
     if form.validate_on_submit():
-        orders = connection.query(models.Delivery).filter(models.Delivery.is_delivered==True, models.Delivery.user_id==current_user.id, func.date(models.Delivery.created_date)==form.select_option.data).all()
+        if cur_date.date() == form.select_option.data:
+            orders = []
+        else:
+            orders = connection.query(models.Delivery).filter(models.Delivery.is_delivered==True, models.Delivery.user_id==current_user.id, func.date(models.Delivery.created_date)==form.select_option.data).all()
         return render_template('/supplier/supplier1/expenses.html', orders=orders, form=form)
 
     return render_template('/supplier/supplier1/expenses.html', orders=orders, form=form)
