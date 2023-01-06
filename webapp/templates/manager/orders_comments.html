@@ -84,7 +84,7 @@
                                         </td>
                                         <td>
                                             <a style="text-align: center; color: black;" href="{{ url_for('manager_order.manager_order_detail', order_id=order.id) }}">
-                                                <p class="fw-bold">{{ order.supplier_company_name }}</p>
+                                                <p class="fw-bold">{{ order.supplier_company_name | capitalize }}</p>
                                             </a>
                                         </td>
                                         <td style="text-align: center;">

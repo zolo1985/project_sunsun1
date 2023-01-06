@@ -26,7 +26,7 @@
                                 <tbody>
                                     <tr>
                                         <th scope="row">{{ job.id }}</th>
-                                        <th>{{ job.supplier_company_name }}</th>
+                                        <th>{{ job.supplier_company_name | capitalize }}</th>
                                         <th>
                                             {% if job.status == "assigned" %}
                                                 <p class="text-success fw-bold">Хувиарлагдсан</p>

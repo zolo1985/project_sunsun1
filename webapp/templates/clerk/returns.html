@@ -42,7 +42,7 @@
                             {% for return in returns %}
                                 <tr>
                                     <td>
-                                        <p class="fw-bold">{{ return.delivery.supplier_company_name }}</p>
+                                        <p class="fw-bold">{{ return.delivery.supplier_company_name | capitalize }}</p>
                                     </td>
                                     <td>
                                         {% if return.delivery.order_type == "unstored" %}
@@ -100,11 +100,11 @@
                             {% for substracted_product in substracted_products %}
                                 <tr>
                                     <td>
-                                        <p class="fw-bold">{{ substracted_product.delivery.supplier_company_name }}</p>
+                                        <p class="fw-bold">{{ substracted_product.delivery.supplier_company_name | capitalize }}</p>
                                     </td>
                                     <td>{{ substracted_product.product.name }}, {{substracted_product.product_quantity }}ш</td>
                                     <td>
-                                        <p class="fw-bold">{{ substracted_product.driver.lastname }} {{ substracted_product.driver.firstname }}</p>
+                                        <p class="fw-bold">{{ substracted_product.driver.lastname  | capitalize }} {{ substracted_product.driver.firstname  | capitalize }}</p>
                                     </td>
                                     <td>
                                         {% if substracted_product.is_returned %}

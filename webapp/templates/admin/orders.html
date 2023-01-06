@@ -210,7 +210,7 @@
                                         </p>
                                     </td>
                                     <td>
-                                        <p class="fw-bold">{{ order.supplier_company_name }}</p>
+                                        <p class="fw-bold">{{ order.supplier_company_name | capitalize }}</p>
                                     </td>
                                     <td style="text-align: center;">
                                         {% if order.status == "unassigned" %}

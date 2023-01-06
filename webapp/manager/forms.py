@@ -103,27 +103,28 @@ class NewAccountForm(FlaskForm):
     select_user_role = SelectField('Хэрэглэгчийн төрөл', choices=[], validators=[InputRequired()])
     submit = SubmitField('Хэрэглэгч нэмэх')
 
+    def validate_company_name(self, company_name):
+        connection = Connection()
+        is_company_name = connection.query(models.User).filter_by(company_name=company_name.data.strip()).count()
+        connection.close()
+        if is_company_name>=1:
+            raise ValidationError('Ийм нэртэй харилцагч бүртгэлтэй байна! Өөр нэр сонгоно уу!')
+
     def validate_firstname(self, firstname):
-        allowed_chars = set(("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZефцужэнгшүзкъйыбөахролдпячёсмитьвюЕФЦУЖЭНГШҮЗКЪЙЫБӨАХРОЛДПЯЧЁСМИТЬВЮ"))
+        allowed_chars = set(("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZефцужэнгшүзкъйыбөахролдпячёсмитьвюЕФЦУЖЭНГШҮЗКЪЙЫБӨАХРОЛДПЯЧЁСМИТЬВЮ- "))
         validation = set((firstname.data))
         if validation.issubset(allowed_chars):
             pass
         else:
-            raise ValidationError('Зөвхөн үсэг тоо ашиглана уу!')
-
-        if firstname.data != firstname.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
+            raise ValidationError('Зөвхөн үсэг ашиглана уу!')
 
     def validate_lastname(self, lastname):
-        allowed_chars = set(("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZефцужэнгшүзкъйыбөахролдпячёсмитьвюЕФЦУЖЭНГШҮЗКЪЙЫБӨАХРОЛДПЯЧЁСМИТЬВЮ"))
+        allowed_chars = set(("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZефцужэнгшүзкъйыбөахролдпячёсмитьвюЕФЦУЖЭНГШҮЗКЪЙЫБӨАХРОЛДПЯЧЁСМИТЬВЮ- "))
         validation = set((lastname.data))
         if validation.issubset(allowed_chars):
             pass
         else:
-            raise ValidationError('Зөвхөн үсэг тоо ашиглана уу!')
-
-        if lastname.data != lastname.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
+            raise ValidationError('Зөвхөн үсэг ашиглана уу!')
 
     def validate_email(self, email):
         connection = Connection()
@@ -140,11 +141,8 @@ class NewAccountForm(FlaskForm):
         else:
             raise ValidationError('Зөвхөн тоо ашиглана уу!')
 
-        if phone.data != phone.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
-
         connection = Connection()
-        account = connection.query(models.User).filter_by(phone=phone.data.strip()).first()
+        account = connection.query(models.User).filter_by(phone=phone.data).first()
         connection.close()
         if account:
             raise ValidationError('Энэ утас өөр данс нь дээр бүртгэлтэй байна! Өөр утас ашиглана уу!')
@@ -164,9 +162,6 @@ class EditAccountForm(FlaskForm):
         else:
             raise ValidationError('Зөвхөн үсэг ашиглана уу!')
 
-        if firstname.data != firstname.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
-
     def validate_lastname(self, lastname):
         allowed_chars = set(("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZефцужэнгшүзкъйыбөахролдпячёсмитьвюЕФЦУЖЭНГШҮЗКЪЙЫБӨАХРОЛДПЯЧЁСМИТЬВЮ"))
         validation = set((lastname.data))
@@ -174,9 +169,6 @@ class EditAccountForm(FlaskForm):
             pass
         else:
             raise ValidationError('Зөвхөн үсэг ашиглана уу!')
-
-        if lastname.data != lastname.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
     def validate_email(self, email):
         connection = Connection()
@@ -192,9 +184,6 @@ class EditAccountForm(FlaskForm):
             pass
         else:
             raise ValidationError('Зөвхөн тоо ашиглана уу!')
-
-        if phone.data != phone.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
         connection = Connection()
         account = connection.query(models.User).filter_by(phone=phone.data).all()

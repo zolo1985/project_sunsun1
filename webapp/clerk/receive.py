@@ -34,10 +34,10 @@ def clerk_receive_dropoff_inventories():
     connection = Connection()
     form = ReceiveInventoryForm()
     cur_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar")).date()
-    inventories = connection.query(models.Inventory).filter(models.Inventory.is_received_from_driver == False, func.date(models.Inventory.received_date) == cur_date, models.Inventory.status==True).order_by(models.Inventory.id.desc()).all()
+    inventories = connection.query(models.Inventory).filter(models.Inventory.is_received_from_driver == False, func.date(models.Inventory.received_date) == cur_date, models.Inventory.status==False).order_by(models.Inventory.id.desc()).all()
 
     if form.validate_on_submit():
-        inventories = connection.query(models.Inventory).filter(models.Inventory.is_received_from_driver == False, func.date(models.Inventory.received_date) == form.date.data, models.Inventory.status==True).order_by(models.Inventory.id.desc()).all()
+        inventories = connection.query(models.Inventory).filter(models.Inventory.is_received_from_driver == False, func.date(models.Inventory.received_date) == form.date.data, models.Inventory.status==False).order_by(models.Inventory.id.desc()).all()
         return render_template('/clerk/receive_dropoff_inventories.html', inventories=inventories, form=form)
 
     return render_template('/clerk/receive_dropoff_inventories.html', inventories=inventories, form=form)
@@ -60,10 +60,14 @@ def clerk_accept_dropoff_inventories(inventory_id):
         connection.close()
         return redirect(url_for('clerk_receive.clerk_receive_dropoff_inventories'))
     else:
-        if inventory.is_returned_to_clerk == False:
-            inventory.status = True
-            inventory.clerk_accepted_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-            inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+        total_product_inventory = connection.query(models.TotalInventory).filter_by(product_id=inventory.product_id).first()
+        inventory.status = True
+        inventory.clerk_accepted_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+        inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+
+        total_product_inventory.quantity = total_product_inventory.quantity+int(inventory.quantity)
+        total_product_inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+        total_product_inventory.total_inventories.append(inventory)
 
         try:
             connection.commit()

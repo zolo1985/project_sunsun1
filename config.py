@@ -68,7 +68,6 @@ class TestConfig(Config):
     DEBUG = True
     DEBUG_TB_ENABLED = False
 
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:swainers1@localhost/testdatabase?charset=utf8mb4'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     CACHE_TYPE = 'simple'
     WTF_CSRF_ENABLED = False

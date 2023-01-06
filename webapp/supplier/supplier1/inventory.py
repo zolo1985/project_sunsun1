@@ -34,7 +34,7 @@ def supplier1_inventories():
             days_list = []
             days_data = []
             for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 15))):
-                day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
+                day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day and inventory.status=true group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
                 day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
                 
                 day_format = (i.day, 0 if day_added is None else int(day_added), 0 if day_expense is None else int(day_expense))
@@ -52,7 +52,7 @@ def supplier1_inventories():
             days_list = []
             days_data = []
             for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(current_date.year, current_date.month, calendar.monthrange(current_date.year, current_date.month)[1]))):
-                day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
+                day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day and inventory.status=true group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
                 day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
                 
                 day_format = (i.day, 0 if day_added is None else int(day_added), 0 if day_expense is None else int(day_expense))
@@ -75,7 +75,7 @@ def supplier1_inventories():
                 days_list = []
                 days_data = []
                 for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, "01")), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, 15))):
-                    day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
+                    day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day and inventory.status=true group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
                     day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id }).scalar()
                     
                     day_format = (i.day, 0 if day_added is None else int(day_added), 0 if day_expense is None else int(day_expense))
@@ -92,7 +92,7 @@ def supplier1_inventories():
                 days_list = []
                 days_data = []
                 for i in rrule(DAILY , dtstart=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, 16)), until=datetime.fromisoformat(f'%s-%02d-%s'%(form.date.data.year, form.date.data.month, calendar.monthrange(form.date.data.year, form.date.data.month)[1]))):
-                    day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
+                    day_added = connection.execute('SELECT sum(inventory.quantity) as total_amount FROM sunsundatabase1.inventory as inventory where inventory.product_id=:product_id and date(inventory.received_date)=:day and inventory.status=true group by inventory.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
                     day_expense = connection.execute('SELECT sum(delivery_detail.quantity) as total_amount, delivery_detail.product_id as product_id FROM sunsundatabase1.delivery as delivery join sunsundatabase1.delivery_detail as delivery_detail on delivery.id=delivery_detail.delivery_id where delivery.is_delivered=true and delivery_detail.product_id=:product_id and date(delivery.delivered_date)=:day group by delivery_detail.product_id;', {"day": i.date(), "product_id": inventory.product_id}).scalar()
                     
                     day_format = (i.day, 0 if day_added is None else int(day_added), 0 if day_expense is None else int(day_expense))
@@ -246,7 +246,7 @@ def supplier1_inventory_dropoff_add():
         try:
             if received_by.has_role("clerk"):
                 for i, quantity in enumerate(line_quantity):
-                    total_product_inventory = connection.query(models.TotalInventory).filter_by(product_id=line_product[i]).first()
+                    # total_product_inventory = connection.query(models.TotalInventory).filter_by(product_id=line_product[i]).first()
                     inventory = models.Inventory()
                     inventory.quantity = quantity
                     inventory.inventory_type = "stored"
@@ -257,21 +257,20 @@ def supplier1_inventory_dropoff_add():
                     inventory.received_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
-                    total_product_inventory.quantity = total_product_inventory.quantity+int(quantity)
-                    total_product_inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-                    total_product_inventory.total_inventories.append(inventory)
+                    # total_product_inventory.quantity = total_product_inventory.quantity+int(quantity)
+                    # total_product_inventory.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                    # total_product_inventory.total_inventories.append(inventory)
+                    connection.add(inventory)
                     connection.commit()
             else:
                 flash('Барааг хүлээж авах эрхгүй ажилтан байна!', 'danger')
-                raise Exception()
+                return redirect(url_for('supplier1_inventory.supplier1_inventories'))
         
         except Exception:
             flash('Алдаа гарлаа!', 'danger')
             connection.rollback()
-            connection.close()
-            return redirect(request.url)
+            return redirect(url_for('supplier1_inventory.supplier1_inventories'))
         else:
-            connection.close()
             flash('Бараа амжилттай хүлээлгэж өглөө. Хэрвээ жолоочид өгсөн бол нярав хүлээлгэж өгтөл хүлээгдэхийг анхаарна уу! Баярлалаа', 'success')
             return redirect(url_for('supplier1_inventory.supplier1_inventories'))
 

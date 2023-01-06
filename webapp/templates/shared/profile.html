@@ -31,30 +31,30 @@
                                     </div>
                                     <!-- Info -->
                                     <div class="ms-3">
-                                        <h5 class="mb-0">{{ current_user.firstname }}</h5>
+                                        <h5 class="mb-0">{{ current_user.firstname  | capitalize }}</h5>
                                         {% if current_user.has_role('admin') %}
                                             <span>Овог Нэр:</span>
-                                            <span class="h6 mb-0">{{ current_user.lastname }} {{ current_user.firstname }}</span>
+                                            <span class="h6 mb-0">{{ current_user.lastname  | capitalize }} {{ current_user.firstname  | capitalize }}</span>
                                             <h3 class="mb-0">admin</h3>
                                         {% elif current_user.has_role('manager') %}
                                             <span>Овог Нэр:</span>
-                                            <span class="h6 mb-0">{{ current_user.lastname }} {{ current_user.firstname }}</span>
+                                            <span class="h6 mb-0">{{ current_user.lastname  | capitalize }} {{ current_user.firstname  | capitalize }}</span>
                                             <h3 class="mb-0">Менежер</h3>
                                         {% elif current_user.has_role('supplier1') %}
                                             <span>Овог Нэр:</span>
-                                            <span class="h6 mb-0">{{ current_user.lastname }} {{ current_user.firstname }}</span>
+                                            <span class="h6 mb-0">{{ current_user.lastname  | capitalize }} {{ current_user.firstname  | capitalize }}</span>
                                             <h3 class="mb-0">Харилцагч</h3>
                                         {% elif current_user.has_role('supplier2') %}
                                             <span>Овог Нэр:</span>
-                                            <span class="h6 mb-0">{{ current_user.lastname }} {{ current_user.firstname }}</span>
+                                            <span class="h6 mb-0">{{ current_user.lastname  | capitalize }} {{ current_user.firstname  | capitalize }}</span>
                                             <h3 class="mb-0">Харилцагч</h3>
                                         {% elif current_user.has_role('clerk') %}
                                             <span>Овог Нэр:</span>
-                                            <span class="h6 mb-0">{{ current_user.lastname }} {{ current_user.firstname }}</span>
+                                            <span class="h6 mb-0">{{ current_user.lastname  | capitalize }} {{ current_user.firstname  | capitalize }}</span>
                                             <h3 class="mb-0">Нярав</h3>
                                         {% elif current_user.has_role('driver') %}
                                             <span>Овог Нэр:</span>
-                                            <span class="h6 mb-0">{{ current_user.lastname }} {{ current_user.firstname }}</span>
+                                            <span class="h6 mb-0">{{ current_user.lastname  | capitalize }} {{ current_user.firstname  | capitalize }}</span>
                                             <h3 class="mb-0">Жолооч</h3>
                                         {% endif %}
                                     </div>

@@ -25,8 +25,8 @@
                             <tbody>
                                 <tr>
                                     <td scope="row">{{ manager.id }}</td>
-                                    <td style="text-align: center;">{{ manager.lastname }}</td>
-                                    <td style="text-align: center;">{{ manager.firstname }}</td>
+                                    <td style="text-align: center;">{{ manager.lastname | capitalize }}</td>
+                                    <td style="text-align: center;">{{ manager.firstname | capitalize }}</td>
                                     <td style="text-align: center;">
                                         <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('admin_account.admin_password_reset', user_id=manager.id) }}">Нууц үг сэргээх</a>
                                     </td>
@@ -74,8 +74,8 @@
                             <tbody>
                                 <tr>
                                     <td scope="row">{{ accountant.id }}</td>
-                                    <td style="text-align: center;">{{ accountant.lastname }}</td>
-                                    <td style="text-align: center;">{{ accountant.firstname }}</td>
+                                    <td style="text-align: center;">{{ accountant.lastname | capitalize }}</td>
+                                    <td style="text-align: center;">{{ accountant.firstname | capitalize }}</td>
                                     <td style="text-align: center;">
                                         <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('admin_account.admin_password_reset', user_id=accountant.id) }}">Нууц үг сэргээх</a>
                                     </td>
@@ -122,8 +122,8 @@
                             <tbody>
                                 <tr>
                                     <td scope="row">{{ clerk.id }}</td>
-                                    <td style="text-align: center;">{{ clerk.lastname }}</td>
-                                    <td style="text-align: center;">{{ clerk.firstname }}</td>
+                                    <td style="text-align: center;">{{ clerk.lastname | capitalize  }}</td>
+                                    <td style="text-align: center;">{{ clerk.firstname | capitalize  }}</td>
                                     <td style="text-align: center;">
                                         <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('admin_account.admin_password_reset', user_id=clerk.id) }}">Нууц үг сэргээх</a>
                                     </td>
@@ -170,8 +170,8 @@
                                 <tr>
                                     <td scope="row">
                                         <a href="{{ url_for('admin_account.account', account_id=driver.id) }}">{{ driver.id }}</a></td>
-                                    <td style="text-align: center;">{{ driver.lastname }}</td>
-                                    <td style="text-align: center;">{{ driver.firstname }}</td>
+                                    <td style="text-align: center;">{{ driver.lastname  | capitalize  }}</td>
+                                    <td style="text-align: center;">{{ driver.firstname  | capitalize }}</td>
                                     <td style="text-align: center;">
                                         <a class="btn btn-outline-secondary" style="border-radius: 50px;" href="{{ url_for('admin_account.admin_password_reset', user_id=driver.id) }}">Нууц үг сэргээх</a>
                                     </td>
@@ -222,7 +222,7 @@
                                     <td scope="row">
                                         <a href="{{ url_for('admin_account.account', account_id=supplier1.id) }}">{{ supplier1.id }}</a></td>
                                     </td>
-                                    <td style="text-align: center;">{{ supplier1.company_name }}</td>
+                                    <td style="text-align: center;">{{ supplier1.company_name | capitalize }}</td>
                                     <td style="text-align: center;">
                                         {% if supplier1.is_invoiced %}
                                             <p>Тийм</p>
@@ -279,7 +279,7 @@
                                     <td scope="row">
                                         <a href="{{ url_for('admin_account.account', account_id=supplier2.id) }}">{{ supplier2.id }}</a></td>
                                     </td>
-                                    <td style="text-align: center;">{{ supplier2.company_name }}</td>
+                                    <td style="text-align: center;">{{ supplier2.company_name | capitalize }}</td>
                                     <td style="text-align: center;">
                                         {% if supplier2.is_invoiced %}
                                             <p>Тийм</p>

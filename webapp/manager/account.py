@@ -199,9 +199,9 @@ def manager_add_account():
         try:
             hashed_password = bcrypt.generate_password_hash(form.password.data.strip())
             user = models.User()
-            user.company_name = form.company_name.data.strip()
-            user.firstname = form.firstname.data.strip()
-            user.lastname = form.lastname.data.strip()
+            user.company_name = form.company_name.data.lower().strip()
+            user.firstname = form.firstname.data.lower().strip()
+            user.lastname = form.lastname.data.lower().strip()
             user.password = hashed_password
             user.status = "verified"
             user.email = form.email.data.strip()

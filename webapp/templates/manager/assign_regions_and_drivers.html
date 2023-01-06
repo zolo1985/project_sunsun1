@@ -140,7 +140,7 @@
                                                 </strong>
                                             </p>
                                         </td>
-                                        <td class="fw-bold">{{ order.supplier_company_name }}</td>
+                                        <td class="fw-bold">{{ order.supplier_company_name | capitalize }}</td>
                                         <td>
                                             {% if order.status == "unassigned" %}
                                                 {% if order.is_postphoned %}

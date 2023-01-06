@@ -19,4 +19,5 @@ fi
 echo --------------------
 echo Generating initial datas
 echo --------------------
+flask reset-data
 flask initial-data

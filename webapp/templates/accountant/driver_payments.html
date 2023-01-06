@@ -58,7 +58,7 @@
                                                     <input class="form-check-input" type="checkbox" id="orderIdValue" name="orderIdValue" value="{{ order.id }}" onchange="calculate();">
                                                 </td>
                                                 <td scope="row">{{ order.id }}{{ form1.order_id(class="form-control", value=order.id) }}</td>
-                                                <td style="text-align: center;">{{ order.supplier_company_name }}</td>
+                                                <td style="text-align: center;">{{ order.supplier_company_name | capitalize }}</td>
                                                 <td style="text-align: center;">
                                                     {% if order.is_processed_by_accountant %}
                                                         <p class="text-success fw-bold">Тооцоо хийгдсэн</p>

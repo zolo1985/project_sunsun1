@@ -51,7 +51,7 @@
                                             <td><p class="text-danger fw-bold">{{ payment_history.remaining_amount }}</p></td>
                                             <td>{{ payment_history.comment }}</td>
                                             <td>{{ payment_history.received_date }}</td>
-                                            <td>{{ payment_history.accountant.firstname }}</td>
+                                            <td>{{ payment_history.accountant.firstname | capitalize }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>

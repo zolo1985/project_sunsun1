@@ -27,7 +27,7 @@
                                     <tr>
                                         <td scope="row"><p class="fw-bold">{{ order.id }}</p></td>
                                         <td>
-                                            <p class="fw-bold">{{ order.supplier_company_name }}</p>
+                                            <p class="fw-bold">{{ order.supplier_company_name | capitalize }}</p>
                                         </td>
                                         <td>
                                             {% if order.status == "unassigned" %}

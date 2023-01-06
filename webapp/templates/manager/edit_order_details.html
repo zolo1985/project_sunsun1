@@ -29,7 +29,7 @@
                                             <p class="fw-bold">{{ order.id }}</p>
                                         </td>
                                         <td>
-                                            <p class="fw-bold">{{ order.supplier_company_name }}</p>
+                                            <p class="fw-bold">{{ order.supplier_company_name | capitalize }}</p>
                                         </td>
                                         <td>
                                             <p class="text-nowrap">{{ order.delivery_date.strftime('%Y-%m-%d') }}</p>

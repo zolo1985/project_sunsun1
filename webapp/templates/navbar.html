@@ -1,7 +1,6 @@
 <!-- =======================
 	header Start-->
 <header class="header-static navbar-light">
-
     <!-- Navbar top start-->
     <div class="navbar-top d-none d-lg-block">
         <div class="container">
@@ -11,10 +10,10 @@
                     <!-- Top info -->
                     <ul class="nav list-unstyled ms-3">
                         <li class="nav-item me-3">
-                            <a class="navbar-link" href="#"><strong>Утас: </strong>99112233</a>
+                            <a class="navbar-link" href="#"><strong>Утас: </strong>75777222</a>
                         </li>
                         <li class="nav-item me-3">
-                            <a class="navbar-link" href="#"><strong>И-мэйл: </strong>sunsundelivery@sunsun.mn</a>
+                            <a class="navbar-link" href="#"><strong>И-мэйл: </strong>sunsunexpressic@gmail.com</a>
                         </li>
                     </ul>
                 </div>
@@ -57,7 +56,7 @@
             <!-- Logo -->
             <a class="navbar-brand" href="{{ url_for('main.home')}}">
                 <!-- Logo -->
-                <img class="navbar-brand-item" src="{{ url_for('static', filename='images/logo.svg')}}" alt="Logo">
+                <img class="navbar-brand-item" src="{{ url_for('static', filename='logos/logo_main.svg')}}" alt="Logo">
             </a>
             <!-- Menu opener button -->
             <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -369,7 +368,13 @@
                             </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.signin') }}">Нэвтрэх</a>
+                            <a class="nav-link" href="#">Бидний тухай</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Үйл ажиллагаа</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.signin') }}"><i class="fa-regular fa-right-to-bracket"></i> Нэвтрэх</a>
                         </li>
                     {% endif %}
                 </ul>

@@ -42,7 +42,7 @@
                                     {% for inventory in inventories %}
                                         <tr>
                                             <td class="fw-bold">{{ loop.index }}.</td>
-                                            <td class="fw-bold">{{ inventory.product.supplier.company_name }}</td>
+                                            <td class="fw-bold">{{ inventory.product.supplier.company_name | capitalize }}</td>
                                             <td class="text-center">
                                                 <p>Нэр: {{ inventory.product.name }},</p>
                                                 <p>Өнгө: {{ inventory.product.colors | first }}</p>

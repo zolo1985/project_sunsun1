@@ -28,7 +28,7 @@
                                             <p>{{ loop.index }}.</p>
                                         </td>
                                         <td>
-                                            <p>{{ order.supplier_company_name }}</p>
+                                            <p>{{ order.supplier_company_name | capitalize }}</p>
                                         </td>
                                         <td>
                                             {% if order.status == "assigned" %}

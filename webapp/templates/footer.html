@@ -9,31 +9,34 @@
                 <div class="col-md-4">
                     <div class="widget">
                         <a
-                            href="index.html" class="footer-logo">
+                            href="{{ url_for('main.home')}}" class="footer-logo">
                             <!-- footer logo Start -->
                             <img
-                            class="footer-logo-item" src="{{ url_for('static', filename='images/logo.svg')}}" alt="">
+                            class="footer-logo-item" src="{{ url_for('static', filename='logos/logo.svg')}}" alt="">
                         <!-- footer logo End -->
                         </a>
-                        <p class="mt-3">СҮН СҮН товч тайлбар.</p>
+                        <p class="mt-3">Сүн Сүн Экспресс нь 2020 оноос эхлэн хүргэлтийн чиглэлээр үйл ажиллагаагаа тасралтгүй явуулж байна.  Бид 2021 оноос Монголын томоохон ложистикийн компани болох Улаанбаатар төмөр замын хүргэлтийн ажлыг хариуцаж эхэлснээр үйл ажиллагаагаа өргөжүүлэн тэлж одоогийн байдлаар 100 гаруй харилцагчидтай бараа таталт, агуулах, ангилалт, хүргэлт гэсэн зарчмаар ажиллаж байна.</p>
                     </div>
                 </div>
                 <!-- Footer widget 2 -->
                 <div class="col-md-3 col-sm-6">
-                    <div class="widget address">
+                    <div class="widget">
+                        <h6>Мэдээлэл</h6>
                         <ul class="list-group list-group-borderless">
                             <li class="d-flex mb-3">
-                                <i class="me-3 display-8 ti-map-alt"></i>Сүхбаатар дүүрэг, 3-р хороо, 5-р байр 22 тоот.
+                                <i class="fa-sharp fa-solid fa-location-dot me-2"></i>
+                                Баянзурх дуурэг, Манлайбаатар Дамдинсурэнгийн гудамж A104-22 тоот.
                             </li>
                             <li class="d-flex mb-3">
-                                <i class="me-3 display-8 ti-headphone-alt"></i>
-                                99112233
+                                <i class="fa-regular fa-phone me-2"></i>
+                                75777222
                             </li>
                             <li class="d-flex mb-3">
-                                <i class="me-3 display-8 ti-email"></i>
-                                sunsundelivery@gmail.com</li>
+                                <i class="fa-regular fa-envelope me-2"></i>
+                                sunsunexpressic@gmail.com
+                            </li>
                             <li class="d-flex mb-3">
-                                <i class="me-3 display-8 ti-time"></i>
+                                <i class="fa-regular fa-calendar me-2"></i>
                                 <p>Даваа - Баасан:
                                     <strong>09:00 - 18:00</strong>
                                     <br>Бямба & Нямд:
@@ -47,7 +50,7 @@
                 <div class="col-md-2 col-sm-6">
                     <div class="widget">
                         <h6>Бусад</h6>
-                        <ul class="nav flex-column primary-hover">
+                        <ul class="list-group list-group-borderless">
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Бидний тухай</a>
                             </li>

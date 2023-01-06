@@ -48,7 +48,7 @@
                                             <tr>
                                                 
                                                 <td class="fw-bold">{{ order.id }}{{ form.order_id(class="form-control", value=order.id) }}</td>
-                                                <td style="text-align: center;" class="fw-bold">{{ order.supplier_company_name }}</td>
+                                                <td style="text-align: center;" class="fw-bold">{{ order.supplier_company_name | capitalize }}</td>
                                                 <td>
                                                     {% if order.addresses.city is not none %}
                                                         {{ order.addresses.city }},

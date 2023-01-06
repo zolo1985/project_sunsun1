@@ -24,10 +24,10 @@
                                 <tr>
                                     <td scope="row">{{ account.id }}</td>
                                     <td>
-                                        {{ account.lastname }}
+                                        {{ account.lastname  | capitalize }}
                                     </td>
                                     <td>
-                                        {{ account.firstname }}
+                                        {{ account.firstname  | capitalize }}
                                     </td>
                                     <td>
                                         {% if form.phone.errors %}
