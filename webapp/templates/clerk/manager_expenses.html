@@ -4,7 +4,7 @@
         <div class="container min-vh-100">
             <div class="row">
                 <div class="col-sm-12 mb-5">
-                    <h3 class="custom-header mb-4">Өнөөдрийн бараа хүлээлгэж өгөх</h3>
+                    <h3 class="custom-header mb-4">Агуулахаас хүлээлгэж өгөх</h3>
                     <form id="form" method="POST" action="">
                         {{ form.csrf_token }}
                         <div class="row g-2 m-2">
@@ -33,10 +33,9 @@
                                     <tr>
                                         <th scope="col" class="bg-grad">ID</th>
                                         <th scope="col" class="bg-grad">Байгууллага</th>
+                                        <th scope="col" class="bg-grad">Төрөл</th>
                                         <th scope="col" class="bg-grad">Хаяг/Утас</th>
                                         <th scope="col" class="bg-grad">Бараа/Тоо ширхэг</th>
-                                        <th scope="col" class="bg-grad">Бүс</th>
-                                        <th scope="col" class="bg-grad">Жолооч</th>
                                         <th scope="col" class="bg-grad">Төлөв</th>
                                     </tr>
                                 </thead>
@@ -44,7 +43,20 @@
                                     {% for order in orders %}
                                         <tr>
                                             <td class="fw-bold">{{ order.id }}</td>
-                                            <td style="text-align: center;" class="fw-bold">{{ order.supplier_company_name | capitalize }}</td>
+                                            <td style="text-align: center;" class="fw-bold">
+                                                {{ order.supplier_company_name | capitalize }}
+                                                {% if order.is_manager_created %}
+                                                    <p class="fw-bold text-info mt-2">Сүн Сүн Менежер үүсгэсэн.</p>
+                                                {% else %}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if order.is_warehouse_pickup %}
+                                                    <p class="text-success fw-bold">Агуулахаас</p>
+                                                {% else %}
+                                                    <p class="text-success fw-bold">Хүргэлт</p>
+                                                {% endif %}
+                                            </td>
                                             <td>
                                                 {% if order.addresses.city is not none %}
                                                     {{ order.addresses.city }},
@@ -82,16 +94,6 @@
                                                     <p class="text-center fw-bold">{{ order.delivery_details[0].phone }}</p>
                                                 {% endif %}
                                             </td>
-                                            <td style="text-align: center;" class="fw-bold">
-                                                {% if order.delivery_region is none %}
-                                                    Байхгүй
-                                                {% else %}
-                                                    {{ order.delivery_region }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="fw-bold">
-                                                {{ order.assigned_driver_name }}
-                                            </td>
                                             <td>
                                                 {% if order.is_warehouse_pickup %}
                                                     {% if order.is_received_from_clerk %}
@@ -100,19 +102,7 @@
                                                         <a class="btn btn-outline-success" href="{{ url_for('clerk_expense.clerk_warehouse_expense', order_id=order.id) }}">Хүлээлгэж өгөх</a>
                                                     {% endif %}
                                                 {% else %}
-                                                    {% if order.is_received_from_clerk %}
-                                                        <p class="text-success fw-bold">Жолооч хүлээж авах дарсан</p>
-                                                        {% if order.is_driver_received %}
-                                                            <p class="text-secondary fw-bold" >Нягтлан хүлээлгэж өгсөн({{ order.received_from_clerk_date }})</p>
-                                                        {% else %}
-                                                            <p class="text-danger fw-bold">Нягтлан хүлээлгэж өгөөгүй</p>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <p class="text-danger fw-bold">Нягтлан хүлээлгэж өгөөгүй</p>
-                                                        {% if not order.is_driver_received %}
-                                                            <p class="text-secondary fw-bold" >Жолооч хүлээж авах товчийг дараагүй байна!</p>
-                                                        {% endif %}
-                                                    {% endif %}
+                                            
                                                 {% endif %}
                                             </td>
                                         </tr>

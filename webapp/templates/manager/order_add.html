@@ -342,11 +342,11 @@
                 
                 
             } else {
-                document.getElementById('phone').value = "123123";
-                document.getElementById('phone_more').value = "123123";
-                document.getElementById('district').value = "Хан-Уул";
-                document.getElementById('khoroo').value = "1";
-                document.getElementById('address').value = "СҮН СҮН агуулах";
+                document.getElementById('phone').value = "75777222";
+                document.getElementById('phone_more').value = "75777222";
+                document.getElementById('district').value = "Баянзүрх";
+                document.getElementById('khoroo').value = "25";
+                document.getElementById('address').value = "Манлайбаатар Дамдинсүрэнгийн гудамж A104-22 тоот. СҮН СҮН агуулах";
                 document.getElementById('total_amount').value = 0;
                 
                 document.getElementById('deliveryAddSection').style.display = 'none';
@@ -426,6 +426,12 @@
             data.parent().parent().remove();
             document.getElementById('calculateTotal').value = parseInt(document.getElementById('calculateTotal').value) - thisrow;
         }
+    </script>
+    <script>
+        $(window).on('load', function(){
+            document.getElementById('calculateTotal').value = 0;
+            console.log(document.getElementById('calculateTotal').value);
+        });
     </script>
     <table style="display: none;">
         <tbody id="tr-placeholder">

@@ -25,7 +25,7 @@
                         <ul class="list-group list-group-borderless">
                             <li class="d-flex mb-3">
                                 <i class="fa-sharp fa-solid fa-location-dot me-2"></i>
-                                Баянзурх дуурэг, Манлайбаатар Дамдинсурэнгийн гудамж A104-22 тоот.
+                                Баянзурх дүүрэг, 25-р хороо, Манлайбаатар Дамдинсүрэнгийн гудамж A104-22 тоот.
                             </li>
                             <li class="d-flex mb-3">
                                 <i class="fa-solid fa-phone me-2"></i>
@@ -33,7 +33,6 @@
                             </li>
                             <li class="d-flex mb-3">
                                 <i class="fa-regular fa-envelope me-2"></i>
-                                
                                 sunsunexpressic@gmail.com
                             </li>
                             <li class="d-flex mb-3">
@@ -51,18 +50,18 @@
                 <div class="col-md-2 col-sm-6">
                     <div class="widget">
                         <h6>Бусад</h6>
-                        <ul class="list-group list-group-borderless" style="list-style-position:unset">
+                        <ul class="list-group list-group-borderless" style="list-style-type: none;">
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Бидний тухай</a>
+                                <a class="nav-link" href="{{ url_for('main.about_us') }}">Бидний тухай</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Холбоо барих</a>
+                                <a class="nav-link" href="{{ url_for('main.contact_us') }}">Холбоо барих</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Үндсэн</a>
+                                <a class="nav-link" href="{{ url_for('main.home') }}">Үндсэн</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Ажлын байр</a>
+                                <a class="nav-link" href="{{ url_for('main.jobs') }}">Ажлын байр</a>
                             </li>
                         </ul>
                     </div>

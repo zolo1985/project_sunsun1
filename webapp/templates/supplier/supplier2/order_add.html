@@ -190,6 +190,17 @@
             return false;
         }
 
+        if (phone.length < 8) {
+            alert("Утас буруу байна! 8 оронтой дугаар оруулна уу!")
+            return false;
+        } else if (phone.length === 8) {
+            const reg = new RegExp('^[0-9]+$');
+            if (!reg.test(phone)) {
+                alert("Утас алдаатай байна. Зөвхөн тоо оруулна уу!")
+                return false;
+            }
+        }
+
         if (order_type.checked) {
             // local
             if (district == "Дүүрэг сонгох" || khoroo == "Хороо сонгох") {

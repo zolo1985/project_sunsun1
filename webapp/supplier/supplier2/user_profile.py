@@ -18,9 +18,9 @@ def profile():
         connection = Connection()
         user = connection.query(models.User).get(current_user.id)
 
-        if user.check_password(form.current_password.data):
+        if user.check_password(form.current_password.data.strip()):
             try:
-                hashed_password = bcrypt.generate_password_hash(form.password.data)
+                hashed_password = bcrypt.generate_password_hash(form.password.data.strip())
                 user.password = hashed_password
                 connection.commit()
             except Exception as e:

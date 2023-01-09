@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block main %}
+
+	<section>
+        <div class="container">
+            <h3 class="mb-5">
+                Хүргэлтийг доорхи бүсчлэл дотор хийнэ.
+            </h3>
+            <ol>
+                <p style="font-size: large;">Баруун- Орбитийн тойрог</p>
+                <p style="font-size: large;">Баруун хойд- Баянхошуу тойрог</p>
+                <p style="font-size: large;">Хойд- Дамбадаржаа</p>
+                <p style="font-size: large;">Зүүн хойд- Шархад эцэс</p>
+                <p style="font-size: large;">Зүүн- Амгалан автобус буудал</p>
+                <p style="font-size: large;">Урд- Зайсангийн эцэс</p>
+                <p style="font-size: large;">Баруун урд- Нисэхийн тойрог ( Буянт-Ухаа 2, Байрны буудал)</p>
+            </ol>
+        </div>
+        <div class="container">
+            <img class="" src="{{ url_for('static', filename='images/zone/6.jpg')}}" alt="">
+        </div>
+	</section>
+
+{% endblock main %}

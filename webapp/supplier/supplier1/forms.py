@@ -1,9 +1,11 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, TextAreaField, DateField, IntegerField, HiddenField, RadioField, PasswordField
-from wtforms.validators import ValidationError, Optional, NumberRange, InputRequired, Length
+from wtforms.validators import ValidationError, Optional, NumberRange, InputRequired, Length, Regexp
 from flask_wtf.file import FileField, FileAllowed
 from webapp.database import Connection
 import re
+
+
 
 
 class FiltersForm(FlaskForm):
@@ -17,22 +19,14 @@ class FiltersForm(FlaskForm):
 
 class OrderAddForm(FlaskForm):
     order_type = RadioField('Хүргэлтийн чиглэл', choices=[(0,'Улаанбаатар'),(1,'Орон нутаг')], validators=[Optional()], default=0)
-    phone = IntegerField('Утасны дугаар', validators=[InputRequired()])
-    phone_more = IntegerField('Нэмэлт утасны дугаар', validators=[Optional()])
+    phone = StringField('Утасны дугаар',validators=[ InputRequired(), Regexp(regex=r"^\d{8}$", message='Зөвхөн тоо ашиглана уу!'), Length(min=8, max=8, message='Орон дутуу байна!')])
+    phone_more = StringField('Нэмэлт утасны дугаар*. (Заавал биш)',validators=[Optional(), Regexp(regex=r"^\d{8}$", message='Зөвхөн тоо ашиглана уу!'), Length(min=8, max=8, message='Орон дутуу байна!')])
     district = SelectField('Дүүрэг', choices=[], validators=[Optional()])
     khoroo = SelectField('Хороо', choices=[], validators=[Optional()])
     aimag = SelectField('Аймаг', choices=[], validators=[Optional()])
     address = TextAreaField('Хаяг', validators=[InputRequired()])
     total_amount = IntegerField('Нийт үнэ', validators=[InputRequired(), NumberRange(min=0)], default=0)
     submit = SubmitField('Үүсгэх')
-
-    def validate_phone(self, phone):
-        allowed_chars = set(("0123456789"))
-        validation = set((str(phone.data)))
-        if validation.issubset(allowed_chars):
-            pass
-        else:
-            raise ValidationError('Зөвхөн тоо ашиглана уу!')
 
     # def validate_district(self, district):
     #     if district.data == "0" or district.data == "Дүүрэг сонгох":
@@ -153,24 +147,21 @@ class PasswordChangeForm(FlaskForm):
     def validate_password(self, password):
         flag = 0
         while True:  
-            if (len(password.data)<8):
+            if (len(password.data.strip())<8):
                 flag = -1
                 raise ValidationError('Нууц үг хамгийн багадаа 8 тэмдэгтэй!')
-            elif not re.search("[a-z]", password.data):
+            elif not re.search("[a-z]", password.data.strip()):
                 flag = -1
                 raise ValidationError('Нууц үг заавал багадаа 1 жижиг үсэг оролцуулсан байх ёстой!')
-            elif not re.search("[A-Z]", password.data):
+            elif not re.search("[A-Z]", password.data.strip()):
                 flag = -1
                 raise ValidationError('Нууц үг заавал багадаа 1 том үсэг оролцуулсан байх ёстой!')
-            elif not re.search("[0-9]", password.data):
+            elif not re.search("[0-9]", password.data.strip()):
                 flag = -1
                 raise ValidationError('Нууц үг заавал багадаа 1 тоо оролцуулсан байх ёстой!')
-            elif not re.search("[_@$!]", password.data):
+            elif not re.search("[_@$!]", password.data.strip()):
                 flag = -1
                 raise ValidationError('Нууц үг заавал багадаа _, @, $, ! аль нэгийг тусгай тэмдэгтийг оролцуулсан байх ёстой!')
-            elif re.search("\s", password.data):
-                flag = -1
-                raise ValidationError('Урд хойно хоосон зай ашигласан байна! Арилгана уу!')
             else:
                 flag = 0
                 break
@@ -178,11 +169,8 @@ class PasswordChangeForm(FlaskForm):
         if flag ==-1:
             pass
 
-        if password.data != password.data.strip():
-            raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
-
     def validate_password_again(self, confirm_password, password):
-        if password.data != confirm_password.data:
+        if password.data.strip() != confirm_password.data.strip():
             raise ValidationError('Нууц үгнүүд таарахгүй байна!')
 
 

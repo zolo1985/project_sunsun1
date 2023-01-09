@@ -41,10 +41,14 @@
                                         <th scope="col" class="bg-grad">Бэлэн бус</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="text-center align-middle">
+                                    {% set total_amount = namespace(value=0) %}
+                                    {% set belen_amount = namespace(value=0) %}
+                                    {% set belen_bus_amount = namespace(value=0) %}
+                                    {% set transfer_amount = namespace(value=0) %}
                                     {% for supplier in suppliers_total %}
                                         <tr>
-                                            <td class="text-center align-middle">
+                                            <td id="supplier_name">
                                                 {{ supplier.supplier_name }}
                                             </td>
                                             <td>
@@ -60,29 +64,33 @@
                                             </td>
                                             <td>
                                                 {{ supplier.total_amount }}
+                                                {% set total_amount.value = total_amount.value + supplier.total_amount %}
                                             </td>
                                             <td>
                                                 {% if supplier.is_invoiced %}
                                                     0
                                                 {% else %}
                                                     {{ supplier.total_delivery_count * supplier.fee }}
+                                                    {% set belen_amount.value = belen_amount.value + supplier.total_delivery_count * supplier.fee %}
                                                 {% endif %}
                                             </td>
                                             <td>
                                                 {% if supplier.is_invoiced %}
                                                     {{ supplier.total_amount }}
+                                                    {% set transfer_amount.value = transfer_amount.value + supplier.total_amount %}
                                                 {% else %}
                                                     {% if supplier.total_amount == 0 %}
                                                         {{ supplier.total_amount }}
                                                     {% else %}
                                                         {{ supplier.total_amount - (supplier.total_delivery_count * supplier.fee) }}
+                                                        {% set transfer_amount.value = transfer_amount.value + supplier.total_amount - (supplier.total_delivery_count * supplier.fee) %}
                                                     {% endif %}
-                                                    
                                                 {% endif %}
                                             </td>
                                             <td>
                                                 {% if supplier.is_invoiced %}
-                                                    {{ (supplier.total_delivery_count * supplier.fee) }}
+                                                    {{ supplier.total_delivery_count * supplier.fee }}
+                                                    {% set belen_bus_amount.value = belen_bus_amount.value + supplier.total_delivery_count * supplier.fee %}
                                                 {% else %}
                                                     0
                                                 {% endif %}
@@ -90,6 +98,18 @@
                                         </tr>
                                     {% endfor %}
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td>Нийт</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>{{ total_amount.value }}</td>
+                                        <td>{{ belen_amount.value }}</td>
+                                        <td>{{ transfer_amount.value }}</td>
+                                        <td>{{ belen_bus_amount.value }}</td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     {% endif %}
@@ -97,6 +117,12 @@
             </div>
         </div>
     </section>
+    <script>
+        function transferred() {
+            var supplier_id = $('#example');
+            console.log(supplier_id)
+        }
+    </script>
     <script>
         $(document).ready(function () {
             $('#example').DataTable({
@@ -156,4 +182,5 @@
             });
         });
     </script>
+    
 {% endblock main %}

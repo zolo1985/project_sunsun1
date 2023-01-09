@@ -49,6 +49,8 @@ def clerk_driver_orders():
                     order.received_from_clerk_id = current_user.id
                     order.is_driver_received = True
                     order.received_from_clerk_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+                    if order.initial_received_from_clerk_date is None:
+                        order.initial_received_from_clerk_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                     connection.commit()
                 except Exception as ex:
                     flash('Алдаа гарлаа', 'danger')
@@ -74,61 +76,77 @@ def clerk_driver_orders_history():
     form = FilterDateForm()
 
     if form.validate_on_submit():
-        orders = connection.query(models.Delivery).filter(func.date(models.Delivery.received_from_clerk_date)==form.date.data).all()
+        orders = connection.query(models.Delivery).filter(func.date(models.Delivery.initial_received_from_clerk_date)==form.date.data).all()
         return render_template('/clerk/expenses_history.html', form=form, orders=orders)
 
     return render_template('/clerk/expenses_history.html', form=form, orders=orders)
 
 
-@clerk_expense_blueprint.route('/clerk/expenses/<int:order_id>')
-@login_required
-@has_role('clerk')
-def clerk_driver_orders_expense(order_id):
-    connection = Connection()
-    order_to_expense = connection.query(models.Delivery).filter(models.Delivery.id==order_id).first()
+# @clerk_expense_blueprint.route('/clerk/expenses/<int:order_id>')
+# @login_required
+# @has_role('clerk')
+# def clerk_driver_orders_expense(order_id):
+#     connection = Connection()
+#     order_to_expense = connection.query(models.Delivery).filter(models.Delivery.id==order_id).first()
 
-    if order_to_expense.received_from_clerk_id is not None:
-        flash(f'Хүргэлт хувиарлагдсан байна(өгсөн нярав: %s)'%(order_to_expense.received_from_clerk_name), 'danger')
-        connection.close()
-        return redirect(url_for('clerk_expense.clerk_driver_orders'))
-    else:
-        try:
-            order_to_expense.received_from_clerk_name = f'%s %s'%(current_user.lastname, current_user.firstname)
-            order_to_expense.received_from_clerk_id = current_user.id
-            order_to_expense.received_from_clerk_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-            connection.commit()
-        except Exception():
-            flash('Алдаа гарлаа!', 'danger')
-            connection.rollback()
-            connection.close()
-            return redirect(request.url)
-        else:
-            flash('Хүргэлт амжилттай хүлээлгэж өглөө!', 'success')
-            connection.close()
-            return redirect(request.url)
+#     if order_to_expense.received_from_clerk_id is not None:
+#         flash(f'Хүргэлт хувиарлагдсан байна(өгсөн нярав: %s)'%(order_to_expense.received_from_clerk_name), 'danger')
+#         connection.close()
+#         return redirect(url_for('clerk_expense.clerk_driver_orders'))
+#     else:
+#         try:
+#             order_to_expense.received_from_clerk_name = f'%s %s'%(current_user.lastname, current_user.firstname)
+#             order_to_expense.received_from_clerk_id = current_user.id
+#             order_to_expense.is_driver_received = True
+#             order_to_expense.received_from_clerk_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+#             if order_to_expense.initial_received_from_clerk_date is None:
+#                 order_to_expense.initial_received_from_clerk_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+#             connection.commit()
+#         except Exception():
+#             flash('Алдаа гарлаа!', 'danger')
+#             connection.rollback()
+#             connection.close()
+#             return redirect(request.url)
+#         else:
+#             flash('Хүргэлт амжилттай хүлээлгэж өглөө!', 'success')
+#             connection.close()
+#             return redirect(request.url)
 
 
 
-@clerk_expense_blueprint.route('/clerk/warehouse/expenses/<int:order_id>')
+@clerk_expense_blueprint.route('/clerk/warehouse/expenses/<int:order_id>', methods=['GET','POST'])
 @login_required
 @has_role('clerk')
 def clerk_warehouse_expense(order_id):
     connection = Connection()
     order_to_expense = connection.query(models.Delivery).filter(models.Delivery.id==order_id).first()
 
-    try:
-        order_to_expense.is_received_from_clerk = True
-        order_to_expense.received_from_clerk_name = f'%s %s'%(current_user.lastname, current_user.firstname)
-        order_to_expense.received_from_clerk_id = current_user.id
-        order_to_expense.received_from_clerk_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-        connection.commit()
-    except Exception():
-        flash('Алдаа гарлаа!', 'danger')
-        connection.rollback()
+    if order_to_expense is None:
+        flash('Олдсонгүй!', 'danger')
         connection.close()
         return redirect(url_for('clerk_expense.clerk_manager_orders'))
+
+    if order_to_expense.is_warehouse_pickup:
+        try:
+            order_to_expense.is_received_from_clerk = True
+            order_to_expense.received_from_clerk_name = f'%s %s'%(current_user.lastname, current_user.firstname)
+            order_to_expense.received_from_clerk_id = current_user.id
+            order_to_expense.received_from_clerk_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            if order_to_expense.initial_received_from_clerk_date is None:
+                    order_to_expense.initial_received_from_clerk_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
+            connection.commit()
+        except Exception():
+            flash('Алдаа гарлаа!', 'danger')
+            connection.rollback()
+            connection.close()
+            return redirect(url_for('clerk_expense.clerk_manager_orders'))
+        else:
+            flash('Амжилттай хүлээлгэж өглөө!', 'success')
+            connection.close()
+            return redirect(url_for('clerk_expense.clerk_manager_orders'))
+
     else:
-        flash('Хүргэлт амжилттай хүлээлгэж өглөө!', 'success')
+        flash('Хүргэлт байна. Зөвхөн агуулахаас авч байгаа бол өөрчлөх боломжгүй.', 'info')
         connection.close()
         return redirect(url_for('clerk_expense.clerk_manager_orders'))
 

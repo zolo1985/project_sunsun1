@@ -751,11 +751,11 @@ def manager_order_add():
             connection.flush()
 
             address = models.Address()
-            address.phone = form.phone.data
+            address.phone = form.phone.data.strip()
             address.phone_more = form.phone_more.data
-            address.district = form.district.data
-            address.khoroo = form.khoroo.data
-            address.address = form.address.data
+            address.district = form.district.data.strip()
+            address.khoroo = form.khoroo.data.strip()
+            address.address = form.address.data.strip()
             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
@@ -812,10 +812,10 @@ def manager_order_add():
             connection.flush()
 
             address = models.Address()
-            address.phone = form.phone.data
+            address.phone = form.phone.data.strip()
             address.phone_more = form.phone_more.data
-            address.aimag = form.aimag.data
-            address.address = form.address.data
+            address.aimag = form.aimag.data.strip()
+            address.address = form.address.data.strip()
             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
@@ -868,7 +868,9 @@ def manager_order_add():
             order.assigned_driver_name = f'%s %s'%(current_user.lastname, current_user.firstname)
             order.assigned_manager_id = current_user.id
             order.delivered_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
-            order.delivery_region = "Зүүн"
+            region = connection.query(models.Region).filter(models.Region.name=="Зүүн").first()
+            order.delivery_region = region.name
+            order.delivery_regions.append(region)
             
             order.supplier_company_name = supplier.company_name
             order.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -879,11 +881,10 @@ def manager_order_add():
             connection.flush()
 
             address = models.Address()
-            address.phone = form.phone.data
-            address.phone_more = form.phone_more.data
-            address.district = form.district.data
-            address.khoroo = form.khoroo.data
-            address.address = form.address.data
+            address.phone = "75777222"
+            address.district = "Баянзүрх"
+            address.khoroo = "25"
+            address.address = "Манлайбаатар Дамдинсүрэнгийн гудамж A104-22 тоот"
             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
@@ -926,7 +927,7 @@ def manager_order_add():
                 connection.rollback()
                 return redirect(url_for('manager_order.manager_order_add'))
             else:
-                flash('Хүргэлт нэмэгдлээ.', 'success')
+                flash('Агуулахаас захиалга үүслээ.', 'success')
                 return redirect(url_for('manager_order.manager_order_add'))
 
         return render_template('/manager/order_add.html', form=form)

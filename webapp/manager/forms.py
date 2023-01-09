@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, HiddenField, SelectField, DateField, IntegerField, TextAreaField, RadioField
-from wtforms.validators import Length, Email, EqualTo, ValidationError, InputRequired, Optional, NumberRange, InputRequired
+from wtforms.validators import Length, Email, EqualTo, ValidationError, InputRequired, Optional, NumberRange, InputRequired, Regexp
 from webapp.database import Connection
 from webapp import models
 from datetime import datetime
@@ -98,7 +98,7 @@ class NewAccountForm(FlaskForm):
     firstname = StringField('Нэр', validators=[InputRequired()])
     lastname = StringField('Овог', validators=[InputRequired()])
     email = StringField('И-мэйл', validators=[InputRequired(), Email(message='И-мэйл хаяг оруулна уу!')])
-    phone = StringField('Утасны дугаар', validators=[InputRequired()])
+    phone = StringField('Утасны дугаар',validators=[ InputRequired(), Regexp(regex=r"^\d{8}$", message='Зөвхөн тоо ашиглана уу!'), Length(min=8, max=8, message='Орон дутуу байна!')])
     password = PasswordField('Нууц үг', validators=[InputRequired(), Length(min=3, max=50)])
     select_user_role = SelectField('Хэрэглэгчийн төрөл', choices=[], validators=[InputRequired()])
     submit = SubmitField('Хэрэглэгч нэмэх')
@@ -134,15 +134,8 @@ class NewAccountForm(FlaskForm):
             raise ValidationError('Энэ имэйл хаяг өөр данс нь дээр бүртгэлтэй байна! Өөр имэйл хаяг ашиглана уу!')
 
     def validate_phone(self, phone):
-        allowed_chars = set(("0123456789+"))
-        validation = set((phone.data))
-        if validation.issubset(allowed_chars):
-            pass
-        else:
-            raise ValidationError('Зөвхөн тоо ашиглана уу!')
-
         connection = Connection()
-        account = connection.query(models.User).filter_by(phone=phone.data).first()
+        account = connection.query(models.User).filter_by(phone=phone.data.strip()).first()
         connection.close()
         if account:
             raise ValidationError('Энэ утас өөр данс нь дээр бүртгэлтэй байна! Өөр утас ашиглана уу!')
@@ -150,7 +143,7 @@ class NewAccountForm(FlaskForm):
 
 class EditAccountForm(FlaskForm):
     email = StringField('И-мэйл', validators=[InputRequired(), Email(message='И-мэйл хаяг оруулна уу!')])
-    phone = StringField('Утасны дугаар', validators=[InputRequired()])
+    phone = StringField('Утасны дугаар',validators=[InputRequired(), Regexp(regex=r"^\d{8}$", message='Зөвхөн тоо ашиглана уу!'), Length(min=8, max=8, message='Орон дутуу байна!')])
     fee = IntegerField('Хүргэлтийн төлбөр', validators=[InputRequired(), NumberRange(min=0)])
     submit = SubmitField('Өөрчлөх')
 
@@ -178,15 +171,8 @@ class EditAccountForm(FlaskForm):
             raise ValidationError('Энэ имэйл хаяг өөр данс нь дээр бүртгэлтэй байна! Өөр имэйл хаяг ашиглана уу!')
 
     def validate_phone(self, phone):
-        allowed_chars = set(("0123456789+"))
-        validation = set((phone.data))
-        if validation.issubset(allowed_chars):
-            pass
-        else:
-            raise ValidationError('Зөвхөн тоо ашиглана уу!')
-
         connection = Connection()
-        account = connection.query(models.User).filter_by(phone=phone.data).all()
+        account = connection.query(models.User).filter_by(phone=phone.data.strip()).all()
         connection.close()
         if len(account)>1:
             raise ValidationError('Энэ утас өөр данс нь дээр бүртгэлтэй байна! Өөр утас ашиглана уу!')
@@ -225,8 +211,8 @@ class OrderAddForm(FlaskForm):
     delivery_type = RadioField('Төрөл', choices=[(0,'Хүргэлт'),(1,'Агуулахаас')], validators=[Optional()], default=0)
     order_type = RadioField('Хүргэлтийн чиглэл', choices=[(0,'Улаанбаатар'),(1,'Орон нутаг')], validators=[Optional()], default=0)
     suppliers = SelectField('Харилцагч', choices=[], validators=[InputRequired()])
-    phone = IntegerField('Утасны дугаар', validators=[InputRequired()])
-    phone_more = IntegerField('Нэмэлт утасны дугаар', validators=[Optional()])
+    phone = StringField('Утасны дугаар',validators=[ InputRequired(), Regexp(regex=r"^\d{8}$", message='Зөвхөн тоо ашиглана уу!'), Length(min=8, max=8, message='Орон дутуу байна!')])
+    phone_more = StringField('Нэмэлт утасны дугаар*. (Заавал биш)',validators=[Optional(), Regexp(regex=r"^\d{8}$", message='Зөвхөн тоо ашиглана уу!'), Length(min=8, max=8, message='Орон дутуу байна!')])
     district = SelectField('Дүүрэг', choices=[], validators=[Optional()])
     khoroo = SelectField('Хороо', choices=[], validators=[Optional()])
     aimag = SelectField('Аймаг', choices=[], validators=[Optional()])
@@ -234,14 +220,6 @@ class OrderAddForm(FlaskForm):
     # comment = TextAreaField('Тэмдэглэгээ', validators=[Optional()])
     total_amount = IntegerField('Нийт үнэ', validators=[InputRequired(), NumberRange(min=0)], default=0)
     submit = SubmitField('Үүсгэх')
-
-    def validate_phone(self, phone):
-        allowed_chars = set(("0123456789"))
-        validation = set((str(phone.data)))
-        if validation.issubset(allowed_chars):
-            pass
-        else:
-            raise ValidationError('Зөвхөн тоо ашиглана уу!')
 
     # def validate_district(self, district):
     #     if district.data == "0" or district.data == "Дүүрэг сонгох":

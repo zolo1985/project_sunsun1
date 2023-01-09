@@ -365,6 +365,7 @@ class Delivery(Base):
     received_from_clerk_name                 = Column(Unicode(255))
     received_from_clerk_id                   = Column(Integer)
     received_from_clerk_date                 = Column(DateTime)
+    initial_received_from_clerk_date         = Column(DateTime)
 
     processed_accountant_id                  = Column(Integer)
     delivery_region                          = Column(Unicode(255))

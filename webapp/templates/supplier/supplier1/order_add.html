@@ -393,6 +393,12 @@
             document.getElementById('calculateTotal').value = parseInt(document.getElementById('calculateTotal').value) - thisrow;
         }
     </script>
+    <script>
+        $(window).on('load', function(){
+            document.getElementById('calculateTotal').value = 0;
+            console.log(document.getElementById('calculateTotal').value);
+        });
+    </script>
     <table style="display: none;">
         <tbody id="tr-placeholder">
             <tr>
