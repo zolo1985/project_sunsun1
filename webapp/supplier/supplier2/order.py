@@ -81,11 +81,11 @@ def supplier2_order_add():
             for i, phone in enumerate(line_phone):
                 if line_order_type[i] == "true":
                     pickup_task_detail = models.PickupTaskDetail()
-                    pickup_task_detail.phone = phone.strip()
+                    pickup_task_detail.phone = phone
                     pickup_task_detail.phone_more = line_phone_more[i]
-                    pickup_task_detail.district = line_district[i].strip()
-                    pickup_task_detail.khoroo = line_khoroo[i].strip()
-                    pickup_task_detail.address = line_address[i].strip()
+                    pickup_task_detail.district = line_district[i]
+                    pickup_task_detail.khoroo = line_khoroo[i]
+                    pickup_task_detail.address = line_address[i]
                     pickup_task_detail.total_amount = line_total_amount[i]
                     pickup_task_detail.destination_type = "local"
                     pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -95,10 +95,10 @@ def supplier2_order_add():
 
                 elif line_order_type[i] == "false":
                     pickup_task_detail = models.PickupTaskDetail()
-                    pickup_task_detail.phone = phone.strip()
+                    pickup_task_detail.phone = phone
                     pickup_task_detail.phone_more = line_phone_more[i]
-                    pickup_task_detail.aimag = line_aimag[i].strip()
-                    pickup_task_detail.address = line_address[i].strip()
+                    pickup_task_detail.aimag = line_aimag[i]
+                    pickup_task_detail.address = line_address[i]
                     pickup_task_detail.total_amount = line_total_amount[i]
                     pickup_task_detail.destination_type = "long"
                     pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -122,11 +122,11 @@ def supplier2_order_add():
             for i, phone in enumerate(line_phone):
                 if line_order_type[i] == "true":
                     pickup_task_detail = models.PickupTaskDetail()
-                    pickup_task_detail.phone = phone.strip()
+                    pickup_task_detail.phone = phone
                     pickup_task_detail.phone_more = line_phone_more[i]
-                    pickup_task_detail.district = line_district[i].strip()
-                    pickup_task_detail.khoroo = line_khoroo[i].strip()
-                    pickup_task_detail.address = line_address[i].strip()
+                    pickup_task_detail.district = line_district[i]
+                    pickup_task_detail.khoroo = line_khoroo[i]
+                    pickup_task_detail.address = line_address[i]
                     pickup_task_detail.total_amount = line_total_amount[i]
                     pickup_task_detail.destination_type = "local"
                     pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -136,10 +136,10 @@ def supplier2_order_add():
 
                 elif line_order_type[i] == "false":
                     pickup_task_detail = models.PickupTaskDetail()
-                    pickup_task_detail.phone = phone.strip()
+                    pickup_task_detail.phone = phone
                     pickup_task_detail.phone_more = line_phone_more[i]
-                    pickup_task_detail.aimag = line_aimag[i].strip()
-                    pickup_task_detail.address = line_address[i].strip()
+                    pickup_task_detail.aimag = line_aimag[i]
+                    pickup_task_detail.address = line_address[i]
                     pickup_task_detail.total_amount = line_total_amount[i]
                     pickup_task_detail.destination_type = "long"
                     pickup_task_detail.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
@@ -234,17 +234,17 @@ def supplier2_order_edit(pickup_task_id, pickup_task_detail_id):
 
     if form.validate_on_submit():
         
-        task_detail.phone = form.phone.data.strip()
+        task_detail.phone = form.phone.data
         task_detail.phone_more = form.phone_more.data
 
         if task_detail.destination_type == "local":
-            task_detail.district = form.district.data.strip()
-            task_detail.khoroo = form.khoroo.data.strip()
+            task_detail.district = form.district.data
+            task_detail.khoroo = form.khoroo.data
         
         if task_detail.destination_type == "long":
-            task_detail.aimag = form.aimag.data.strip()
+            task_detail.aimag = form.aimag.data
         
-        task_detail.address = form.address.data.strip()
+        task_detail.address = form.address.data
         task_detail.total_amount = form.total_amount.data
 
         try:
@@ -259,12 +259,12 @@ def supplier2_order_edit(pickup_task_id, pickup_task_detail_id):
             return redirect(url_for('supplier2_order.supplier2_orders_ready'))
 
     elif request.method == 'GET':
-        form.phone.data = task_detail.phone.strip()
+        form.phone.data = task_detail.phone
         form.phone_more.data = task_detail.phone_more
-        form.district.data = task_detail.district.strip()
-        form.khoroo.data = task_detail.khoroo.strip()
-        form.aimag.data = task_detail.aimag.strip()
-        form.address.data = task_detail.address.strip()
+        form.district.data = task_detail.district
+        form.khoroo.data = task_detail.khoroo
+        form.aimag.data = task_detail.aimag
+        form.address.data = task_detail.address
         form.total_amount.data = task_detail.total_amount
         return render_template('/supplier/supplier2/order_edit.html', form=form, task_detail=task_detail)
 

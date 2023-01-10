@@ -105,7 +105,7 @@ class NewAccountForm(FlaskForm):
 
     def validate_company_name(self, company_name):
         connection = Connection()
-        is_company_name = connection.query(models.User).filter_by(company_name=company_name.data.strip()).count()
+        is_company_name = connection.query(models.User).filter_by(company_name=company_name.data).count()
         connection.close()
         if is_company_name>=1:
             raise ValidationError('Ийм нэртэй харилцагч бүртгэлтэй байна! Өөр нэр сонгоно уу!')
@@ -128,14 +128,14 @@ class NewAccountForm(FlaskForm):
 
     def validate_email(self, email):
         connection = Connection()
-        account = connection.query(models.User).filter_by(email=email.data.strip()).first()
+        account = connection.query(models.User).filter_by(email=email.data).first()
         connection.close()
         if account:
             raise ValidationError('Энэ имэйл хаяг өөр данс нь дээр бүртгэлтэй байна! Өөр имэйл хаяг ашиглана уу!')
 
     def validate_phone(self, phone):
         connection = Connection()
-        account = connection.query(models.User).filter_by(phone=phone.data.strip()).first()
+        account = connection.query(models.User).filter_by(phone=phone.data).first()
         connection.close()
         if account:
             raise ValidationError('Энэ утас өөр данс нь дээр бүртгэлтэй байна! Өөр утас ашиглана уу!')
@@ -165,14 +165,14 @@ class EditAccountForm(FlaskForm):
 
     def validate_email(self, email):
         connection = Connection()
-        account = connection.query(models.User).filter_by(email=email.data.strip()).all()
+        account = connection.query(models.User).filter_by(email=email.data).all()
         connection.close()
         if len(account)>1:
             raise ValidationError('Энэ имэйл хаяг өөр данс нь дээр бүртгэлтэй байна! Өөр имэйл хаяг ашиглана уу!')
 
     def validate_phone(self, phone):
         connection = Connection()
-        account = connection.query(models.User).filter_by(phone=phone.data.strip()).all()
+        account = connection.query(models.User).filter_by(phone=phone.data).all()
         connection.close()
         if len(account)>1:
             raise ValidationError('Энэ утас өөр данс нь дээр бүртгэлтэй байна! Өөр утас ашиглана уу!')
@@ -249,7 +249,7 @@ class AddColorForm(FlaskForm):
 
     def validate_color_name(self, color_name):
         connection = Connection()
-        color = connection.query(models.ProductColor).filter_by(name=color_name.data.strip()).all()
+        color = connection.query(models.ProductColor).filter_by(name=color_name.data).all()
         connection.close()
         if len(color)>0:
             raise ValidationError('Энэ өнгө бүртгэлтэй байна! Өөр нэр ашиглана уу!')
@@ -260,7 +260,7 @@ class AddSizeForm(FlaskForm):
 
     def validate_size_name(self, size_name):
         connection = Connection()
-        size = connection.query(models.ProductSize).filter_by(name=size_name.data.strip()).all()
+        size = connection.query(models.ProductSize).filter_by(name=size_name.data).all()
         connection.close()
         if len(size)>0:
             raise ValidationError('Энэ хэмжээ бүртгэлтэй байна! Өөр нэр ашиглана уу!')
@@ -301,7 +301,7 @@ class PasswordChangeForm(FlaskForm):
         if flag ==-1:
             pass
 
-        if password.data != password.data.strip():
+        if password.data != password.data:
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
     def validate_password_again(self, confirm_password, password):

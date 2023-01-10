@@ -55,7 +55,7 @@ class PasswordChangeForm(FlaskForm):
         if flag ==-1:
             pass
 
-        if password.data != password.data.strip():
+        if password.data != password.data:
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
     def validate_password_again(self, confirm_password, password):

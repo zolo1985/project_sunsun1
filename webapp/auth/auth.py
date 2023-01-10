@@ -22,16 +22,16 @@ def signin():
 
     if form.validate_on_submit():
         connection = Connection()
-        user = connection.query(models.User).filter_by(email=form.email.data.strip()).first()
+        user = connection.query(models.User).filter_by(email=form.email.data).first()
         if user:
-                if user.status == "unverified" and user.check_password(form.password.data.strip()):
+                if user.status == "unverified" and user.check_password(form.password.data):
                     flash('Таны данс баталгаажаагүй байна! Та менежертэй холбогдоно уу!', 'info')
                     return render_template('/auth/signin.html', form=form, title='Нэвтрэх')
-                elif user.is_authorized == False and user.check_password(form.password.data.strip()):
+                elif user.is_authorized == False and user.check_password(form.password.data):
                     flash('Таны данс хаагдсан байна. Менежертэй холбогдоно уу!', 'info')
                     return render_template('/auth/signin.html', form=form, title='Нэвтрэх')
                 else:
-                    if user.check_password(form.password.data.strip()):
+                    if user.check_password(form.password.data):
                         login_user(user)
                         flash(f"Сайна байна уу %s!"%(user.firstname), category="success")
                         return redirect(url_for('main.home'))
@@ -60,7 +60,7 @@ def reset_request():
     form = RequestResetForm()
     if form.validate_on_submit():
         connection = Connection()
-        user = connection.query(models.User).filter_by(email=form.email.data.strip()).first()
+        user = connection.query(models.User).filter_by(email=form.email.data).first()
         connection.close()
 
         if user:
@@ -111,7 +111,7 @@ def reset_password(token):
         try:
             connection = Connection()
             user = connection.query(models.User).filter_by(email=user_email).first()
-            hashed_password = bcrypt.generate_password_hash(form.password.data.strip())
+            hashed_password = bcrypt.generate_password_hash(form.password.data)
             user.password = hashed_password
             connection.commit()
         except Exception:

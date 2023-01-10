@@ -751,11 +751,11 @@ def manager_order_add():
             connection.flush()
 
             address = models.Address()
-            address.phone = form.phone.data.strip()
+            address.phone = form.phone.data
             address.phone_more = form.phone_more.data
-            address.district = form.district.data.strip()
-            address.khoroo = form.khoroo.data.strip()
-            address.address = form.address.data.strip()
+            address.district = form.district.data
+            address.khoroo = form.khoroo.data
+            address.address = form.address.data
             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
@@ -812,10 +812,10 @@ def manager_order_add():
             connection.flush()
 
             address = models.Address()
-            address.phone = form.phone.data.strip()
+            address.phone = form.phone.data
             address.phone_more = form.phone_more.data
-            address.aimag = form.aimag.data.strip()
-            address.address = form.address.data.strip()
+            address.aimag = form.aimag.data
+            address.address = form.address.data
             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 

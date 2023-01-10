@@ -62,19 +62,19 @@ class PasswordChangeForm(FlaskForm):
     def validate_password(self, password):
         flag = 0
         while True:  
-            if (len(password.data.strip())<8):
+            if (len(password.data)<8):
                 flag = -1
                 raise ValidationError('Нууц үг хамгийн багадаа 8 тэмдэгтэй!')
-            elif not re.search("[a-z]", password.data.strip()):
+            elif not re.search("[a-z]", password.data):
                 flag = -1
                 raise ValidationError('Нууц үг заавал багадаа 1 жижиг үсэг оролцуулсан байх ёстой!')
-            elif not re.search("[A-Z]", password.data.strip()):
+            elif not re.search("[A-Z]", password.data):
                 flag = -1
                 raise ValidationError('Нууц үг заавал багадаа 1 том үсэг оролцуулсан байх ёстой!')
-            elif not re.search("[0-9]", password.data.strip()):
+            elif not re.search("[0-9]", password.data):
                 flag = -1
                 raise ValidationError('Нууц үг заавал багадаа 1 тоо оролцуулсан байх ёстой!')
-            elif not re.search("[_@$!]", password.data.strip()):
+            elif not re.search("[_@$!]", password.data):
                 flag = -1
                 raise ValidationError('Нууц үг заавал багадаа _, @, $, ! аль нэгийг тусгай тэмдэгтийг оролцуулсан байх ёстой!')
             else:
@@ -85,7 +85,7 @@ class PasswordChangeForm(FlaskForm):
             pass
 
     def validate_password_again(self, confirm_password, password):
-        if password.data.strip() != confirm_password.data.strip():
+        if password.data != confirm_password.data:
             raise ValidationError('Нууц үгнүүд таарахгүй байна!')
 
 

@@ -102,11 +102,11 @@ def supplier1_order_add():
             connection.flush()
 
             address = models.Address()
-            address.phone = form.phone.data.strip()
+            address.phone = form.phone.data
             address.phone_more = form.phone_more.data
-            address.district = form.district.data.strip()
-            address.khoroo = form.khoroo.data.strip()
-            address.address = form.address.data.strip()
+            address.district = form.district.data
+            address.khoroo = form.khoroo.data
+            address.address = form.address.data
             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
@@ -174,10 +174,10 @@ def supplier1_order_add():
             connection.flush()
             
             address = models.Address()
-            address.phone = form.phone.data.strip()
+            address.phone = form.phone.data
             address.phone_more = form.phone_more.data
-            address.aimag = form.aimag.data.strip()
-            address.address = form.address.data.strip()
+            address.aimag = form.aimag.data
+            address.address = form.address.data
             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
             
@@ -338,10 +338,10 @@ def supplier1_order_add_excel():
                             current_user.deliveries.append(new_order)
 
                             address = models.Address()
-                            address.phone = order["Утасны дугаар"].strip()
-                            address.district = order["Дүүрэг"].strip()
-                            address.khoroo = order["Хороо"].strip()
-                            address.address = order["Хаяг"].strip()
+                            address.phone = order["Утасны дугаар"]
+                            address.district = order["Дүүрэг"]
+                            address.khoroo = order["Хороо"]
+                            address.address = order["Хаяг"]
                             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 
@@ -383,9 +383,9 @@ def supplier1_order_add_excel():
                             current_user.deliveries.append(new_order)
 
                             address = models.Address()
-                            address.phone = order["Утасны дугаар"].strip()
-                            address.aimag = order["Аймаг"].strip()
-                            address.address = order["Хаяг"].strip()
+                            address.phone = order["Утасны дугаар"]
+                            address.aimag = order["Аймаг"]
+                            address.address = order["Хаяг"]
                             address.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
                             address.modified_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
 

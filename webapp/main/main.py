@@ -29,3 +29,7 @@ def customer_feedback():
 @main_blueprint.route('/contact-us')
 def contact_us():
     return render_template('/main/contact_us.html', title='Холбоо барих')
+
+@main_blueprint.route('/privacy')
+def privacy():
+    return render_template('/main/privacy.html', title='Хувийн мэдээлэл')

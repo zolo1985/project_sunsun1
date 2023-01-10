@@ -31,11 +31,10 @@ def manager_pickups():
         line_select_drivers_id = request.form.getlist("select_drivers")
         line_select_day = request.form.getlist("select_day")
 
-        print(line_task_id)
-        print(line_select_drivers_id)
-        print(line_select_day)
+        
 
         for i, task in enumerate(line_task_id):
+            print(line_select_drivers_id[i])
             if line_select_drivers_id[i] == "0":
                 continue
 

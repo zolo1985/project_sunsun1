@@ -36,7 +36,7 @@ class SignUpForm(FlaskForm):
         else:
             raise ValidationError('Зөвхөн үсэг тоо ашиглана уу!')
 
-        if company_name.data != company_name.data.strip():
+        if company_name.data != company_name.data:
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
     def validate_firstname(self, firstname):
@@ -47,7 +47,7 @@ class SignUpForm(FlaskForm):
         else:
             raise ValidationError('Зөвхөн үсэг тоо ашиглана уу!')
 
-        if firstname.data != firstname.data.strip():
+        if firstname.data != firstname.data:
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
     def validate_lastname(self, lastname):
@@ -58,12 +58,12 @@ class SignUpForm(FlaskForm):
         else:
             raise ValidationError('Зөвхөн үсэг тоо ашиглана уу!')
 
-        if lastname.data != lastname.data.strip():
+        if lastname.data != lastname.data:
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
     def validate_email(self, email):
         connection = Connection()
-        account = connection.query(models.User).filter_by(email=email.data.strip()).first()
+        account = connection.query(models.User).filter_by(email=email.data).first()
         connection.close()
         if account:
             raise ValidationError('Энэ имэйл хаяг өөр данс нь дээр бүртгэлтэй байна! Өөр имэйл хаяг ашиглана уу!')
@@ -76,7 +76,7 @@ class SignUpForm(FlaskForm):
         else:
             raise ValidationError('Зөвхөн тоо ашиглана уу!')
 
-        if phone.data != phone.data.strip():
+        if phone.data != phone.data:
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
         connection = Connection()
@@ -113,7 +113,7 @@ class SignUpForm(FlaskForm):
         if flag ==-1:
             pass
 
-        if password.data != password.data.strip():
+        if password.data != password.data:
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
     def validate_password_again(self, confirm_password, password):
@@ -127,7 +127,7 @@ class RequestResetForm(FlaskForm):
 
     def validate_email(self, email):
         connection = Connection()
-        account = connection.query(models.User).filter_by(email=email.data.strip()).first()
+        account = connection.query(models.User).filter_by(email=email.data).first()
         connection.close()
         if account is None:
             raise ValidationError('Хэрэглэгч олдсонгүй!')
@@ -165,7 +165,7 @@ class ResetPasswordForm(FlaskForm):
         if flag ==-1:
             pass
 
-        if password.data != password.data.strip():
+        if password.data != password.data:
             raise ValidationError("Урд хойно хоосон зай ашигласан байна! Арилгана уу!")
 
     def validate_password_again(self, confirm_password, password):

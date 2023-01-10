@@ -40,8 +40,8 @@ def account(account_id):
 
     if form.validate_on_submit():
         account_to_update = connection.query(models.User).get(account_id)
-        account_to_update.email = form.email.data.strip()
-        account_to_update.phone = form.phone.data.strip()
+        account_to_update.email = form.email.data
+        account_to_update.phone = form.phone.data
         account_to_update.fee = form.fee.data
 
         try:
@@ -56,8 +56,8 @@ def account(account_id):
             return redirect(url_for('admin_account.accounts'))
 
     elif request.method == 'GET':
-        form.email.data = account.email.strip()
-        form.phone.data = account.phone.strip()
+        form.email.data = account.email
+        form.phone.data = account.phone
         form.fee.data = account.fee
         return render_template('/admin/account.html', form=form, account=account)
     return render_template('/admin/account.html', form=form, account=account)
@@ -294,13 +294,13 @@ def admin_add_account():
         try:
             hashed_password = bcrypt.generate_password_hash(form.password.data)
             user = models.User()
-            user.company_name = form.company_name.data.lower().strip()
-            user.firstname = form.firstname.data.lower().strip()
-            user.lastname = form.lastname.data.lower().strip()
+            user.company_name = form.company_name.data.lower()
+            user.firstname = form.firstname.data.lower()
+            user.lastname = form.lastname.data.lower()
             user.password = hashed_password
             user.status = "verified"
-            user.email = form.email.data.strip()
-            user.phone = form.phone.data.strip()
+            user.email = form.email.data
+            user.phone = form.phone.data
             user_role = connection.query(models.Role).filter_by(name=switch_role(form.select_user_role.data)).first()
             user.roles.append(user_role)
             user.created_date = datetime.now(pytz.timezone("Asia/Ulaanbaatar"))
